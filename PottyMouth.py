@@ -166,7 +166,7 @@ class Node(list):
 
 
     def __init__(self, name, *contents, **kw):
-        super(list, self).__init__(self)
+        super(list, self).__init__()
         self.name = name.lower()
         self.extend(contents)
         self._attributes = kw.get('attributes', {})
