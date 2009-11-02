@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Debian rules file for python-icalendar
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# Python
+DEB_PYTHON_SYSTEM=pysupport
+
+################################################################################
+# CDBS File Inclusions and Variable Declarations
+################################################################################
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+include /usr/share/cdbs/1/class/python-distutils.mk
+
+# Careful, fails to recognize epochs
+UPSTREAM_VERSION=$(shell dpkg-parsechangelog|sed -n -e 's/^Version: \(.*\)-.*/\1/ p')
+
+# Pure python library for site-python directory
+#DEB_PYTHON_INSTALL_ARGS_ALL = --no-compile -O0 --install-purelib=/usr/lib/site-python
+
+clean::
+	-find -name \*.pyc -exec rm \{\} \;

@@ -1,0 +1,23 @@
+Source: python-pottymouth
+Section: python
+Priority: optional
+Maintainer: Matt Chisholm <matt@mosuki.com>
+Uploaders: Matt Chisholm <matt@mosuki.com>
+Build-Depends: cdbs (>= 0.4.46), python-dev (>= 2.4.3-11), debhelper (>= 5.0.37.3), python-support (>= 0.5.3)
+Standards-Version: 3.7.2.0
+
+
+Package: python-pottymouth
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Provides: ${python:Provides}
+Description: transform unstructured, untrusted text to safe, valid XHTML
+ PottyMouth transforms completely unstructured and untrusted 
+ text to valid, nice-looking, completely safe XHTML.
+ .
+ PottyMouth is designed to handle input text from non-technical,
+ potentially careless or malicious users. It produces HTML that is
+ completely safe, programmatically and visually, to include on any web
+ page. And you don't need to make your users read any instructions
+ before they start typing. They don't even need to know that
+ PottyMouth is being used.

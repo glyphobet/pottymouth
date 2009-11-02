@@ -1,0 +1,10 @@
+include readme.html
+include LICENSE.txt
+include setup.py
+include test.py
+include web.py
+include debian/changelog
+include debian/control
+include debian/copyright
+include debian/pyversions
+include debian/rules
