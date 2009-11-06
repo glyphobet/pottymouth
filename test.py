@@ -4,8 +4,39 @@
 from difflib import Differ
 from PottyMouth import PottyMouth, Node
 
-contents = (
-    ("""
+
+
+class basic_tests(object):
+
+    def setup(self):
+        self.parser = PottyMouth(
+            url_check_domains=('mysite.com',),
+            url_white_lists=(
+                'https?://mysite\.com/allowed/service',
+                'https?://mysite\.com/safe/url',
+            ),
+       )
+
+
+    def test_repr(self):
+        assert repr(self.parser.parse(u"foo • bar")) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
+        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
+
+
+    def _helper(self, source, output):
+        blocks = self.parser.parse(source)
+        generated = '\n'.join(map(str, blocks))
+        expected  = '\n'.join(map(str, output))
+        if generated != expected:
+            d = Differ()
+            result = list(d.compare(expected.split('\n'), generated.split('\n')))
+            print '\n'.join(result)
+            print source
+            assert generated == expected
+
+
+    def test_some_paragraphs(self):
+        self._helper("""
 Here is a _paragraph_ with big _fat_ long text lines
 that go *on and_ on* forever with no end in sight.
 
@@ -33,8 +64,11 @@ Will wonders ever cease?
            Node('span', ' is my site \nWill wonders ever cease? '),
            )
       ]
-     ),
-    ("""
+    )
+
+
+    def test_short_lines(self):
+        self._helper("""
 this paragraph
 has short
 lines so it
@@ -59,9 +93,11 @@ place
            Node('span', 'place '),
            )
       ]
-     ),
+         )
 
-    ("""This paragraph has a list embedded in the middle of itself:
+
+    def test_mid_paragraph_list(self):
+        self._helper("""This paragraph has a list embedded in the middle of itself:
 item one
 item two
 item three
@@ -78,9 +114,11 @@ See, wasn't that easy?""",
            Node('span', u'See, wasn\u2019t that easy?')
            ),
       ]
-     ),
+         )
 
-    ("""
+
+    def test_beginning_paragraph_list(self):
+        self._helper("""
 item one
 item two
 item three
@@ -95,9 +133,11 @@ See, wasn't that easy?""",
            Node('span', u'See, wasn\u2019t that easy?')
            ),
       ]
-     ),
-    
-    ("""This paragraph has a list embedded in the middle of itself:
+         )
+
+
+    def test_end_paragraph_list(self):
+        self._helper("""This paragraph has a list embedded in the middle of itself:
 item one
 item two
 item thre
@@ -112,9 +152,11 @@ item thre
            Node('span', 'item thre '),
            ),
       ]
-     ),
+         )
 
-    ("""
+
+    def test_hard_text_wrapped_paragraph(self):
+        self._helper("""
 This paragraph is classic and typical evidence of why the process of hard text
 wrapping
 was ultimately a short-sighted practice that was deeply, wholly and firmly
@@ -133,9 +175,11 @@ of programming.
                 ),
            )
       ]
-     ),
+         )
 
-    ("""
+
+    def test_reply_to_a_reply(self):
+        self._helper("""
 This is a reply to an reply
 > this is a reply
 > > this is the original
@@ -186,9 +230,11 @@ no news
             Node('span', 'no news  ')
             )
        ]
-     ),
+       )
 
-    ("""You suck
+
+    def test_reply_reply_reply(self):
+        self._helper("""You suck
 > no, you suck
 >> no, really, you suck
 >>> I told you, you are the sucky one
@@ -226,9 +272,11 @@ eat shit some more """,
            Node('span', 'eat shit some more ')
            ),
       ]
-     ),
+    )
 
-    (""">>> this begins a deep quote
+
+    def test_triple_deep_quote_by_itself(self):
+        self._helper(""">>> this begins a deep quote
 >>> this ends a deep quote
 """,
      [Node('p',
@@ -248,11 +296,12 @@ eat shit some more """,
                      ),
                 ),
            ),
-                
-    ]
+      ]
+        )
 
-     ),
-    (""">>>> a very very deep quote
+
+    def test_alternating_quote_depth(self):
+        self._helper(""">>>> a very very deep quote
 >> not so deep of a quote
 >>> middle of the road
 > deatherly quotingly
@@ -284,9 +333,11 @@ eat shit some more """,
                 ),
            ),
       ]
-     ),
+     )
 
-    ( """> early in the quote
+
+    def test_early_deep_quote(self):
+        self._helper("""> early in the quote
 >>>> deep in the quote
 not quoted at all
 """,
@@ -313,9 +364,11 @@ not quoted at all
              Node('span', 'not quoted at all '),
              )
         ]
-      ),
+        )
 
-    ("""This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else."""
+
+    def test_allowed_and_disallowed_urls(self):
+        self._helper("""This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else."""
     ,
      [Node('p',
            Node('span', 'This should be a URL '),
@@ -327,14 +380,17 @@ not quoted at all
            Node('span', '.'),
            )
       ]
-     ),
-    ('fran\xc3\xa7aise'.decode('utf8'),
-     [Node('p',
-           Node('span', u'fran\u00e7aise')
-           ),
-      ]
-     ),
-    ("""short line
+     )
+
+
+    def encoding_test(self):
+        self._helper('fran\xc3\xa7aise'.decode('utf8'),
+            [Node('p', Node('span', u'fran\u00e7aise')),]
+         )
+
+
+    def test_short_then_long_line(self):
+        self._helper("""short line
 short line
 short line
 a very very long line that surpasses the maximum short line length""",
@@ -348,8 +404,11 @@ a very very long line that surpasses the maximum short line length""",
            Node('span', 'a very very long line that surpasses the maximum short line length'),
            )
       ]
-     ),
-    ("""two short lines
+         )
+
+
+    def test_two_short_lines(self):
+        self._helper("""two short lines
 all by themselves
 """,
      [Node('p',
@@ -358,22 +417,31 @@ all by themselves
            Node('span', 'all by themselves '),
            )
       ]
-     ),
-    ("""***just a bold***""",
+         )
+
+
+    def test_bold(self):
+        self._helper("""***just a bold***""",
      [Node('p',
            Node('b',
                 Node('span', 'just a bold'),
                 ),
            ),
       ]
-    ),
-    ("""**the Higgs Boson is not bold**""",
+        )
+
+
+    def test_not_bold(self):
+        self._helper("""**the Higgs Boson is not bold**""",
      [Node('p',
            Node('span', 'the Higgs Boson is not bold'),
            ),
       ]
-    ),
-    ("A paragraph separated from the next one with a line\n"
+          )
+
+
+    def test_only_whitespace_line(self):
+        self._helper("A paragraph separated from the next one with a line\n"
      "    \n"
      "that contains just some whitespace becomes two paragraphs\n",
      [Node('p',
@@ -383,8 +451,11 @@ all by themselves
            Node('span', 'that contains just some whitespace becomes two paragraphs ')
            ),
       ]
-     ),
-    ("A paragraph separated from the next one with a line\n"
+         )
+
+
+    def test_only_tabspace_line(self):
+        self._helper("A paragraph separated from the next one with a line\n"
      "\t\n"
      "that contains just a tab becomes two paragraphs\n",
      [Node('p',
@@ -394,24 +465,33 @@ all by themselves
            Node('span', 'that contains just a tab becomes two paragraphs ')
            ),
       ]
-     ),
-    ("this is someone's e.mail@email.com address",
+         )
+
+
+    def test_email_hyperlink(self):
+        self._helper("this is someone's e.mail@email.com address",
      [Node('P',
            Node('span', u"this is someone\u2019s "),
            Node('a', 'e.mail@email.com', attributes={'href':'mailto:e.mail@email.com','class':'external'}),
            Node('span', ' address'),
            ),
       ],
-     ),
-    ("And shit, this http://www.theory.org/~matt/matt-1.jpg is an image.",
+         )
+
+
+    def test_image_hyperlink(self):
+        self._helper("And shit, this http://www.theory.org/~matt/matt-1.jpg is an image.",
      [Node('P',
            Node('span', "And shit, this "),
            Node('img', '', attributes={'src':'http://www.theory.org/~matt/matt-1.jpg'}),
            Node('span', " is an image."),
            )
       ]
-    ),
-    ("http://www.youtube.com/v/PVY5IpSDUYE",
+        )
+
+
+    def test_youtube_embed_1(self):
+        self._helper("http://www.youtube.com/v/PVY5IpSDUYE",
      [Node('p',
            Node('object',
                 Node('param',
@@ -429,8 +509,11 @@ all by themselves
                 attributes={'width':'425', 'height':'350',})
            )
       ]
-     ),
-    ("http://www.youtube.com/watch?v=KKTDRqQtPO8",
+         )
+
+
+    def test_youtube_embed_2(self):
+        self._helper("http://www.youtube.com/watch?v=KKTDRqQtPO8",
      [Node('p',
            Node('object',
                 Node('param',
@@ -448,40 +531,55 @@ all by themselves
                 attributes={'width':'425', 'height':'350',}),
            )
       ]
-     ),
-    ("""Oh my "Gosh," said 'Jonah' and 'Tom.' This "Shure" isn't my idea of Quotes.""",
+         )
+
+
+    def test_fancy_curly_quotes(self):
+        self._helper("""Oh my "Gosh," said 'Jonah' and 'Tom.' This "Shure" isn't my idea of Quotes.""",
      [Node('p',
            Node('span',
                 u"Oh my \u201cGosh,\u201d said \u2018Jonah\u2019 and \u2018Tom.\u2019 This \u201cShure\u201d isn\u2019t my idea of Quotes."
                 )
            )
       ]
-     ),
-     ("""Someone's ``being'' too `clever' with quotes.""",
+         )
+
+
+    def test_too_clever_quotes(self):
+        self._helper("""Someone's ``being'' too `clever' with quotes.""",
       [Node('p',
             Node('span',
                  u"Someone\u2019s \u201cbeing\u201d too \u2018clever\u2019 with quotes."
                 ),
             ),
        ]
-      ),
-     ("Whatever happened -- I wondered -- to Illimunated-Distributed Motherf----ers?",
+          )
+
+
+    def test_emdashes(self):
+        self._helper("Whatever happened -- I wondered -- to Illimunated-Distributed Motherf----ers?",
       [Node('p',
             Node('span',
                  u"Whatever happened \u2014 I wondered \u2014 to Illimunated-Distributed Motherf\u2014\u2014ers?",
                  )
             )
        ]
-      ),
-     ("what... I think... nevermind.",
+          )
+
+
+    def test_ellipses(self):
+        self._helper("what... I think... nevermind.",
       [Node('p',
             Node('span',
                  u"what\u2026 I think\u2026 nevermind."
                  )
             )
        ]
-      ),
-     ("*bold http://www.theory.org/ URL * and _italic http://www.theory.org/ URL_ and *http://www.theory.org extra stuff*",
+          )
+
+
+    def test_bold_urls(self):
+        self._helper("*bold http://www.theory.org/ URL * and _italic http://www.theory.org/ URL_ and *http://www.theory.org extra stuff*",
       [Node('p',
             Node('b',
                  Node('span', "bold "),
@@ -501,8 +599,11 @@ all by themselves
                  ),
             ),
        ]
-      ),
-     ("this is *bold _and italic *and I dunno* what_ this* is.",
+          )
+
+
+    def test_nested_bold_and_italic(self):
+        self._helper("this is *bold _and italic *and I dunno* what_ this* is.",
       [Node('p',
             Node('span',
                  "this is "),
@@ -516,8 +617,11 @@ all by themselves
             Node('span', " is."),
             )
        ]
-      ),
-     ("but *I dunno _what* this_ is *supposed to* be.",
+          )
+
+
+    def test_mis_nested_bold_and_italic(self):
+        self._helper("but *I dunno _what* this_ is *supposed to* be.",
       [Node('p',
             Node('span', "but "),
             Node('b',
@@ -530,32 +634,42 @@ all by themselves
             Node('span', " be.")
             )
        ]
-      ),
-     # Test attempted HTML insertion
-     ('<a href="spleengrokes@email.com" target="_blank">Contact Me</a>',
+      )
+
+
+    def test_attempted_HTML_insertion(self):
+        self._helper('<a href="spleengrokes@email.com" target="_blank">Contact Me</a>',
       [Node('p',
             Node('span', "<a "),
             Node('a', u"href=\u201cspleengrokes@email.com", attributes={'href':u"mailto:href=\u201cspleengrokes@email.com", 'class':'external'}),
             Node('span', u"\u201d target=\u201c", "_", u"blank\u201d", ">", "Contact Me</a", ">")
             )
        ]
-      ),
-    (u'\u1503@theory.org',
+      )
+
+
+    def test_unicode_email(self):
+        self._helper(u'\u1503@theory.org',
      [Node('p',
            Node('a', u"\u1503@theory.org", attributes={'href':u"mailto:\u1503@theory.org", 'class':'external'}),
            )
       ]
-     ),
-     # Test identification of URLs that begin with www.
-     ('go to www.google.com but not ww.goggle.com nor goggoil.com nor gar.goyle.com',
+     )
+
+
+    def test_identification_of_URLs_beginning_with_www(self):
+        self._helper('go to www.google.com but not ww.goggle.com nor goggoil.com nor gar.goyle.com',
       [Node('p',
             Node('span', "go to "),
             Node('a', 'www.google.com', attributes={'href':'http://www.google.com', 'class':'external'}),
             Node('span', ' but not ww.goggle.com nor goggoil.com nor gar.goyle.com')
             )
        ]
-      ),
-     ("""Hello this is a list:
+          )
+
+
+    def test_simple_list(self):
+        self._helper("""Hello this is a list:
 
  # item 1 is #1!
  # item 2 has some  stuff
@@ -570,8 +684,11 @@ And no more of the list.
             Node('li', Node('span', "item 3 is really long and it just goes on for a while, longer than fifty characters and more of item 3 ")),
             ),
        Node('p', Node('span', "And no more of the list. "))],
-      ),
-     ("""Hello this is a list:
+          )
+
+
+    def test_numbered_list(self):
+        self._helper("""Hello this is a list:
 
  1. item #1 is #1!
  2. item #2 has some  stuff
@@ -586,8 +703,11 @@ And no more of the list.
             Node('li', Node('span', "item #77 is really long and it just goes on for a while, longer than fifty characters and more of item #77 ")),
             ),
        Node('p', Node('span', "And no more of the list. "))],
-      ),
-     ("""Hello this is a list:
+          )
+
+
+    def test_list_with_long_line(self):
+        self._helper("""Hello this is a list:
 
  * item is here
  * item has some  stuff
@@ -603,7 +723,10 @@ And no more of the list.
             ),
        Node('p', Node('span', "And no more of the list. "))],
       ),
-     (u"""Hello this is a list:
+
+
+    def test_bulleted_list(self):
+        self._helper(u"""Hello this is a list:
 
  \u2022 item is here
  \u2022 item has some  stuff
@@ -618,8 +741,11 @@ And no more of the list.
             Node('li', Node('span', "item is really long and it just goes on for a while, longer than fifty characters and more of item #77 ")),
             ),
        Node('p', Node('span', "And no more of the list. "))],
-       ),
-       ("""Hello this is a list:
+       )
+
+
+    def test_dashed_list(self):
+        self._helper("""Hello this is a list:
 
  - item is here
  - item has some  stuff
@@ -633,14 +759,23 @@ And no more of the list. """,
             Node('li', Node('span', "item is really long and it just goes on for a while, longer than fifty characters and more of item #77 ")),
             ),
        Node('p', Node('span', "And no more of the list. "))],
-       ),
-       ("""*this is bold*""",
+           )
+
+
+    def test_simple_bold(self):
+        self._helper("""*this is bold*""",
         [Node('p', Node('b', Node('span', "this is bold")))]
-        ),
-       ("""*this is just a leading star""",
+            )
+
+
+    def test_bare_leading_star(self):
+        self._helper("""*this is just a leading star""",
         [Node('p', Node('span', "*", "this is just a leading star"))]
-        ),
-       ("""* line 1
+            )
+
+
+    def test_list_containing_blockquote(self):
+        self._helper("""* line 1
 * >> quoted item 2
 * satan
 
@@ -663,8 +798,11 @@ paragraph not quoted paragraphy
               ),
          Node('p', Node('span', "paragraph not quoted paragraphy ")),
               ]
-        ),
-    ("""* item
+            )
+
+
+    def test_list_containing_two_quotes(self):
+        self._helper("""* item
 * > item quote
 * > butta
 
@@ -686,9 +824,11 @@ paragraph damage
       Node('p',
            Node('span', "paragraph damage ")
            )
-           ]),
-    
-    ("""
+           ]    )
+
+
+    def test_list_containing_blockquotes_2(self):
+        self._helper("""
 > * quoted item 2
 > * quoted item 3
 """,
@@ -700,9 +840,11 @@ paragraph damage
                         ),
                    )
               )]
-        ),
+            )
 
-    ("""
+
+    def test_multiple_blockquotes_containing_list(self):
+        self._helper("""
 > Bubba
 
 > * quoted item 2
@@ -725,10 +867,11 @@ paragraph damage
                    ),
               ),
          ]
-        ),
+        )
 
 
-    ("""
+    def test_single_blockquote_containing_list(self):
+        self._helper("""
 > Bubba
 >
 > * quoted item 2
@@ -751,8 +894,11 @@ paragraph damage
                    ),
               ),
          ]
-        ),
-    ("""
+        )
+
+
+    def test_paragraph_containing_list(self):
+        self._helper("""
 Bubba
 * quoted item 2
 * quoted item 3
@@ -768,8 +914,11 @@ Toady
                    ),
               ),
          ]
-        ),
-    ("""
+        )
+
+
+    def test_quote_containing_paragraph_containing_list(self):
+        self._helper("""
 > Bubba
 > * quoted item 2
 > * quoted item 3
@@ -789,49 +938,7 @@ Toady
                    ),
               ),
          ]
-        ),
-
-    )
+        )
 
 
-w = PottyMouth(url_check_domains=('mysite.com',),
-               url_white_lists=('https?://mysite\.com/allowed/service',
-                                'https?://mysite\.com/safe/url',),
-               )
-failures = 0
 
-##import hotshot, hotshot.stats
-##prof = hotshot.Profile('/tmp/hotshot_pottymouth')
-
-for i, (source, output) in enumerate(contents):#[-2:]:
-    try:
-        #prof.start()
-        blocks = w.parse(source)
-        #prof.stop()
-        generated = '\n'.join(map(str, blocks))
-        expected = '\n'.join(map(str, output))
-        if generated != expected:
-            failures += 1
-            d = Differ()
-            result = list(d.compare(expected.split('\n'), generated.split('\n')))
-            print '\n'.join(result)
-            print '=' * 70
-    except:
-        print "Error in test %d" % i
-        print source
-        raise
-
-if failures:
-    print failures, 'failures'
-
-##prof.close()
-##pstats = hotshot.stats.load('/tmp/hotshot_pottymouth')
-##pstats.strip_dirs()
-##pstats.sort_stats('time', 'cumulative', 'calls')
-##pstats.print_stats()
-
-def repr_test():
-    assert repr(w.parse(u"foo • bar")) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
-    assert repr(w.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
-
-repr_test()
