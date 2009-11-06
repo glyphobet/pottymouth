@@ -121,10 +121,10 @@ class Token(unicode):
         return self
 
     def __repr__(self):
-        return '%s{%s}'%(self.name, self)
+        return '%s{%s}'%(self.name, super(Token, self).__repr__())
 
     def __add__(self, extra):
-        return Token(self.name, unicode.__add__(self, extra))
+        return Token(self.name, super(Token, self).__add__(extra))
 
     def __str__(self):
         return self.encode(encoding, 'xmlcharrefreplace')
@@ -728,6 +728,9 @@ class PottyMouth(object):
 
 
     def parse(self, string):
+        if isinstance(string, str):
+            string = string.decode(encoding)
+        assert isinstance(string, unicode), "PottyMouth input must be unicode or str types"
         if self.smart_quotes:
             string = self.pre_replace(string)
         tokens = self.tokenize(string)

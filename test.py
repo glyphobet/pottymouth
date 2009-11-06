@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from difflib import Differ
 from PottyMouth import PottyMouth, Node
 
@@ -827,3 +829,9 @@ if failures:
 ##pstats.strip_dirs()
 ##pstats.sort_stats('time', 'cumulative', 'calls')
 ##pstats.print_stats()
+
+def repr_test():
+    assert repr(w.parse(u"foo • bar")) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
+    assert repr(w.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
+
+repr_test()
