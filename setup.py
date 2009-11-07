@@ -7,7 +7,7 @@ except ImportError:
 
 setup(name='PottyMouth',
       py_modules=['PottyMouth'],
-      version='1.1.4',
+      version='1.1.5',
       data_files=[('share/doc/python-pottymouth', ['readme.html',
                                                    'LICENSE.txt',
                                                    'test.py'    ,
