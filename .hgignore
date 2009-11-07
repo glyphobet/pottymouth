@@ -1,3 +1,7 @@
 .cdv/
 .*.pyc
 test-mosuki.py
+PottyMouth.egg-info/
+debian/
+dist/
+build-stamp-2.6
