@@ -913,5 +913,9 @@ Toady
 
 
 if __name__ == '__main__':
-    print "Usage: nosetests test"
-
+    try:
+        from nose.core import runmodule
+    except ImportError:
+        print "Usage: nosetests test"
+    else:
+        runmodule()
