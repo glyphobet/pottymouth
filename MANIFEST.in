@@ -1,5 +1,6 @@
 include readme.html
 include LICENSE.txt
+include profile.py
 include setup.py
 include test.py
 include web.py
