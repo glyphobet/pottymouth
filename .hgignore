@@ -4,4 +4,5 @@ test-mosuki.py
 PottyMouth.egg-info/
 debian/
 dist/
+build/
 build-stamp-2.6
