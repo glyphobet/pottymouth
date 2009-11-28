@@ -788,6 +788,7 @@ if __name__ == '__main__':
         print 'input (end with Ctrl-D)>>'
         try:
             text = sys.stdin.read()
+            sys.stdin.seek(0)
         except KeyboardInterrupt:
             break
         if text:
