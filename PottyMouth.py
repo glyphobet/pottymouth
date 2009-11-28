@@ -774,7 +774,7 @@ class PottyMouth(object):
         for b in blocks:
             nb = self._parse_block(b)
             parsed_blocks.append(nb)
-        
+
         return parsed_blocks
 
 
