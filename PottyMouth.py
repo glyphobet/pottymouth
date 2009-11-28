@@ -20,7 +20,7 @@ protocol_pattern = re.compile(r'^\w+://', re.IGNORECASE)
 
 domain_pattern = r"([-\w]+\.)+\w\w+"
 
-_URI_pattern = ("(("                                    +
+_URI_pattern = ("(("                                     +
                 r"(https?|webcal|feed|ftp|news|nntp)://" + # protocol
                 r"([-\w]+(:[-\w]+)?@)?"                  + # authentication
                 r")|www\.)"                              + # or just www.
