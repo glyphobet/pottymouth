@@ -23,15 +23,16 @@ class basic_tests(object):
         assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
 
 
-    def _helper(self, source, output):
+    def _helper(self, source, expected):
         blocks = self.parser.parse(source)
         generated = '\n'.join(map(str, blocks))
-        expected  = '\n'.join(map(str, output))
+        if isinstance(expected, list):
+            expected  = '\n'.join(map(str, expected))
         if generated != expected:
             d = Differ()
             result = list(d.compare(expected.split('\n'), generated.split('\n')))
             print '\n'.join(result)
-            print source
+            print source.encode('utf8')
             assert generated == expected
 
 
@@ -910,6 +911,123 @@ Toady
             )]
         )
 
+
+    def test_definition_list(self):
+        self._helper("""
+Host:     Braig Crozinsky
+Location: Braig's Pad
+         666 Mareclont Avenue, Apt. 6
+         Loakand, CA 94616 US
+         View Map
+When:     Saturday, November 7, 4:30PM
+Phone:    530-555-1212
+""",
+            [Node('dl',
+                Node('dt', Node('span', "Host:")),
+                Node('dd', Node('span', "Braig Crozinsky")),
+                Node('dt', Node('span', "Location:")),
+                Node('dd', 
+                    Node('span', u"Braig\u2019s Pad"),
+                    Node('br'),
+                    Node('span', "666 Mareclont Avenue, Apt. 6"),
+                    Node('br'),
+                    Node('span', "Loakand, CA 94616 US"),
+                    Node('br'),
+                    Node('span', "View Map"),
+                ),
+                Node('dt', Node('span', "When:")),
+                Node('dd', Node('span', "Saturday, November 7, 4:30PM")),
+                Node('dt', Node('span', "Phone:")),
+                Node('dd', Node('span', "530-555-1212")),
+            )]
+        )
+
+
+    def test_messy_quoted_definition_list(self):
+        self._helper("""
+> Host:     Braig Crozinsky
+> Location: Braig's Pad
+>    666 Mareclont Avenue, Apt. 6
+>       Loakand, CA 94616 US
+>View Map
+>  When: Neptuday, Pentember 37th, 4:90PM
+>Phone:    530-555-1212
+""",
+            [Node('p',
+                Node('blockquote',
+                    Node('dl',
+                        Node('dt', Node('span', "Host:")),
+                        Node('dd', Node('span', "Braig Crozinsky")),
+                        Node('dt', Node('span', "Location:")),
+                        Node('dd', 
+                            Node('span', u"Braig\u2019s Pad"),
+                            Node('br'),
+                            Node('span', "666 Mareclont Avenue, Apt. 6"),
+                            Node('br'),
+                            Node('span', "Loakand, CA 94616 US"),
+                            Node('br'),
+                            Node('span', "View Map"),
+                        ),
+                        Node('dt', Node('span', "When:")),
+                        Node('dd', Node('span', "Neptuday, Pentember 37th, 4:90PM")),
+                        Node('dt', Node('span', "Phone:")),
+                        Node('dd', Node('span', "530-555-1212")),
+                    )
+                )
+            )]
+        )
+
+
+    def test_paragraphs_and_definition_list(self):
+        self._helper("""
+Bubba Gump
+
+Fishing: in the ocean, yes, and sometimes in the deep blue sea
+Hurricane: in the ocean, yes, and sometimes in the deep blue sea
+
+Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
+""",
+            [Node('p', 
+                Node('span', "Bubba Gump"),
+            ),
+            Node('dl', 
+                Node('dt', Node('span', "Fishing:")),
+                Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
+                Node('dt', Node('span', "Hurricane:")),
+                Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
+            ),
+            Node('p',
+                Node('span', u"Toady the Wild G-Frog\u2019s wild ride of a lifetime channel tunnel"),
+            )]
+        )
+
+
+    def test_quote_containing_paragraph_containing_definition_list(self):
+        self._helper("""
+> Bubba Gump
+>
+> Fishing: in the ocean, yes, and sometimes in the deep blue sea
+> Hurricane: in the ocean, yes, and sometimes in the deep blue sea
+>
+> Toady the Wild G-Frog's ride of a lifetime channel tunnel
+""",
+            [Node('p', 
+                Node('blockquote', 
+                    Node('p', Node('span', "Bubba Gump")),
+                ),
+                Node('blockquote',
+                    Node('dl', 
+                        Node('dt', Node('span', "Fishing:")),
+                        Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
+                        Node('dt', Node('span', "Hurricane:")),
+                        Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
+                    ),
+                ),
+                Node('blockquote',
+                    Node('p', Node('span', u"Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
+                ),
+            )]
+        )
 
 
 if __name__ == '__main__':

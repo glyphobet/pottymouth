@@ -61,9 +61,11 @@ token_order = (
 
     TokenMatcher('RIGHT_ANGLE', r'(>[\t ]*(?:>[\t ]*)*)'),
 
+    TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:[\t ]+)(?=\w+)'),
+
     # The following are simple, context-independent replacement tokens
     TokenMatcher('EMDASH'  , r'(--)'    , replace=unichr(8212)),
-    # No way to reliably distinguish Endash from Hyphen, Dash & Minus, 
+    # No way to reliably distinguish Endash from Hyphen, Dash & Minus,
     # so we don't.  See: http://www.alistapart.com/articles/emen/
 
     TokenMatcher('ELLIPSIS', r'(\.\.\.)', replace=unichr(8230)),
@@ -186,12 +188,12 @@ class Node(list):
         else:
             content = ''
             for c in self:
-                if isinstance(c, Node):
+                if isinstance(c, Node) or isinstance(c, Line):
                     content += str(c)
                 else:
                     content += escape(c).encode(encoding, 'xmlcharrefreplace')
                 content += '\n'
-            content = content.rstrip('\n')
+            content = content.strip().rstrip('\n')
             content = content.replace('\n', '\n  ')
 
             interpolate = {'name'   :self.name               ,
@@ -297,6 +299,7 @@ class PottyMouth(object):
                  ordered_list=True,   # disables all ordered lists (<ol>)
                  numbered_list=True,  # disables '\d+\.' lists 
                  blockquote=True,     # disables '>' <blockquote>s
+                 definition_list=True,# disables all definition lists (<dl>)
                  bold=True,           # disables *bold*
                  italic=True,         # disables _italics_
                  emdash=True,         # disables -- emdash
@@ -326,6 +329,7 @@ class PottyMouth(object):
                 continue
             elif n in ('HASH','NUMBERDOT') and not ordered_list:
                 continue
+            elif n == 'DEFINITION' and not definition_list:            continue
             elif n == 'NUMBERDOT' and not numbered_list:               continue
             elif n == 'STAR' and not bold:                             continue
             elif n == 'UNDERSCORE' and not italic:                     continue
@@ -424,12 +428,12 @@ class PottyMouth(object):
                     current_line = Line()
 
                 elif stack:
-                    if stack[-1].name in ('p','li'):
-                        top = stack.pop() # the p or li
+                    if stack[-1].name in ('p', 'li', 'dd'):
+                        top = stack.pop() # the p, li or dd
                         self.debug('\tpopped off because saw a blank line')
 
                         while stack:
-                            if stack[-1].name in ('blockquote','ul','ol','li'):
+                            if stack[-1].name in ('blockquote', 'ul', 'ol', 'li', 'dl'):
                                 top = stack.pop()
                             else:
                                 break
@@ -464,6 +468,35 @@ class PottyMouth(object):
                 stack[-1].append(newli)
                 stack.append(newli)
 
+            elif t.name == 'DEFINITION' and not(current_line):
+                if stack and stack[-1].name == 'p':
+                    top = stack.pop()
+                    if current_line.depth < old_depth:
+                        # pop off <blockquote> and <li> or <p>so we can apppend the new <li> in the right node
+                        for i in range(old_depth - current_line.depth):
+                            top = stack.pop() # the <blockquote>
+                            top = stack.pop() # the previous <li> or <p>
+                    if not stack:
+                        finished.append(top)
+
+                if stack and stack[-1].name == 'dd':
+                    stack.pop() # the previous dd
+                elif stack and stack[-1].name == ('dl'):
+                    pass
+                else:
+                    newdl = Node('dl')
+                    if stack:
+                        stack[-1].append(newdl)
+                    stack.append(newdl)
+
+                l = Line()
+                l.append(t)
+                newdt = Node('dt', l)
+                stack[-1].append(newdt)
+                newdd = Node('dd')
+                stack[-1].append(newdd)
+                stack.append(newdd)
+
             elif t.name == 'RIGHT_ANGLE' and not(current_line):
                 new_depth = t.count('>')
                 old_depth = 0
@@ -471,7 +504,7 @@ class PottyMouth(object):
                 for n in stack[::-1]:
                     if n.name == 'blockquote':
                         old_depth += 1
-                    elif n.name in ('p', 'li', 'ul', 'ol'):
+                    elif n.name in ('p', 'li', 'ul', 'ol', 'dt', 'dd', 'dl'):
                         pass
                     else:
                         break
@@ -534,7 +567,7 @@ class PottyMouth(object):
                 pass
             else:
                 finished.append(top)
-            
+
         return finished
 
 
@@ -713,6 +746,8 @@ class PottyMouth(object):
                     current_line = item
                     ppll = -1
                     pll = len(item)
+            else:
+                raise Exception("Not expecting item of type: %r in block" % type(item))
 
         if current_line is not None:
             parsed_line = self._parse_line(current_line)
