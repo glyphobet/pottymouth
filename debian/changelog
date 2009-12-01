@@ -1,3 +1,10 @@
+python-pottymouth (1.2.0-0) karmic; urgency=low
+
+  * adding support for definition lists
+  * fixing bug in interactive mode
+
+ -- matt <matt-pottymouth@theory.org>  Mon, 30 Nov 2009 23:25:53 -0800
+
 python-pottymouth (1.1.5-0) karmic; urgency=low
 
   * fix __repr__() to always return strings
