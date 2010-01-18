@@ -61,7 +61,7 @@ token_order = (
 
     TokenMatcher('RIGHT_ANGLE', r'(>[\t ]*(?:>[\t ]*)*)'),
 
-    TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:[\t ]+)(?=\w+)'),
+    TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:[\t ]+)(?=\S+)'),
 
     # The following are simple, context-independent replacement tokens
     TokenMatcher('EMDASH'  , r'(--)'    , replace=unichr(8212)),
