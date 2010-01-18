@@ -309,6 +309,8 @@ class PottyMouth(object):
 
         self._url_check_domain = None
         if url_check_domains:
+            if isinstance(url_check_domains, str):
+                url_check_domains = (url_check_domains,)
             self._url_check_domain = re.compile('(\w+://)?((' + ')|('.join(url_check_domains) + '))',
                                                 flags=re.I)
 
