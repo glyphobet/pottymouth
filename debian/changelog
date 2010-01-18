@@ -1,3 +1,10 @@
+python-pottymouth (1.2.1-0) karmic; urgency=low
+
+  * fix token for definition lists
+  * more robustly handle configuration flags
+
+ -- matt <matt@mosuki.com>  Mon, 18 Jan 2010 14:41:34 -0800
+
 python-pottymouth (1.2.0-0) karmic; urgency=low
 
   * adding support for definition lists
