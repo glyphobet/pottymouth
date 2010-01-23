@@ -658,7 +658,7 @@ And no more of the list.
         )
 
 
-    def test_numbered_list(self):
+    def test_numbered_list_periods(self):
         self._helper("""Hello this is a list:
 
  1. item #1 is #1!
@@ -676,6 +676,21 @@ And no more of the list.
             Node('p', Node('span', "And no more of the list. "))
             ]
         )
+
+
+    def test_numbered_list_parentheses(self):
+        self._helper("""This is a list:
+    1) One
+    2) Too
+    7.) Tree
+    """,
+            [Node('p', Node('span', "This is a list:")),
+            Node('ol',
+                Node('li', Node('span', "One")),
+                Node('li', Node('span', "Too")),
+                Node('li', Node('span', "Tree")),
+            ),
+            ])
 
 
     def test_list_with_long_line(self):

@@ -50,11 +50,11 @@ token_order = (
     TokenMatcher('URL'        , '('+URI_pattern    +')'),
     TokenMatcher('EMAIL'      , email_pattern ),
 
-    TokenMatcher('HASH'       ,  r'([\t ]*#[\t ]+)'     ),
-    TokenMatcher('DASH'       ,  r'([\t ]*-[\t ]+)'     ),
-    TokenMatcher('NUMBERDOT'  ,  r'([\t ]*\d+\.[\t ]+)' ),
-    TokenMatcher('ITEMSTAR'   ,  r'([\t ]*\*[\t ]+)'    ),
-    TokenMatcher('BULLET'     , ur'([\t ]*\u2022[\t ]+)'),
+    TokenMatcher('HASH'       ,  r'([\t ]*#[\t ]+)'            ),
+    TokenMatcher('DASH'       ,  r'([\t ]*-[\t ]+)'            ),
+    TokenMatcher('NUMBERED'  ,  r'([\t ]*\d+(\.\)?|\))[\t ]+)'),
+    TokenMatcher('ITEMSTAR'   ,  r'([\t ]*\*[\t ]+)'           ),
+    TokenMatcher('BULLET'     , ur'([\t ]*\u2022[\t ]+)'       ),
 
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),
@@ -325,14 +325,14 @@ class PottyMouth(object):
             elif n == 'IMAGE' and not image:                           continue
             elif n == 'YOUTUBE' and not youtube:                       continue
             elif n == 'EMAIL' and not email:                           continue
-            elif n in ('HASH','DASH','NUMBERDOT','ITEMSTAR','BULLET') and not all_lists:
+            elif n in ('HASH','DASH','NUMBERED','ITEMSTAR','BULLET') and not all_lists:
                 continue 
             elif n in ('DASH','ITEMSTAR','BULLET') and not unordered_list:
                 continue
-            elif n in ('HASH','NUMBERDOT') and not ordered_list:
+            elif n in ('HASH','NUMBERED') and not ordered_list:
                 continue
             elif n == 'DEFINITION' and not definition_list:            continue
-            elif n == 'NUMBERDOT' and not numbered_list:               continue
+            elif n == 'NUMBERED' and not numbered_list:                continue
             elif n == 'STAR' and not bold:                             continue
             elif n == 'UNDERSCORE' and not italic:                     continue
             elif n == 'RIGHT_ANGLE' and not blockquote:                continue
@@ -442,7 +442,7 @@ class PottyMouth(object):
                         if not stack:
                             finished.append(top)
 
-            elif t.name in ('HASH','NUMBERDOT','ITEMSTAR','BULLET','DASH') and not(current_line):
+            elif t.name in ('HASH','NUMBERED','ITEMSTAR','BULLET','DASH') and not(current_line):
                 if stack and stack[-1].name == 'p':
                     top = stack.pop()
                     if current_line.depth < old_depth:
@@ -458,7 +458,7 @@ class PottyMouth(object):
                 elif stack and stack[-1].name in ('ul', 'ol'):
                     pass
                 else:
-                    if t.name in ('HASH','NUMBERDOT'):
+                    if t.name in ('HASH','NUMBERED'):
                         newl = Node('ol')
                     elif t.name in ('ITEMSTAR','BULLET','DASH'):
                         newl = Node('ul')
