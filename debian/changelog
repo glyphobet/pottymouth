@@ -1,3 +1,9 @@
+python-pottymouth (1.2.2-0) karmic; urgency=low
+
+  * fix URLs and emails to no longer refer to devsuki and mosuki domains since they are going extinct soon
+
+ -- matt <matt@theory.org>  Wed, 17 Mar 2010 15:21:13 -0700
+
 python-pottymouth (1.2.1-0) karmic; urgency=low
 
   * fix token for definition lists
