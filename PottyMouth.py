@@ -21,19 +21,18 @@ protocol_pattern = re.compile(r'^\w+://', re.IGNORECASE)
 domain_pattern = r"([-\w]+\.)+\w\w+"
 
 _URI_pattern = ("(("                                     +
-                r"(https?|webcal|feed|ftp|news|nntp)://" + # protocol
-                r"([-\w]+(:[-\w]+)?@)?"                  + # authentication
-                r")|www\.)"                              + # or just www.
-                domain_pattern                           + # domain
-                r"(/[-\w$\.+!*'(),;:@%&=?/~#]*)?"          # path
-                )
-_URI_end_punctuation = r"(?<![\]\.}>\)\s,?!;:\"'])"  # end punctuation
+               r"(https?|webcal|feed|ftp|news|nntp)://" + # protocol
+               r"([-\w]+(:[-\w]+)?@)?"                  + # authentication
+               r")|www\.)"                              + # or just www.
+               domain_pattern                           + # domain
+               r"(/([-\w$\.+!*'(),;:@%&=?/~#]*[-\w$+*(@%&=/~#])?)?" # path
+               )
 
-URI_pattern = _URI_pattern + _URI_end_punctuation
+URI_pattern = _URI_pattern
 
 email_pattern = r'([^()<>@,;:\"\[\]\s]+@' + domain_pattern + ')'
 
-image_pattern = _URI_pattern + '\.(jpe?g|png|gif)' + _URI_end_punctuation
+image_pattern = _URI_pattern + '\.(jpe?g|png|gif)'
 
 # youtube_pattern matches:
 #  http://www.youtube.com/watch?v=KKTDRqQtPO8 and
