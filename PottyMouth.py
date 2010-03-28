@@ -445,7 +445,7 @@ class PottyMouth(object):
                 if stack and stack[-1].name == 'p':
                     top = stack.pop()
                     if current_line.depth < old_depth:
-                        # pop off <blockquote> and <li> or <p>so we can apppend the new <li> in the right node
+                        # pop off <blockquote> and <li> or <p> so we can apppend the new <li> in the right node
                         for i in range(old_depth - current_line.depth):
                             top = stack.pop() # the <blockquote>
                             top = stack.pop() # the previous <li> or <p>
@@ -473,7 +473,7 @@ class PottyMouth(object):
                 if stack and stack[-1].name == 'p':
                     top = stack.pop()
                     if current_line.depth < old_depth:
-                        # pop off <blockquote> and <li> or <p>so we can apppend the new <li> in the right node
+                        # pop off <blockquote> and <li> or <p> so we can apppend the new <li> in the right node
                         for i in range(old_depth - current_line.depth):
                             top = stack.pop() # the <blockquote>
                             top = stack.pop() # the previous <li> or <p>
