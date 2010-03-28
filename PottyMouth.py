@@ -30,7 +30,7 @@ _URI_pattern = ("(("                                     +
 
 URI_pattern = _URI_pattern
 
-email_pattern = r'([^()<>@,;:\"\[\]\s]+@' + domain_pattern + ')'
+email_pattern = r'[^()<>@,;:\"\[\]\s]+@' + domain_pattern
 
 image_pattern = _URI_pattern + '\.(jpe?g|png|gif)'
 
@@ -47,7 +47,7 @@ token_order = (
     TokenMatcher('YOUTUBE'    , '('+youtube_pattern+')'),
     TokenMatcher('IMAGE'      , '('+image_pattern  +')'),
     TokenMatcher('URL'        , '('+URI_pattern    +')'),
-    TokenMatcher('EMAIL'      , email_pattern ),
+    TokenMatcher('EMAIL'      , '('+email_pattern  +')'),
 
     TokenMatcher('HASH'       ,  r'([\t ]*#[\t ]+)'            ),
     TokenMatcher('DASH'       ,  r'([\t ]*-[\t ]+)'            ),
