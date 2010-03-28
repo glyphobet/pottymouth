@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from difflib import Differ
-from PottyMouth import PottyMouth, Node
+from PottyMouth import PottyMouth, Node, Token
 
 
 
@@ -1043,6 +1043,11 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
                 ),
             )]
         )
+
+
+    def test_tokenizer(self):
+        assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
+
 
 
 if __name__ == '__main__':
