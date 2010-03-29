@@ -716,8 +716,7 @@ var pottymouth = new (function () {
       var ppll = -1; // previous previous line length
       var pll  = -1; // previous line length
 
-      for (var bi in block.content) {
-          bi = bi * 1; // SOMEHOW THIS IS GETTING COERCED INTO A STRING WTF!!!!!!!!!
+      for (var bi=0; bi<block.content.length; bi++) {
           var item = block.content[bi];
           // collapse lines together into single lines
           if (item instanceof Node) {
