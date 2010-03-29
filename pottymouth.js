@@ -226,7 +226,7 @@ var pottymouth = new (function () {
           c += this.content[i].toString() + '\n';
         }
         c = c.replace(/\n+$/g, '');
-        c = c.replace(/^[ ]+|[ ]+$/g, '');
+        c = c.replace(/^\s+|\s+$/g, '');
         c = c.replace(/\n/g, '\n  ');
 
         if (this.node_children()) {
@@ -503,7 +503,7 @@ var pottymouth = new (function () {
                 } else if (current_line.bool() && t.content.replace(/^[\t\n\r]+|[\t\n\r]+$/g, '')) {
                     current_line.push(t);
                     console.debug('\tadding (possibly empty space) text token to current line');
-                } else if (t.content.replace(/^[ ]+|[ ]+$/g, '')) {
+                } else if (t.content.replace(/^\s+|\s+$/g, '')) {
                     current_line.push(t);
                     console.debug('\tadding non-empty text token to current line');
                 }
