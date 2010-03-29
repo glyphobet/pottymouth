@@ -1,6 +1,9 @@
 var pottymouth = new (function () {
   var url_check_domains = new RegExp('(' + ['www.mysite.com', 'mysite.com'].join(')|(') + ')', 'i');
-  var url_white_lists = [ /https?:\/\/www\.mysite\.com\/allowed\/url\?id=\d+/, ];
+  var url_white_lists = [
+    /https?:\/\/mysite\.com\/allowed\/service/,
+    /https?:\/\/mysite\.com\/safe\/url/,
+  ];
   var short_line_length = 50;
 
   var protocol_pattern = /^\w+:\/\//i;
@@ -131,7 +134,7 @@ var pottymouth = new (function () {
           unmatched_collection = '';
 
           if (tm.name == 'NEW_LINE') {
-            if (found_tokens && found_tokens[found_tokens.length-1].name == 'TEXT') {
+            if (found_tokens.length && found_tokens[found_tokens.length-1].name == 'TEXT') {
               found_tokens[found_tokens.length-1].add(' ');
             }
             content=' ';
@@ -162,11 +165,11 @@ var pottymouth = new (function () {
     this.length = 0;
     this.bool = function () {
       return !! this.content.length;
-    }
+    };
     this.push = function (item) {
       this.content.push(item);
       this.length = this.content.length;
-    }
+    };
   };
 
 
@@ -215,8 +218,8 @@ var pottymouth = new (function () {
         for (var i in this.content) {
           c += this.content[i].toString() + '\n';
         }
-        c = c.replace(/^[ ]+|[ ]$/g, '');
         c = c.replace(/\n+$/g, '');
+        c = c.replace(/^[ ]+|[ ]+$/g, '');
         c = c.replace(/\n/g, '\n  ');
 
         if (this.node_children()) {
@@ -452,12 +455,12 @@ var pottymouth = new (function () {
                     console.debug('\tsame level, do nothing');
                 } else if (new_depth > old_depth) {
                     // current_line is empty, so we just make some new nodes
-                    for (var i=0; i<new_depth - old_depth; i++) {
+                    for (var i=0; i<new_depth-old_depth; i++) {
                         if (! stack.length) {
                             var newp = new Node('p');
                             stack.push(newp);
                         } else if (stack[stack.length-1].name != 'p' && stack[stack.length-1].name != 'li') {
-                            var newp = Node('p')
+                            var newp = new Node('p')
                             stack[stack.length-1].push(newp);
                             stack.push(newp);
                         }
@@ -493,7 +496,7 @@ var pottymouth = new (function () {
                 } else if (current_line.bool() && t.content.replace(/^[\t\n\r]+|[\t\n\r]+$/g, '')) {
                     current_line.push(t);
                     console.debug('\tadding (possibly empty space) text token to current line');
-                } else if (t.content.replace(/^[ \t\n\r]+|[ \t\n\r]+$/g, '')) {
+                } else if (t.content.replace(/^[ ]+|[ ]+$/g, '')) {
                     current_line.push(t);
                     console.debug('\tadding non-empty text token to current line');
                 }
@@ -537,11 +540,10 @@ var pottymouth = new (function () {
       if (! anchor.match(protocol_pattern)) {
         anchor = 'http://' + anchor;
       }
-
-      if (this.url_check_domains && anchor.match(this.url_check_domains)) {
+      if (url_check_domains && anchor.match(url_check_domains)) {
           console.debug('\tchecking urls for this domain');
-          for (var i in this.url_white_lists) {
-              var w = this.url_white_lists[i];
+          for (var i in url_white_lists) {
+              var w = url_white_lists[i];
               console.debug('\t\tchecking against', w);
               if (anchor.match(w)) {
                   console.debug('\t\tmatches the white lists')
@@ -551,7 +553,7 @@ var pottymouth = new (function () {
               }
           }
           console.debug('\tdidn\'t match any white lists, making text');
-          current_line.push(anchor);
+          current_line.push(new Token('TEXT', anchor));
       } else {
           var a = _handle_link(anchor, false);
           current_line.push(a);
@@ -631,10 +633,6 @@ var pottymouth = new (function () {
       };
 
       for (var i in line.content) {
-          var p = '';
-          for (k in stack) {
-            p += stack[k].name + '{'+ stack[k].content +'}, '
-          }
           var t = line.content[i];
           if (t instanceof URLNode) {
               // URL nodes can go inside balanced syntax
@@ -780,7 +778,7 @@ var pottymouth = new (function () {
     s = pre_replace(s);
     var tokens = tokenize(s);
     var blocks = _find_blocks(tokens);
-    var parsed_blocks = new Node('div')
+    var parsed_blocks = new Node('div');
     for (var i in blocks) {
         var nb = _parse_block(blocks[i]);
         parsed_blocks.push(nb);
