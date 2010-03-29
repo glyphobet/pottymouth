@@ -1045,6 +1045,13 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         )
 
 
+    def test_not_actually_a_definiton_list(self):
+        self._helper("About Smuggler's Cove: Nothing",
+        [Node('p',
+            Node('span', u"About Smuggler\u2019s Cove: ", "Nothing")
+        )]
+        )
+
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 

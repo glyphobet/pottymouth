@@ -56,7 +56,7 @@ $(document).ready(function (){
     return equals(generated, expected, test_name);
   }
 
-  test("PottyMouth parser tests", 51, function () {
+  test("PottyMouth parser tests", 52, function () {
     equals(pottymouth.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(), '<div>\n  <p>\n    This should be a URL\n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n    but this should not be \n      http://mysite.COM/something/dangerous\n      . And finally, these two should also be allowed\n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n    and\n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',  "test_allowed_and_disallowed_urls");
     equals(pottymouth.parse('>>>> a very very deep quote\n>> not so deep of a quote\n>>> middle of the road\n> deatherly quotingly\n').toString(), '<div>\n  <p>\n    <blockquote>\n      <p>\n        <blockquote>\n          <p>\n            <blockquote>\n              <p>\n                <blockquote>\n                  <p>\n                    a very very deep quote\n                  </p>\n                </blockquote>\n              </p>\n            </blockquote>\n            not so deep of a quote\n            <blockquote>\n              <p>\n                middle of the road\n              </p>\n            </blockquote>\n          </p>\n        </blockquote>\n        deatherly quotingly\n      </p>\n    </blockquote>\n  </p>\n</div>',  "test_alternating_quote_depth");
 
@@ -111,6 +111,7 @@ $(document).ready(function (){
     equals(pottymouth.parse('\u1503@theory.org').toString(), '<div>\n  <p>\n    <a href="mailto:\u1503@theory.org" class="external">\u1503@theory.org</a>\n  </p>\n</div>',  "test_unicode_email");
     equals(pottymouth.parse('http://www.youtube.com/v/PVY5IpSDUYE').toString(), '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/PVY5IpSDUYE"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/PVY5IpSDUYE" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',  "test_youtube_embed_1");
     equals(pottymouth.parse('http://www.youtube.com/watch?v=KKTDRqQtPO8').toString(), '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/KKTDRqQtPO8"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/KKTDRqQtPO8" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',  "test_youtube_embed_2");
+    equals(pottymouth.parse("About Smuggler's Cove: Nothing").toString(), '<div>\n  <p>\n    About Smuggler&#8217;s Cove: \n      Nothing\n  </p>\n</div>',  "test_not_actually_a_definiton_list");
   });
 
 

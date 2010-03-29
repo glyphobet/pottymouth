@@ -51,7 +51,7 @@ token_order = (
 
     TokenMatcher('HASH'       ,  r'([\t ]*#[\t ]+)'            ),
     TokenMatcher('DASH'       ,  r'([\t ]*-[\t ]+)'            ),
-    TokenMatcher('NUMBERED'  ,  r'([\t ]*\d+(\.\)?|\))[\t ]+)'),
+    TokenMatcher('NUMBERED'   ,  r'([\t ]*\d+(\.\)?|\))[\t ]+)'),
     TokenMatcher('ITEMSTAR'   ,  r'([\t ]*\*[\t ]+)'           ),
     TokenMatcher('BULLET'     , ur'([\t ]*\u2022[\t ]+)'       ),
 
@@ -550,6 +550,9 @@ class PottyMouth(object):
                     self._handle_image(t, current_line)
                 elif t.name == 'EMAIL':
                     self._handle_email(t, current_line)
+                elif current_line and t.name == 'DEFINITION' and current_line[-1].name == 'TEXT':
+                    current_line[-1] +=  t
+                    self.debug('\tthis DEFINITION token doesn\'t actually start a <dl>')
                 elif current_line and t.strip('\t\n\r'):
                     self.debug('\tadding (possibly empty space) text token to current line')
                     current_line.append(t)
@@ -770,6 +773,7 @@ class PottyMouth(object):
         if self.smart_quotes:
             string = self.pre_replace(string)
         tokens = self.tokenize(string)
+        print tokens
         blocks = self._find_blocks(tokens)
         parsed_blocks = Node('div')
         for b in blocks:

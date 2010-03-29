@@ -500,6 +500,9 @@ var pottymouth = new (function () {
                     _handle_image(t.content, current_line);
                 } else if (t.name == 'EMAIL') {
                     _handle_email(t.content, current_line);
+                } else if (t.name == 'DEFINITION' && current_line.bool() && current_line.content[current_line.content.length-1].name == 'TEXT') {
+                    current_line.content[current_line.content.length-1].content += t.content;
+                    console.debug('\tthis DEFINITION token doesn\'t actually start a <dl>');
                 } else if (current_line.bool() && t.content.replace(/^[\t\n\r]+|[\t\n\r]+$/g, '')) {
                     current_line.push(t);
                     console.debug('\tadding (possibly empty space) text token to current line');
