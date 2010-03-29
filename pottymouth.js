@@ -103,7 +103,7 @@ var pottymouth = new (function () {
        this.content += more;
      }
      this.toString = function () {
-       return this.content;
+       return this.content/*.replace('&', '&amp;')*/.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' ); // TODO: figure this out
      }
   }
 
@@ -478,7 +478,7 @@ var pottymouth = new (function () {
 
                 } else if (new_depth < old_depth) {
                     // current line is empty, so we just pop off the existing nodes
-                    for (var i=0; i<new_depth - old_depth; i++) {
+                    for (var i=0; i < old_depth - new_depth; i++) {
                         stack.pop() // the p
                         stack.pop() // the blockquote
                     }
