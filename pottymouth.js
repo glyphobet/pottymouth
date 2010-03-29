@@ -170,6 +170,13 @@ var pottymouth = new (function () {
       this.content.push(item);
       this.length = this.content.length;
     };
+    this.contentlength = function () {
+      var l = 0;
+      for (var i in this.content) {
+        l += this.content[i].content.length;
+      }
+      return l;
+    }
   };
 
 
@@ -709,8 +716,9 @@ var pottymouth = new (function () {
       var ppll = -1; // previous previous line length
       var pll  = -1; // previous line length
 
-      for (i in block.content) {
-          var item = block.content[i];
+      for (var bi in block.content) {
+          bi = bi * 1; // SOMEHOW THIS IS GETTING COERCED INTO A STRING WTF!!!!!!!!!
+          var item = block.content[bi];
           // collapse lines together into single lines
           if (item instanceof Node) {
               if (current_line) {
@@ -726,30 +734,30 @@ var pottymouth = new (function () {
 
           } else if (item instanceof Line) {
               if (current_line) {
-                  if (item.length < this.short_line_length) {
+                  if (item.contentlength() < short_line_length) {
                       // Identify short lines
-                      if (0 < pll && pll < this.short_line_length) {
-                          current_line.push(new Node('BR'));
-                      } else if ((block.length > i+1                       ) && // still items on the stack
-                                 (block[i+1] instanceof Line               ) && // next item is a line
-                                 (0 < block[i+1].length && block[i+1].length < this.short_line_length) ){ // next line is short
+                      if (0 < pll && pll < short_line_length) {
+                          current_line.push(new Node('br'));
+                      } else if ((block.content.length > bi+1                       ) && // still items on the stack
+                                 (block.content[bi+1] instanceof Line               ) && // next item is a line
+                                 (0 < block.content[bi+1].contentlength() && block.content[bi+1].contentlength() < short_line_length) ){ // next line is short
                           // the next line is short and so is this one
-                          current_line.push(new Node('BR'));
+                          current_line.push(new Node('br'));
                       }
-                  } else if (0 < pll && pll < this.short_line_length && 0 < ppll && ppll < this.short_line_length) {
+                  } else if (0 < pll && pll < short_line_length && 0 < ppll && ppll < short_line_length) {
                       // long line at the end of a sequence of short lines
-                      current_line.push(new Node('BR'));
+                      current_line.push(new Node('br'));
                   }
 
                   for (var j in item.content) {
                     current_line.push(item.content[j]);
                   }
                   ppll = pll;
-                  pll = item.length;
+                  pll = item.contentlength();
               } else {
                   current_line = item;
                   ppll = -1;
-                  pll = item.length;
+                  pll = item.contentlength();
               }
           } else {
               console.debug("Not expecting item of type: " + typeof(item) + " in block:" + item);
