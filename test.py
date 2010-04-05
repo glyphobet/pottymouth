@@ -38,8 +38,8 @@ class basic_tests(object):
 
     def test_some_paragraphs(self):
         self._helper("""
-Here is a _paragraph_ with big _fat_ long text lines
-that go *on and_ on* forever with no end in sight.
+Here is a _paragraph_ with big _fat_ looong text lines
+that go *on and_ on* foreeeeeever with no end in sight.
 
 Yes, that's right,  another paragraph. http://google.com/ is my site
 Will wonders ever cease?
@@ -53,11 +53,11 @@ Will wonders ever cease?
                 Node('i',
                     Node('span', 'fat'),
                     ),
-                Node('span', ' long text lines \nthat go '),
+                Node('span', ' looong text lines \nthat go '),
                 Node('b',
                     Node('span', 'on and\n_\n on'),
                     ),
-                Node('span', ' forever with no end in sight. ')
+                Node('span', ' foreeeeeever with no end in sight. ')
             ),
             Node('P',
                 Node('span', u'Yes, that\u2019s right,  another paragraph. '),
