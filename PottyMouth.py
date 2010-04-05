@@ -132,7 +132,7 @@ class Token(unicode):
 
 
 
-# escape() made is available to calling code in case it needs to
+# escape() is made available to calling code in case it needs to
 # escape the content of PottyMouth Nodes before converting it to
 # another tree object that does not automatically escape these
 # disallowed HTML characters.
