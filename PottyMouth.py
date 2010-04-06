@@ -9,7 +9,7 @@ class TokenMatcher(object):
 
     def __init__(self, name, pattern, replace=None):
         self.name = name
-        self.pattern = re.compile(pattern, re.IGNORECASE)
+        self.pattern = re.compile(pattern, re.IGNORECASE | re.UNICODE)
         self.replace = replace
 
     def match(self, string):
@@ -42,6 +42,9 @@ image_pattern = _URI_pattern + '\.(jpe?g|png|gif)'
 youtube_pattern = r'http://(?:www\.)?youtube.com/(?:watch\?)?v=?/?([\w\-]{11})'
 youtube_matcher = re.compile(youtube_pattern, re.IGNORECASE)
 
+# Unicode whitespace, not including newlines
+white = ur'[ \t\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000]'
+
 token_order = (
     TokenMatcher('NEW_LINE'   , r'(\r?\n)'), #fuck you, Microsoft!
     TokenMatcher('YOUTUBE'    , '('+youtube_pattern+')'),
@@ -49,18 +52,18 @@ token_order = (
     TokenMatcher('URL'        , '('+URI_pattern    +')'),
     TokenMatcher('EMAIL'      , '('+email_pattern  +')'),
 
-    TokenMatcher('HASH'       ,  r'([\t ]*#[\t ]+)'            ),
-    TokenMatcher('DASH'       ,  r'([\t ]*-[\t ]+)'            ),
-    TokenMatcher('NUMBERED'   ,  r'([\t ]*\d+(\.\)?|\))[\t ]+)'),
-    TokenMatcher('ITEMSTAR'   ,  r'([\t ]*\*[\t ]+)'           ),
-    TokenMatcher('BULLET'     , ur'([\t ]*\u2022[\t ]+)'       ),
+    TokenMatcher('HASH'       , '(' + white + '*#' + white + '+)'             ),
+    TokenMatcher('DASH'       , '(' + white + '*-' + white + '+)'             ),
+    TokenMatcher('NUMBERED'   , '(' + white + r'*\d+(\.\)?|\))' + white + '+)'),
+    TokenMatcher('ITEMSTAR'   , '(' + white + r'*\*' + white + '+)'           ),
+    TokenMatcher('BULLET'     , '(' + white + ur'*\u2022' + white + '+)'      ),
 
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),
 
-    TokenMatcher('RIGHT_ANGLE', r'(>[\t ]*(?:>[\t ]*)*)'),
+    TokenMatcher('RIGHT_ANGLE', '(>' + white + '*(?:>' + white + '*)*)'),
 
-    TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:[\t ]+)(?=\S+)'),
+    TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:' + white + r'+)(?=\S+)'),
 
     # The following are simple, context-independent replacement tokens
     TokenMatcher('EMDASH'  , r'(--)'    , replace=unichr(8212)),
@@ -91,16 +94,16 @@ replace_list = [
     Replacer(r'(``)', unichr(8220)),
     Replacer(r"('')", unichr(8221)),
 
-    # First we look for inter-word " and ' 
+    # First we look for inter-word " and '
     Replacer(r'(\b"\b)', unichr(34)), # double prime
     Replacer(r"(\b'\b)", unichr(8217)), # apostrophe
-    # Then we look for opening or closing " and ' 
-    Replacer(r'(\b"\B)', unichr(8221)), # close double quote 
+    # Then we look for opening or closing " and '
+    Replacer(r'(\b"\B)', unichr(8221)), # close double quote
     Replacer(r'(\B"\b)', unichr(8220)), # open double quote
     Replacer(r"(\b'\B)", unichr(8217)), # close single quote
     Replacer(r"(\B'\b)", unichr(8216)), # open single quote
 
-    # Then we look for space-padded opening or closing " and ' 
+    # Then we look for space-padded opening or closing " and '
     Replacer(r'(")(\s)', unichr(8221)+r'\2'), # close double quote
     Replacer(r'(\s)(")', r'\1'+unichr(8220)), # open double quote 
     Replacer(r"(')(\s)", unichr(8217)+r'\2'), # close single quote
@@ -118,8 +121,10 @@ class Token(unicode):
 
     def __new__(cls, name, content=''):
         self = unicode.__new__(cls, content)
-        self.name = name
         return self
+
+    def __init__(self, name, content=''):
+        self.name = name
 
     def __repr__(self):
         return '%s{%s}'%(self.name, super(Token, self).__repr__())
@@ -160,11 +165,6 @@ class Line(list):
 
 
 class Node(list):
-
-    def __new__(cls, name, *contents, **kw):
-        self = list.__new__(cls)
-        return self
-
 
     def __init__(self, name, *contents, **kw):
         super(list, self).__init__()
@@ -218,11 +218,6 @@ class Node(list):
 
 class URLNode(Node):
 
-    def __new__(cls, content, internal=False):
-        self = Node.__new__(cls, 'a', content)
-        return self
-
-
     def __init__(self, content, internal=False):
         attributes = {'href':content}
         if not internal:
@@ -254,20 +249,12 @@ class EmailNode(URLNode):
 
 class ImageNode(Node):
 
-    def __new__(cls, content):
-        self = Node.__new__(cls, 'img', content)
-        return self
-
     def __init__(self, content):
         Node.__init__(self, 'img', '', attributes={'src':content})
 
 
 
 class YouTubeNode(Node):
-
-    def __new__(cls, content):
-        self = Node.__new__(cls, 'object', content)
-        return self
 
     def __init__(self, content):
         Node.__init__(self, 'object', attributes={'width':'425', 'height':'350',})
@@ -773,7 +760,6 @@ class PottyMouth(object):
         if self.smart_quotes:
             string = self.pre_replace(string)
         tokens = self.tokenize(string)
-        print tokens
         blocks = self._find_blocks(tokens)
         parsed_blocks = Node('div')
         for b in blocks:
