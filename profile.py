@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from test import basic_tests
 
 class profiler(basic_tests):
