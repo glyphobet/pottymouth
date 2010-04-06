@@ -3,7 +3,7 @@
 
 from difflib import Differ
 from PottyMouth import PottyMouth, Node, Token
-
+import nose
 
 
 class basic_tests(object):
@@ -19,8 +19,8 @@ class basic_tests(object):
 
 
     def test_repr(self):
-        assert repr(self.parser.parse(u"foo • bar")) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
-        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}, BULLET{u' \u2022 '}, TEXT{u'bar'}]]]"
+        assert repr(self.parser.parse(u"foo • bar")) == "[[[u'foo'], [BULLET{u' \u2022 '}], [u'bar']]]"
+        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[u'foo'], [BULLET{u' \u2022 '}], [u'bar']]]"
 
 
     def _helper(self, source, expected):
@@ -53,16 +53,16 @@ Will wonders ever cease?
                 Node('i',
                     Node('span', 'fat'),
                     ),
-                Node('span', ' looong text lines \nthat go '),
+                Node('span', ' looong text lines'), Node('span', 'that go'),
                 Node('b',
-                    Node('span', 'on and\n_\n on'),
+                    Node('span', 'on and'), Node('span', '_'), Node('span', ' on'),
                     ),
                 Node('span', ' foreeeeeever with no end in sight. ')
             ),
             Node('P',
                 Node('span', u'Yes, that\u2019s right,  another paragraph. '),
                 Node('a', 'google.com/', attributes={'href':'http://google.com/','class':'external'}),
-                Node('span', ' is my site \nWill wonders ever cease? '),
+                Node('span', ' is my site'), Node('span', 'Will wonders ever cease? '),
             )]
         )
 
@@ -161,14 +161,12 @@ in complete idiocy, sincerely stupid and fallacious techniques and practices
 of programming.
 """,
             [Node('p',
-                Node('span',
-                    'This paragraph is classic and typical evidence of why the process of hard text \n'
-                    'wrapping \n'
-                    'was ultimately a short-sighted practice that was deeply, wholly and firmly \n'
-                    'grounded \n'
-                    'in complete idiocy, sincerely stupid and fallacious techniques and practices \n'
-                    'of programming. '
-                ),
+                Node('span', 'This paragraph is classic and typical evidence of why the process of hard text \n'),
+                Node('span', 'wrapping \n'),
+                Node('span', 'was ultimately a short-sighted practice that was deeply, wholly and firmly \n'),
+                Node('span', 'grounded \n'),
+                Node('span', 'in complete idiocy, sincerely stupid and fallacious techniques and practices \n'),
+                Node('span', 'of programming. '),
             )]
         )
 
@@ -181,7 +179,7 @@ This is a reply to an reply
 > > and another original line
 > > aand yet ononther ariginal
 > >
-> > more of the original in a different block quote
+> > more of the original in a different paragraph
 > more of the reply
 >
 > even more reply
@@ -192,38 +190,38 @@ no news
 """,
             [Node('p',
                 Node('span', 'This is a reply to an reply '),
+            ),
+            Node('blockquote',
+                Node('p',
+                    Node('span', 'this is a reply '),
+                ),
                 Node('blockquote',
                     Node('p',
-                        Node('span', 'this is a reply '),
-                        Node('blockquote',
-                            Node('p',
-                                Node('span', 'this is the original '),
-                                Node('br'),
-                                Node('span', 'and another original line '),
-                                Node('br'),
-                                Node('span', 'aand yet ononther ariginal '),
-                                )
-                            ),
-                            Node('blockquote',
-                                Node('p',
-                                    Node('span', 'more of the original in a different block quote '),
-                                ),
-                            ),
-                            Node('span', 'more of the reply '),
-                        )
+                        Node('span', 'this is the original '),
+                        Node('br'),
+                        Node('span', 'and another original line '),
+                        Node('br'),
+                        Node('span', 'aand yet ononther ariginal '),
                     ),
-                    Node('blockquote',
-                        Node('p',
-                            Node('span', 'even more reply '),
-                            Node('br'),
-                            Node('span', 'wow this just keeps going ')
-                        ),
+                    Node('p',
+                        Node('span', 'more of the original in a different paragraph '),
                     ),
-                    Node('span', 'rest of the message '),
                 ),
                 Node('p',
-                    Node('span', 'no news  ')
-                )]
+                    Node('span', 'more of the reply '),
+                ),
+                Node('p',
+                    Node('span', 'even more reply '),
+                    Node('br'),
+                    Node('span', 'wow this just keeps going ')
+                ),
+            ),
+            Node('p',
+                Node('span', 'rest of the message '),
+            ),
+            Node('p',
+                Node('span', 'no news  ')
+            )]
             )
 
 
@@ -240,21 +238,23 @@ this iss also shit
 eat shit some more """,
             [Node('p',
                 Node('span', 'You suck '),
+            ),
+            Node('blockquote',
+                Node('p',
+                    Node('span', 'no, you suck '),
+                ),
                 Node('blockquote',
                     Node('p',
-                        Node('span', 'no, you suck '),
-                        Node('blockquote',
-                            Node('p',
-                                Node('span', 'no, really, you suck '),
-                                Node('blockquote',
-                                    Node('p',
-                                        Node('span', 'I told you, you are the sucky one ')
-                                    ),
-                                ),
-                            ),
+                        Node('span', 'no, really, you suck '),
+                    ),
+                    Node('blockquote',
+                        Node('p',
+                            Node('span', 'I told you, you are the sucky one ')
                         ),
-                        Node('span', 'whatever you say '),
-                    )
+                    ),
+                ),
+                Node('p',
+                    Node('span', 'whatever you say '),
                 ),
             ),
             Node('p',
@@ -272,19 +272,13 @@ eat shit some more """,
         self._helper(""">>> this begins a deep quote
 >>> this ends a deep quote
 """,
-            [Node('p',
+            [Node('blockquote',
                 Node('blockquote',
-                    Node('p',
-                        Node('blockquote',
-                            Node('p',
-                                Node('blockquote',
-                                    Node('p',
-                                        Node('span', 'this begins a deep quote '),
-                                        Node('br'),
-                                        Node('span', 'this ends a deep quote '),
-                                    ),
-                                ),
-                            ),
+                    Node('blockquote',
+                        Node('p',
+                            Node('span', 'this begins a deep quote '),
+                            Node('br'),
+                            Node('span', 'this ends a deep quote '),
                         ),
                     ),
                 ),
@@ -298,30 +292,26 @@ eat shit some more """,
 >>> middle of the road
 > deatherly quotingly
 """,
-            [Node('p',
+            [Node('blockquote',
                 Node('blockquote',
-                    Node('p',
+                    Node('blockquote',
                         Node('blockquote',
                             Node('p',
-                                Node('blockquote',
-                                    Node('p',
-                                        Node('blockquote',
-                                            Node('p',
-                                                Node('span', 'a very very deep quote '),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                                Node('span', 'not so deep of a quote '),
-                                Node('blockquote',
-                                    Node('p',
-                                        Node('span', 'middle of the road ')
-                                    )
-                                ),
+                                Node('span', 'a very very deep quote '),
                             ),
                         ),
-                        Node('span', 'deatherly quotingly '),
                     ),
+                    Node('p',
+                        Node('span', 'not so deep of a quote '),
+                    ),
+                    Node('blockquote',
+                        Node('p',
+                            Node('span', 'middle of the road ')
+                        )
+                    ),
+                ),
+                Node('p',
+                    Node('span', 'deatherly quotingly '),
                 ),
             )]
         )
@@ -332,26 +322,22 @@ eat shit some more """,
 >>>> deep in the quote
 not quoted at all
 """,
-            [Node('p',
+            [Node('blockquote',
+                Node('p',
+                    Node('span', 'early in the quote '),
+                ),
                 Node('blockquote',
-                    Node('p',
-                        Node('span', 'early in the quote '),
+                    Node('blockquote',
                         Node('blockquote',
                             Node('p',
-                                Node('blockquote',
-                                    Node('p',
-                                        Node('blockquote',
-                                            Node('p',
-                                                 Node('span', 'deep in the quote '),
-                                                 ),
-                                            ),
-                                       ),
-                                  ),
-                             ),
+                                Node('span', 'deep in the quote '),
+                            ),
                         ),
-                   ),
-              ),
-              Node('span', 'not quoted at all '),
+                    )
+                ),
+            ),
+            Node('p',
+                Node('span', 'not quoted at all '),
             )]
         )
 
@@ -361,7 +347,7 @@ not quoted at all
             [Node('p',
                 Node('span', 'This should be a URL '),
                 Node('a', 'mysite.com/allowed/service', attributes={'href':'http://mysite.com/allowed/service'}),
-                Node('span', ' but this should not be \nhttp://mysite.COM/something/dangerous\n. And finally, these two should also be allowed '),
+                Node('span', ' but this should not be'), Node('span', 'http://mysite.COM/something/dangerous'), Node('span', '. And finally, these two should also be allowed '),
                 Node('a', 'mysite.com/safe/url', attributes={'href':'http://mysite.com/safe/url'}),
                 Node('span', ' and '),
                 Node('a', 'another.site.com/something/else', attributes={'href':'http://another.site.com/something/else', 'class':'external'}),
@@ -580,14 +566,13 @@ all by themselves
     def test_nested_bold_and_italic(self):
         self._helper("this is *bold _and italic *and I dunno* what_ this* is.",
             [Node('p',
-                Node('span',
-                    "this is "),
+                Node('span', "this is "),
                 Node('b',
-                    Node('span', "bold ", "_", "and italic ",)
+                    Node('span', "bold"), Node('span', "_"), Node('span', "and italic ",)
                 ),
                 Node('span', "and I dunno"),
                 Node('b',
-                    Node('span', " what", "_", " this"),
+                    Node('span', " what"), Node('span', "_"), Node('span', " this"),
                 ),
                 Node('span', " is."),
             )]
@@ -599,9 +584,9 @@ all by themselves
             [Node('p',
                 Node('span', "but "),
                 Node('b',
-                    Node('span', "I dunno ", "_", "what")
+                    Node('span', "I dunno "), Node('span', "_"), Node('span', "what")
                 ),
-                Node('span', " this", "_", " is "),
+                Node('span', " this"), Node('span', "_"), Node('span', " is "),
                 Node('b',
                     Node('span', "supposed to")
                 ),
@@ -615,7 +600,12 @@ all by themselves
             [Node('p',
                 Node('span', "<a "),
                 Node('a', u"href=\u201cspleengrokes@email.com", attributes={'href':u"mailto:href=\u201cspleengrokes@email.com", 'class':'external'}),
-                Node('span', u"\u201d target=\u201c", "_", u"blank\u201d", ">", "Contact Me</a", ">")
+                Node('span', u"\u201d target=\u201c"),
+                Node('span', "_"),
+                Node('span', u"blank\u201d"),
+                Node('span', ">"),
+                Node('span', "Contact Me</a"),
+                Node('span', ">"),
             )]
         )
 
@@ -760,7 +750,10 @@ And no more of the list. """,
 
     def test_bare_leading_star(self):
         self._helper("""*this is just a leading star""",
-            [Node('p', Node('span', "*", "this is just a leading star"))]
+            [Node('p', 
+                Node('span', "*"),
+                Node('span', "this is just a leading star")
+            )]
         )
 
 
@@ -774,15 +767,8 @@ paragraph not quoted paragraphy
             [Node('ul',
                 Node('li', Node('span', "line 1 ")),
                 Node('li',
-                    Node('blockquote',
-                        Node('p',
-                            Node('blockquote',
-                                Node('p',
-                                    Node('span', "quoted item 2 ")
-                                )
-                            )
-                        )
-                    )
+                    Node('span', ">>"),
+                    Node('span', "quoted item 2 "),
                 ),
                 Node('li', Node('span', "satan "))
             ),
@@ -801,16 +787,14 @@ paragraph damage
             [Node('ul',
                 Node('li', Node('span', "item ")),
                 Node('li',
-                    Node('blockquote',
-                        Node('p', Node('span', "item quote "))
-                        )
-                    ),
-                Node('li',
-                    Node('blockquote',
-                        Node('p', Node('span', "butta "))
-                        )
-                    ),
+                    Node('span', ">"),
+                    Node('span', "item quote "),
                 ),
+                Node('li',
+                    Node('span', ">"),
+                    Node('span', "butta "),
+                ),
+            ),
             Node('p',
                 Node('span', "paragraph damage ")
             )]
@@ -822,12 +806,10 @@ paragraph damage
 > * quoted item 2
 > * quoted item 3
 """,
-            [Node('p',
-                Node('blockquote',
+            [Node('blockquote',
                 Node('ul',
                     Node('li', Node('span', "quoted item 2 ")),
                     Node('li', Node('span', "quoted item 3 ")),
-                    ),
                 )
             )]
         )
@@ -842,19 +824,17 @@ paragraph damage
 
 > Toady
 """,
-            [Node('p',
-                Node('blockquote',
-                    Node('p', Node('span', "Bubba "))
+            [Node('blockquote',
+                Node('p', Node('span', "Bubba "))
+            ),
+            Node('blockquote',
+                Node('ul',
+                        Node('li', Node('span', "quoted item 2 ")),
+                        Node('li', Node('span', "quoted item 3 ")),
                 ),
-                Node('blockquote',
-                    Node('ul',
-                            Node('li', Node('span', "quoted item 2 ")),
-                            Node('li', Node('span', "quoted item 3 ")),
-                    ),
-                ),
-                Node('blockquote',
-                    Node('p', Node('span', "Toady "))
-                ),
+            ),
+            Node('blockquote',
+                Node('p', Node('span', "Toady "))
             )]
         )
 
@@ -868,19 +848,13 @@ paragraph damage
 >
 > Toady
 """,
-            [Node('p',
-                Node('blockquote',
-                    Node('p', Node('span', "Bubba "))
+            [Node('blockquote',
+                Node('p', Node('span', "Bubba ")),
+                Node('ul',
+                    Node('li', Node('span', "quoted item 2 ")),
+                    Node('li', Node('span', "quoted item 3 ")),
                 ),
-                Node('blockquote',
-                    Node('ul',
-                        Node('li', Node('span', "quoted item 2 ")),
-                        Node('li', Node('span', "quoted item 3 ")),
-                    ),
-                ),
-                Node('blockquote',
-                    Node('p', Node('span', "Toady "))
-                ),
+                Node('p', Node('span', "Toady "))
             )]
         )
 
@@ -893,14 +867,12 @@ Bubba
 Toady
 """,
             [Node('p', Node('span', "Bubba ")),
-            Node('ul',
-                Node('li', Node('span', "quoted item 2 ")),
-                Node('li',
-                    Node('span', "quoted item 3 "),
-                    Node('br'),
-                    Node('span', "Toady "),
-                ),
-            )]
+             Node('ul',
+                 Node('li', Node('span', "quoted item 2 ")),
+                 Node('li', Node('span', "quoted item 3 ")),
+            ),
+            Node('p', Node('span', "Toady ")),
+            ]
         )
 
 
@@ -911,18 +883,13 @@ Toady
 > * quoted item 3
 > Toady
 """,
-            [Node('p',
-                Node('blockquote',
-                    Node('p', Node('span', "Bubba ")),
-                    Node('ul',
-                        Node('li', Node('span', "quoted item 2 ")),
-                        Node('li',
-                            Node('span', "quoted item 3 "),
-                            Node('br'),
-                            Node('span', "Toady "),
-                        ),
-                    ),
+            [Node('blockquote',
+                Node('p', Node('span', "Bubba ")),
+                Node('ul',
+                    Node('li', Node('span', "quoted item 2 ")),
+                    Node('li', Node('span', "quoted item 3 ")),
                 ),
+                Node('p', Node('span', "Toady ")),
             )]
         )
 
@@ -938,21 +905,22 @@ When:     Saturday, November 7, 4:30PM
 Phone:    530-555-1212
 """,
             [Node('dl',
-                Node('dt', Node('span', "Host:")),
+                Node('dt', "Host:"),
                 Node('dd', Node('span', "Braig Crozinsky")),
-                Node('dt', Node('span', "Location:")),
-                Node('dd', 
-                    Node('span', u"Braig\u2019s Pad"),
-                    Node('br'),
-                    Node('span', "666 Mareclont Avenue, Apt. 6"),
-                    Node('br'),
-                    Node('span', "Loakand, CA 94616 US"),
-                    Node('br'),
-                    Node('span', "View Map"),
-                ),
-                Node('dt', Node('span', "When:")),
+                Node('dt', "Location:"),
+                Node('dd', Node('span', u"Braig\u2019s Pad")),
+            ),
+            Node('p',
+                Node('span', "666 Mareclont Avenue, Apt. 6"),
+                Node('br'),
+                Node('span', "Loakand, CA 94616 US"),
+                Node('br'),
+                Node('span', "View Map"),
+            ),
+            Node('dl',
+                Node('dt', "When:"),
                 Node('dd', Node('span', "Saturday, November 7, 4:30PM")),
-                Node('dt', Node('span', "Phone:")),
+                Node('dt', "Phone:"),
                 Node('dd', Node('span', "530-555-1212")),
             )]
         )
@@ -968,26 +936,25 @@ Phone:    530-555-1212
 >  When: Neptuday, Pentember 37th, 4:90PM
 >Phone:    530-555-1212
 """,
-            [Node('p',
-                Node('blockquote',
-                    Node('dl',
-                        Node('dt', Node('span', "Host:")),
-                        Node('dd', Node('span', "Braig Crozinsky")),
-                        Node('dt', Node('span', "Location:")),
-                        Node('dd', 
-                            Node('span', u"Braig\u2019s Pad"),
-                            Node('br'),
-                            Node('span', "666 Mareclont Avenue, Apt. 6"),
-                            Node('br'),
-                            Node('span', "Loakand, CA 94616 US"),
-                            Node('br'),
-                            Node('span', "View Map"),
-                        ),
-                        Node('dt', Node('span', "When:")),
-                        Node('dd', Node('span', "Neptuday, Pentember 37th, 4:90PM")),
-                        Node('dt', Node('span', "Phone:")),
-                        Node('dd', Node('span', "530-555-1212")),
-                    )
+            [Node('blockquote',
+                Node('dl',
+                    Node('dt', "Host:"),
+                    Node('dd', Node('span', "Braig Crozinsky")),
+                    Node('dt', "Location:"),
+                    Node('dd', Node('span', u"Braig\u2019s Pad")),
+                ),
+                Node('p',
+                    Node('span', "666 Mareclont Avenue, Apt. 6"),
+                    Node('br'),
+                    Node('span', "Loakand, CA 94616 US"),
+                    Node('br'),
+                    Node('span', "View Map"),
+                ),
+                Node('dl',
+                    Node('dt', "When:"),
+                    Node('dd', Node('span', "Neptuday, Pentember 37th, 4:90PM")),
+                    Node('dt', "Phone:"),
+                    Node('dd', Node('span', "530-555-1212")),
                 )
             )]
         )
@@ -1006,9 +973,9 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
                 Node('span', "Bubba Gump"),
             ),
             Node('dl', 
-                Node('dt', Node('span', "Fishing:")),
+                Node('dt', "Fishing:"),
                 Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
-                Node('dt', Node('span', "Hurricane:")),
+                Node('dt', "Hurricane:"),
                 Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
             ),
             Node('p',
@@ -1026,21 +993,15 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
 >
 > Toady the Wild G-Frog's ride of a lifetime channel tunnel
 """,
-            [Node('p', 
-                Node('blockquote', 
-                    Node('p', Node('span', "Bubba Gump")),
+            [Node('blockquote', 
+                Node('p', Node('span', "Bubba Gump")),
+                Node('dl', 
+                    Node('dt', "Fishing:"),
+                    Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
+                    Node('dt', "Hurricane:"),
+                    Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
                 ),
-                Node('blockquote',
-                    Node('dl', 
-                        Node('dt', Node('span', "Fishing:")),
-                        Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
-                        Node('dt', Node('span', "Hurricane:")),
-                        Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
-                    ),
-                ),
-                Node('blockquote',
-                    Node('p', Node('span', u"Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
-                ),
+                Node('p', Node('span', u"Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
             )]
         )
 
@@ -1048,7 +1009,9 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
     def test_not_actually_a_definiton_list(self):
         self._helper("About Smuggler's Cove: Nothing",
         [Node('p',
-            Node('span', u"About Smuggler\u2019s Cove: ", "Nothing")
+            Node('span', "A"),
+            Node('span', u"bout Smuggler\u2019s Cove: "), 
+            Node('span', "Nothing"),
         )]
         )
 
