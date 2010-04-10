@@ -118,17 +118,17 @@ var pottymouth = new (function () {
 
 
   var Token = function(name, content) {
-     this.name = name;
-     this.content = content;
-     this.add = function (more) {
-       this.content += more;
-     }
-     this.toString = function () {
-       return this.content/*.replace('&', '&amp;')*/.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' ); // TODO: figure this out
-     }
-     this.strip = function () {
-         this.content = this.content.strip();
-     }
+    this.name = name;
+    this.content = content;
+    this.add = function (more) {
+      this.content += more;
+    }
+    this.toString = function () {
+      return this.content/*.replace('&', '&amp;')*/.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' ); // TODO: figure this out
+    }
+    this.strip = function () {
+      this.content = this.content.strip();
+    }
   }
 
 
@@ -200,24 +200,24 @@ var pottymouth = new (function () {
     this.name = name;
     this.content = [];
     for (var i=1; i<arguments.length; i++){
-        if (arguments[i]) {
-            this.content.push(arguments[i]);
-        }
+      if (arguments[i]) {
+        this.content.push(arguments[i]);
+      }
     }
     this.attributes = new Attributes();
     this.push = function (item) {
       return this.content.push(item);
     };
     this.extend = function (items) {
-        extend(this.content, items);
+      extend(this.content, items);
     };
     this.node_children = function () {
-        for (var i in this.content) {
-            if (this.content[i] instanceof Node) {
-                return true;
-            }
+      for (var i in this.content) {
+        if (this.content[i] instanceof Node) {
+          return true;
         }
-        return false;
+      }
+      return false;
     };
     this.toString = function () {
       if (this.name == 'br' || this.name == 'img') {
@@ -316,329 +316,327 @@ var pottymouth = new (function () {
 
 
   var is_list_token = function (t) {
-      return t.name == 'HASH' || t.name == 'NUMBERED' || t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET';
+    return t.name == 'HASH' || t.name == 'NUMBERED' || t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET';
   };
 
 
   var _handle_url = function (t) {
-      var anchor = t.content;
-      if (! anchor.match(protocol_pattern)) {
-        anchor = 'http://' + anchor;
+    var anchor = t.content;
+    if (! anchor.match(protocol_pattern)) {
+      anchor = 'http://' + anchor;
+    }
+    if (url_check_domains && anchor.match(url_check_domains)) {
+      // console.debug('\tchecking urls for this domain');
+      for (var i in url_white_lists) {
+        var w = url_white_lists[i];
+        // console.debug('\t\tchecking against', w);
+        if (anchor.match(w)) {
+          // console.debug('\t\tmatches the white lists')
+          return new LinkNode(anchor, true);
+        }
       }
-      if (url_check_domains && anchor.match(url_check_domains)) {
-          // console.debug('\tchecking urls for this domain');
-          for (var i in url_white_lists) {
-              var w = url_white_lists[i];
-              // console.debug('\t\tchecking against', w);
-              if (anchor.match(w)) {
-                  // console.debug('\t\tmatches the white lists')
-                  return new LinkNode(anchor, true);
-              }
-          }
-          // console.debug('\tdidn\'t match any white lists, making text');
-          var n = new Node('span');
-          n.push(anchor);
-          return n;
-      } else {
-          return new LinkNode(anchor, false);
-      }
+      // console.debug('\tdidn\'t match any white lists, making text');
+      var n = new Node('span');
+      n.push(anchor);
+      return n;
+    } else {
+      return new LinkNode(anchor, false);
+    }
   };
 
 
   var parse_atomics = function (tokens) {
-      var collect = [];
-      while (tokens.length) {
-          var t = tokens[0];
-          if (t.name == 'TEXT') {
-              tokens.shift();
-              if (t.content.strip().length) {
-                  collect.push(new Node('span', t));
-              }
-          } else if (t.name == 'URL') {
-              collect.push(_handle_url(tokens.shift()))
-          } else if (t.name == 'IMAGE') {
-              collect.push(new ImageNode(tokens.shift().content))
-          } else if (t.name == 'EMAIL') {
-              collect.push(new EmailNode(tokens.shift().content))
-          } else if (t.name == 'YOUTUBE') {
-              collect.push(new YouTubeNode(tokens.shift().content))
-          } else if (t.name == 'RIGHT_ANGLE' || t.name == 'DEFINITION') {
-              collect.push(new Node('span', tokens.shift()));
-          } else if (is_list_token(t) && t.name != 'ITEMSTAR') {
-              collect.push(new Node('span', tokens.shift()));
-          } else {
-              break;
-          }
+    var collect = [];
+    while (tokens.length) {
+      var t = tokens[0];
+      if (t.name == 'TEXT') {
+        tokens.shift();
+        if (t.content.strip().length) {
+          collect.push(new Node('span', t));
+        }
+      } else if (t.name == 'URL') {
+        collect.push(_handle_url(tokens.shift()))
+      } else if (t.name == 'IMAGE') {
+        collect.push(new ImageNode(tokens.shift().content))
+      } else if (t.name == 'EMAIL') {
+        collect.push(new EmailNode(tokens.shift().content))
+      } else if (t.name == 'YOUTUBE') {
+        collect.push(new YouTubeNode(tokens.shift().content))
+      } else if (t.name == 'RIGHT_ANGLE' || t.name == 'DEFINITION') {
+        collect.push(new Node('span', tokens.shift()));
+      } else if (is_list_token(t) && t.name != 'ITEMSTAR') {
+        collect.push(new Node('span', tokens.shift()));
+      } else {
+        break;
       }
-      return collect;
+    }
+    return collect;
   }
 
 
   var parse_italic = function (tokens, inner) {
-      var t = tokens.shift();
+    var t = tokens.shift();
 
-      var collect = [];
-      while (tokens.length) {
-          var atomics = parse_atomics(tokens);
-          if (atomics.length) {
-              extend(collect, atomics);
-          } else if ((! inner) && (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR')) {
-              extend(collect, parse_bold(tokens, true));
-          } else if (tokens[0].name == 'UNDERSCORE') {
-              tokens.shift();
-              if (collect) {
-                  var newi = new Node('i');
-                  newi.extend(collect);
-                  return [newi];
-              } else {
-                  return [];
-              }
-          } else {
-              break
-          }
+    var collect = [];
+    while (tokens.length) {
+      var atomics = parse_atomics(tokens);
+      if (atomics.length) {
+        extend(collect, atomics);
+      } else if ((! inner) && (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR')) {
+        extend(collect, parse_bold(tokens, true));
+      } else if (tokens[0].name == 'UNDERSCORE') {
+        tokens.shift();
+        if (collect) {
+          var newi = new Node('i');
+          newi.extend(collect);
+          return [newi];
+        } else {
+          return [];
+        }
+      } else {
+        break
       }
-      collect.unshift(new Node('span', '_'));
-      return collect;
+    }
+    collect.unshift(new Node('span', '_'));
+    return collect;
   };
 
 
   var parse_bold = function (tokens, inner) {
-      var t = tokens.shift();
+    var t = tokens.shift();
 
-      var collect = [];
-      while (tokens.length) {
-          var atomics = parse_atomics(tokens);
-          if (atomics.length) {
-              extend(collect, atomics);
-          } else if ((! inner) && tokens[0].name == 'UNDERSCORE') {
-              extend(collect, parse_italic(tokens, true));
-          } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
-              tokens.shift();
-              if (collect.length){
-                  var newb = new Node('b');
-                  newb.extend(collect);
-                  return [newb];
-              } else {
-                  return [];
-              }
-          } else {
-              break;
-          }
+    var collect = [];
+    while (tokens.length) {
+      var atomics = parse_atomics(tokens);
+      if (atomics.length) {
+        extend(collect, atomics);
+      } else if ((! inner) && tokens[0].name == 'UNDERSCORE') {
+        extend(collect, parse_italic(tokens, true));
+      } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
+        tokens.shift();
+        if (collect.length){
+          var newb = new Node('b');
+          newb.extend(collect);
+          return [newb];
+        } else {
+          return [];
+        }
+      } else {
+        break;
       }
-      collect.unshift(new Node('span', '*'))
-      return collect;
+    }
+    collect.unshift(new Node('span', '*'))
+    return collect;
   };
 
 
   var parse_line = function (tokens) {
-      var collect = [];
-      while (tokens) {
-          var atomics = parse_atomics(tokens);
-          if (atomics.length) {
-              extend(collect, atomics);
-          }
-          if (! tokens.length) {
-              break;
-          } else if (tokens[0].name == 'UNDERSCORE') {
-              extend(collect, parse_italic(tokens, false));
-          } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
-              extend(collect, parse_bold(tokens, false));
-          } else {
-              break;
-          }
+    var collect = [];
+    while (tokens) {
+      var atomics = parse_atomics(tokens);
+      if (atomics.length) {
+        extend(collect, atomics);
       }
-      return collect;
+      if (! tokens.length) {
+        break;
+      } else if (tokens[0].name == 'UNDERSCORE') {
+        extend(collect, parse_italic(tokens, false));
+      } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
+        extend(collect, parse_bold(tokens, false));
+      } else {
+        break;
+      }
+    }
+    return collect;
   };
 
 
   var parse_list = function (tokens) {
+    var t = tokens[0];
+
+    if (t.name == 'HASH' || t.name == 'NUMBERED') {
+      var l = new Node('ol');
+    } else if (t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET') {
+      var l = new Node('ul');
+    }
+
+    while (tokens.length) {
       var t = tokens[0];
-
-      if (t.name == 'HASH' || t.name == 'NUMBERED') {
-          var l = new Node('ol');
-      } else if (t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET') {
-          var l = new Node('ul');
+      if (is_list_token(t)) {
+        tokens.shift();
+        var i = new Node('li');
+        var o = parse_line(tokens)
+        i.extend(o);
+        l.push(i);
+      } else if (tokens[0].name == 'NEW_LINE') {
+        tokens.shift();
+        if (tokens && is_list_token(t)) {
+          break;
+        }
+      } else {
+        break;
       }
-
-      while (tokens.length) {
-          var t = tokens[0];
-          if (is_list_token(t)) {
-              tokens.shift();
-              var i = new Node('li');
-              var o = parse_line(tokens)
-              i.extend(o);
-              l.push(i);
-          } else if (tokens[0].name == 'NEW_LINE') {
-              tokens.shift();
-              if (tokens && is_list_token(t)) {
-                  break;
-              }
-          } else {
-              break;
-          }
-      }
-      return [l];
+    }
+    return [l];
   };
 
 
   var parse_definition = function (tokens) {
-      var dl = new Node('dl');
-      while (tokens.length) {
-          if (tokens[0].name == 'DEFINITION') {
-              var dt = new Node('dt'); 
-              dt.push(tokens.shift());
-              dl.push(dt);
-              var dd = new Node('dd');
-              dd.extend(parse_line(tokens));
-              dl.push(dd);
-          } else if (tokens[0].name == 'NEW_LINE') {
-              tokens.shift();
-              if (tokens.length && tokens[0].name != 'DEFINITION') {
-                  break;
-              }
-          } else {
-              break;
-          }
+    var dl = new Node('dl');
+    while (tokens.length) {
+      if (tokens[0].name == 'DEFINITION') {
+        var dt = new Node('dt'); 
+        dt.push(tokens.shift());
+        dl.push(dt);
+        var dd = new Node('dd');
+        dd.extend(parse_line(tokens));
+        dl.push(dd);
+      } else if (tokens[0].name == 'NEW_LINE') {
+        tokens.shift();
+        if (tokens.length && tokens[0].name != 'DEFINITION') {
+          break;
+        }
+      } else {
+        break;
       }
-      return [dl]
+    }
+    return [dl]
   };
 
 
   var parse_quote = function (tokens) {
-      var quote = new Node('blockquote');
-      var new_tokens = [];
+    var quote = new Node('blockquote');
+    var new_tokens = [];
 
-      var handle_quote = function (token){
-          var new_angle = token.content.replace('>', '', 1).strip();
-          if (new_angle.length) {
-              new_tokens.push(new Token('RIGHT_ANGLE', new_angle))
-          }
-      };
-
-      handle_quote(tokens.shift());
-
-      while (tokens.length) {
-          if (tokens[0].name == 'NEW_LINE') {
-              new_tokens.push(tokens.shift())
-              if (tokens.length) {
-                  if (tokens[0].name == 'RIGHT_ANGLE') {
-                      handle_quote(tokens.shift());
-                  } else {
-                      break;
-                  }
-               }
-          } else {
-              new_tokens.push(tokens.shift());
-          }
+    var handle_quote = function (token){
+      var new_angle = token.content.replace('>', '', 1).strip();
+      if (new_angle.length) {
+        new_tokens.push(new Token('RIGHT_ANGLE', new_angle))
       }
+    };
 
-      quote.extend(parse_blocks(new_tokens));
-      return [quote];
+    handle_quote(tokens.shift());
+
+    while (tokens.length) {
+      if (tokens[0].name == 'NEW_LINE') {
+        new_tokens.push(tokens.shift())
+        if (tokens.length) {
+          if (tokens[0].name == 'RIGHT_ANGLE') {
+            handle_quote(tokens.shift());
+          } else {
+            break;
+          }
+         }
+      } else {
+        new_tokens.push(tokens.shift());
+      }
+    }
+
+    quote.extend(parse_blocks(new_tokens));
+    return [quote];
   };
 
 
   var calculate_line_length = function (line) {
-      var length = 0;
-      for (var i in line) {
-          if (line[i] instanceof Node) {
-              length += calculate_line_length(line[i].content);
-          } else if (line[i] instanceof Token) {
-              length += line[i].content.length;
-          } else if (typeof(line[i]) == 'string') {
-              length += line[i].length;
-          } else {
-               throw typeof(line[i]) + line[i].name;
-          }
+    var length = 0;
+    for (var i in line) {
+      if (line[i] instanceof Node) {
+        length += calculate_line_length(line[i].content);
+      } else if (line[i] instanceof Token) {
+        length += line[i].content.length;
+      } else if (typeof(line[i]) == 'string') {
+        length += line[i].length;
+      } else {
+        throw typeof(line[i]) + line[i].name;
       }
-      return length;
+    }
+    return length;
   };
 
 
   var parse_paragraph = function (tokens) {
-      var p = new Node('p');
-      var shorts = [];
+    var p = new Node('p');
+    var shorts = [];
 
-      var parse_shorts = function(shorts, line) {
-          var collect = [];
-          if (shorts.length >= 2) {
-              if (p.content.length) {
-                  // there was a long line before this
-                  collect.push(new Node('br'))
-              }
-              extend(collect, shorts.shift());
-              while (shorts.length) {
-                  collect.push(new Node('br'));
-                  extend(collect, shorts.shift());
-              }
-              if (line.length) {
-                  // there is a long line after this
-                  collect.push(new Node('br'));
-              }
-          } else {
-              while (shorts.length) {
-                  extend(collect, shorts.shift());
-              }
-          }
-          return collect;
-      };
-
-      while (tokens.length) {
-          var t = tokens[0];
-          if (t.name == 'NEW_LINE') {
-              tokens.shift();
-              if (tokens.length && tokens[0].name == 'NEW_LINE') {
-                  tokens.shift();
-                  break;
-              } else if (tokens.length && (tokens[0].name == 'RIGHT_ANGLE' || tokens[0].name == 'DEFINITION' || is_list_token(tokens[0]))) {
-                  break;
-              }
-          } else {
-              var line = parse_line(tokens);
-              if (! line.length) {
-                  break;
-              } else if (calculate_line_length(line) < short_line_length) {
-                  shorts.push(line);
-              } else {
-                  p.extend(parse_shorts(shorts, line));
-                  p.extend(line);
-              }
-          }
-      }
-
-      p.extend(parse_shorts(shorts, []));
-
-      if (p.content.length) {
-          return [p];
+    var parse_shorts = function(shorts, line) {
+      var collect = [];
+      if (shorts.length >= 2) {
+        if (p.content.length) {
+          // there was a long line before this
+          collect.push(new Node('br'))
+        }
+        extend(collect, shorts.shift());
+        while (shorts.length) {
+          collect.push(new Node('br'));
+          extend(collect, shorts.shift());
+        }
+        if (line.length) {
+          // there is a long line after this
+          collect.push(new Node('br'));
+        }
       } else {
-          return [];
+        while (shorts.length) {
+          extend(collect, shorts.shift());
+        }
       }
+      return collect;
+    };
+
+    while (tokens.length) {
+      var t = tokens[0];
+      if (t.name == 'NEW_LINE') {
+        tokens.shift();
+        if (tokens.length && tokens[0].name == 'NEW_LINE') {
+          tokens.shift();
+          break;
+        } else if (tokens.length && (tokens[0].name == 'RIGHT_ANGLE' || tokens[0].name == 'DEFINITION' || is_list_token(tokens[0]))) {
+          break;
+        }
+      } else {
+        var line = parse_line(tokens);
+        if (! line.length) {
+          break;
+        } else if (calculate_line_length(line) < short_line_length) {
+          shorts.push(line);
+        } else {
+          p.extend(parse_shorts(shorts, line));
+          p.extend(line);
+        }
+      }
+    }
+
+    p.extend(parse_shorts(shorts, []));
+
+    if (p.content.length) {
+      return [p];
+    } else {
+      return [];
+    }
   };
 
 
   var parse_blocks = function (tokens) {
-      var collect = [];
-      while (tokens.length) {
-          var t = tokens[0];
-          if (t.name == 'NEW_LINE') {
-              tokens.shift();
-          } else if (t.name == 'RIGHT_ANGLE') {
-              extend(collect, parse_quote(tokens));
-          } else if (is_list_token(t)) {
-              extend(collect, parse_list(tokens));
-          } else if (t.name == 'DEFINITION') {
-              extend(collect, parse_definition(tokens));
-          } else {
-              extend(collect, parse_paragraph(tokens));
-          }
+    var collect = [];
+    while (tokens.length) {
+      var t = tokens[0];
+      if (t.name == 'NEW_LINE') {
+        tokens.shift();
+      } else if (t.name == 'RIGHT_ANGLE') {
+        extend(collect, parse_quote(tokens));
+      } else if (is_list_token(t)) {
+        extend(collect, parse_list(tokens));
+      } else if (t.name == 'DEFINITION') {
+        extend(collect, parse_definition(tokens));
+      } else {
+        extend(collect, parse_paragraph(tokens));
       }
-      return collect;
+    }
+    return collect;
   };
 
 
   this.parse = function (s) {
-    s = pre_replace(s);
-    var tokens = tokenize(s);
-    var finished = parse_blocks(tokens);
+    var finished = parse_blocks(tokenize(pre_replace(s)));
     var div = new Node('div');
     div.extend(finished);
     return div;
