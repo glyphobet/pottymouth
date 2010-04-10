@@ -502,7 +502,7 @@ var pottymouth = new (function () {
     var new_tokens = [];
 
     var handle_quote = function (token){
-      var new_angle = token.content.replace('>', '', 1).strip();
+      var new_angle = token.content.replace(/^>\s*/, '').strip();
       if (new_angle.length) {
         new_tokens.push(new Token('RIGHT_ANGLE', new_angle))
       }
