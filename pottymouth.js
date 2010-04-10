@@ -1,5 +1,5 @@
 String.prototype.strip = function () { 
-    return this.replace(/^[ \t\n\r]*|[ \t\n\r]*$/g, '');
+    return this.replace(/^\s*|\s*$/g, '');
 };
 
 var pottymouth = new (function () {
