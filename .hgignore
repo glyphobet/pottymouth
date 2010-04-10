@@ -1,8 +1,10 @@
 .cdv/
 .*.pyc
-test-mosuki.py
-PottyMouth.egg-info/
-debian/
-dist/
-build/
-build-stamp-2.6
+javascript/jquery-*
+javascript/qunit*
+python/test-mosuki.py
+python/PottyMouth.egg-info/
+python/debian/
+python/dist/
+python/build/
+python/build-stamp-2.6
