@@ -523,7 +523,6 @@ class PottyMouth(object):
             elif tokens[0].name == 'NEW_LINE':
                 tokens.pop(0)
                 if tokens and self.is_list_token(t):
-                    print 'breaking'
                     break
             else:
                 break
