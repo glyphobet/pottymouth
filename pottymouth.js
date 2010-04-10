@@ -102,9 +102,7 @@ var pottymouth = new (function () {
 
 
   var extend = function (main, extra) {
-    for (var i in extra) {
-      main.push(extra[i]);
-    }
+    main.push.apply(main, extra);
   };
 
 
@@ -209,7 +207,7 @@ var pottymouth = new (function () {
       return this.content.push(item);
     };
     this.extend = function (items) {
-      extend(this.content, items);
+      this.content.push.apply(this.content, items);
     };
     this.node_children = function () {
       for (var i in this.content) {
@@ -336,9 +334,7 @@ var pottymouth = new (function () {
         }
       }
       // console.debug('\tdidn\'t match any white lists, making text');
-      var n = new Node('span');
-      n.push(anchor);
-      return n;
+      return new Node('span', anchor);;
     } else {
       return new LinkNode(anchor, false);
     }
@@ -465,8 +461,7 @@ var pottymouth = new (function () {
       if (is_list_token(t)) {
         tokens.shift();
         var i = new Node('li');
-        var o = parse_line(tokens)
-        i.extend(o);
+        i.extend(parse_line(tokens));
         l.push(i);
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
@@ -485,9 +480,7 @@ var pottymouth = new (function () {
     var dl = new Node('dl');
     while (tokens.length) {
       if (tokens[0].name == 'DEFINITION') {
-        var dt = new Node('dt'); 
-        dt.push(tokens.shift());
-        dl.push(dt);
+        dl.push(new Node('dt', tokens.shift()));
         var dd = new Node('dd');
         dd.extend(parse_line(tokens));
         dl.push(dd);
