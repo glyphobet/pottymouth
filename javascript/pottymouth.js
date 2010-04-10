@@ -2,13 +2,12 @@ String.prototype.strip = function () {
     return this.replace(/^\s*|\s*$/g, '');
 };
 
-var pottymouth = new (function () {
+var PottyMouth = function (url_check_domains, url_white_lists) {
 
-  var url_check_domains = new RegExp('(' + ['www.mysite.com', 'mysite.com'].join(')|(') + ')', 'i');
-  var url_white_lists = [
-    /https?:\/\/mysite\.com\/allowed\/service/,
-    /https?:\/\/mysite\.com\/safe\/url/,
-  ];
+  if (! url_check_domains) url_check_domains = [];
+  if (! url_white_lists  ) url_white_lists   = [];
+
+  url_check_domains = new RegExp('(' + url_check_domains.join(')|(') + ')', 'i');
   var short_line_length = 50;
 
   var protocol_pattern = /^\w+:\/\//i;
@@ -648,6 +647,6 @@ var pottymouth = new (function () {
 
     this.pre_replace = pre_replace;
     this.tokenize = tokenize;
-  }
+  };
 
-})();
+};
