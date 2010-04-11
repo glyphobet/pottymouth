@@ -1,5 +1,5 @@
 String.prototype.strip = function () { 
-    return this.replace(/^\s*|\s*$/g, '');
+  return this.replace(/^\s*|\s*$/g, '');
 };
 
 var PottyMouth = function (url_check_domains, url_white_lists) {
@@ -100,11 +100,6 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   ];
 
 
-  var extend = function (main, extra) {
-    main.push.apply(main, extra);
-  };
-
-
   var pre_replace = function (s) {
     for (var i in replace_list) {
       var r = replace_list[i];
@@ -195,19 +190,19 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
   var Node = function (name) {
     this.name = name;
+    this.attributes = new Attributes();
     this.content = [];
     for (var i=1; i<arguments.length; i++){
       if (arguments[i]) {
         this.content.push(arguments[i]);
       }
     }
-    this.attributes = new Attributes();
     this.push = function (item) {
       return this.content.push(item);
     };
-    this.extend = function (items) {
-      this.content.push.apply(this.content, items);
-    };
+    this.concat = function (extra) {
+      this.content = this.content.concat(extra);
+    }
     this.node_children = function () {
       for (var i in this.content) {
         if (this.content[i] instanceof Node) {
@@ -376,14 +371,14 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     while (tokens.length) {
       var atomics = parse_atomics(tokens);
       if (atomics.length) {
-        extend(collect, atomics);
+        collect = collect.concat(atomics);
       } else if ((! inner) && (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR')) {
-        extend(collect, parse_bold(tokens, true));
+        collect = collect.concat(parse_bold(tokens, true));
       } else if (tokens[0].name == 'UNDERSCORE') {
         tokens.shift();
-        if (collect) {
+        if (collect.length) {
           var newi = new Node('i');
-          newi.extend(collect);
+          newi.concat(collect);
           return [newi];
         } else {
           return [];
@@ -404,14 +399,14 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     while (tokens.length) {
       var atomics = parse_atomics(tokens);
       if (atomics.length) {
-        extend(collect, atomics);
+        collect = collect.concat(atomics);
       } else if ((! inner) && tokens[0].name == 'UNDERSCORE') {
-        extend(collect, parse_italic(tokens, true));
+        collect = collect.concat(parse_italic(tokens, true));
       } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
         tokens.shift();
         if (collect.length){
           var newb = new Node('b');
-          newb.extend(collect);
+          newb.concat(collect);
           return [newb];
         } else {
           return [];
@@ -430,14 +425,14 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     while (tokens) {
       var atomics = parse_atomics(tokens);
       if (atomics.length) {
-        extend(collect, atomics);
+        collect = collect.concat(atomics);
       }
       if (! tokens.length) {
         break;
       } else if (tokens[0].name == 'UNDERSCORE') {
-        extend(collect, parse_italic(tokens, false));
+        collect = collect.concat(parse_italic(tokens, false));
       } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
-        extend(collect, parse_bold(tokens, false));
+        collect = collect.concat(parse_bold(tokens, false));
       } else {
         break;
       }
@@ -460,7 +455,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (is_list_token(t)) {
         tokens.shift();
         var i = new Node('li');
-        i.extend(parse_line(tokens));
+        i.concat(parse_line(tokens));
         l.push(i);
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
@@ -481,7 +476,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (tokens[0].name == 'DEFINITION') {
         dl.push(new Node('dt', tokens.shift()));
         var dd = new Node('dd');
-        dd.extend(parse_line(tokens));
+        dd.concat(parse_line(tokens));
         dl.push(dd);
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
@@ -524,7 +519,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       }
     }
 
-    quote.extend(parse_blocks(new_tokens));
+    quote.concat(parse_blocks(new_tokens));
     return [quote];
   };
 
@@ -557,10 +552,10 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
           // there was a long line before this
           collect.push(new Node('br'))
         }
-        extend(collect, shorts.shift());
+        collect = collect.concat(shorts.shift());
         while (shorts.length) {
           collect.push(new Node('br'));
-          extend(collect, shorts.shift());
+          collect = collect.concat(shorts.shift());
         }
         if (line.length) {
           // there is a long line after this
@@ -568,7 +563,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         }
       } else {
         while (shorts.length) {
-          extend(collect, shorts.shift());
+          collect = collect.concat(shorts.shift());
         }
       }
       return collect;
@@ -591,13 +586,13 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         } else if (calculate_line_length(line) < short_line_length) {
           shorts.push(line);
         } else {
-          p.extend(parse_shorts(shorts, line));
-          p.extend(line);
+          p.concat(parse_shorts(shorts, line));
+          p.concat(line);
         }
       }
     }
 
-    p.extend(parse_shorts(shorts, []));
+    p.concat(parse_shorts(shorts, []));
 
     if (p.content.length) {
       return [p];
@@ -614,13 +609,13 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (t.name == 'NEW_LINE') {
         tokens.shift();
       } else if (t.name == 'RIGHT_ANGLE') {
-        extend(collect, parse_quote(tokens));
+        collect = collect.concat(parse_quote(tokens));
       } else if (is_list_token(t)) {
-        extend(collect, parse_list(tokens));
+        collect = collect.concat(parse_list(tokens));
       } else if (t.name == 'DEFINITION') {
-        extend(collect, parse_definition(tokens));
+        collect = collect.concat(parse_definition(tokens));
       } else {
-        extend(collect, parse_paragraph(tokens));
+        collect = collect.concat(parse_paragraph(tokens));
       }
     }
     return collect;
@@ -630,7 +625,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   this.parse = function (s) {
     var finished = parse_blocks(tokenize(pre_replace(s)));
     var div = new Node('div');
-    div.extend(finished);
+    div.concat(finished);
     return div;
   };
 
