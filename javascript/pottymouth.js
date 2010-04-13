@@ -116,7 +116,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       this.content += more;
     }
     this.toString = function () {
-      return this.content/*.replace('&', '&amp;')*/.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' ); // TODO: figure this out
+      return this.content.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' );
     }
     this.strip = function () {
       this.content = this.content.strip();
