@@ -175,7 +175,10 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   };
 
 
-  var Attributes = function () {
+  var Attributes = function (a) {
+    for (var k in a) {
+      this[k] = a[k];
+    }
     this.toString = function () {
       var s = '';
       for (var k in this) {
@@ -184,25 +187,21 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         }
       }
       return s;
-    }
-  }
+    };
+  };
 
 
-  var Node = function (name) {
+  var Node = function (name, content, attributes) {
     this.name = name;
-    this.attributes = new Attributes();
-    this.content = [];
-    for (var i=1; i<arguments.length; i++){
-      if (arguments[i]) {
-        this.content.push(arguments[i]);
-      }
-    }
+    this.attributes = new Attributes(attributes ? attributes : {});
+    this.content = content ? content : [];
+
     this.push = function (item) {
       return this.content.push(item);
     };
     this.concat = function (extra) {
       this.content = this.content.concat(extra);
-    }
+    };
     this.node_children = function () {
       for (var i in this.content) {
         if (this.content[i] instanceof Node) {
@@ -214,9 +213,9 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     this.toString = function () {
       if (this.name == 'br' || this.name == 'img') {
         // <br></br> causes double-newlines, so we do this
-        return '<' + this.name + this.attribute_string() + ' />';
+        return '<' + this.name + this.attributes.toString() + ' />';
       } else {
-        var open = '<' + this.name + this.attribute_string() + '>';
+        var open = '<' + this.name + this.attributes.toString() + '>';
         var close = '</' + this.name + '>';
 
         var c = ''
@@ -236,17 +235,13 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         }
       }
     };
-    this.attribute_string = function () {
-      return this.attributes.toString();
-    }
   };
 
 
   var URLNode = function (content, internal) {
     this.name = 'a';
     this.content = [content.replace(/^http:\/\//, '')];
-    this.attributes = new Attributes();
-    this.attributes.href = content;
+    this.attributes = new Attributes({href:content});
     if (! internal) {
       this.attributes['class'] = 'external';
     }
@@ -260,9 +255,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   var EmailNode = function (content) {
     this.name = 'a';
     this.content = [content];
-    this.attributes = new Attributes();
-    this.attributes.href = 'mailto:' + content;
-    this.attributes['class'] = 'external';
+    this.attributes = new Attributes({href:'mailto:' + content, 'class':'external'});
   };
   EmailNode.prototype = new Node();
 
@@ -270,39 +263,28 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   var ImageNode = function (content) {
     this.name = 'img';
     this.content = [];
-    this.attributes = new Attributes();
-    this.attributes.src = content;
+    this.attributes = new Attributes({src:content});
   };
   ImageNode.prototype = new Node();
 
 
   var YouTubeNode = function (content) {
-    this.name = 'object';
-    this.content = [];
-    this.attributes = new Attributes();
-    this.attributes.width = 425;
-    this.attributes.height = 350;
-
     var ytid = content.match(youtube_pattern)[1];
     var url = 'http://www.youtube.com/v/'+ytid;
 
-    var p = new Node('param');
-    p.attributes.name = 'movie';
-    p.attributes.value = url;
-    this.content.push(p);
-
-    p = new Node('param');
-    p.attributes.name = 'wmode';
-    p.attributes.value = 'transparent';
-    this.content.push(p);
-
-    var e = new Node('embed');
-    e.attributes.type = 'application/x-shockwave-flash';
-    e.attributes.wmode = 'transparent';
-    e.attributes.src = url;
-    e.attributes.width = 425;
-    e.attributes.height = 350;
-    this.content.push(e);
+    this.name = 'object';
+    this.attributes = new Attributes({width:425, height:350});
+    this.content = [
+      new Node('param', [], {name:'movie', value:url}),
+      new Node('param', [], {name:'wmode', value:'transparent'}),
+      new Node('embed', [], {
+        type:'application/x-shockwave-flash',
+        wmode:'transparent',
+        src:url,
+        width:425,
+        height:350,
+      })
+    ];
   };
   YouTubeNode.prototype = new Node();
 
@@ -312,7 +294,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   };
 
 
-  var _handle_url = function (t) {
+  var handle_url = function (t) {
     var anchor = t.content;
     if (! anchor.match(protocol_pattern)) {
       anchor = 'http://' + anchor;
@@ -328,7 +310,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         }
       }
       // console.debug('\tdidn\'t match any white lists, making text');
-      return new Node('span', anchor);;
+      return new Node('span', [anchor]);;
     } else {
       return new LinkNode(anchor, false);
     }
@@ -342,10 +324,10 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (t.name == 'TEXT') {
         tokens.shift();
         if (t.content.strip().length) {
-          collect.push(new Node('span', t));
+          collect.push(new Node('span', [t]));
         }
       } else if (t.name == 'URL') {
-        collect.push(_handle_url(tokens.shift()))
+        collect.push(handle_url(tokens.shift()))
       } else if (t.name == 'IMAGE') {
         collect.push(new ImageNode(tokens.shift().content))
       } else if (t.name == 'EMAIL') {
@@ -353,9 +335,9 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       } else if (t.name == 'YOUTUBE') {
         collect.push(new YouTubeNode(tokens.shift().content))
       } else if (t.name == 'RIGHT_ANGLE' || t.name == 'DEFINITION') {
-        collect.push(new Node('span', tokens.shift()));
+        collect.push(new Node('span', [tokens.shift()]));
       } else if (is_list_token(t) && t.name != 'ITEMSTAR') {
-        collect.push(new Node('span', tokens.shift()));
+        collect.push(new Node('span', [tokens.shift()]));
       } else {
         break;
       }
@@ -377,9 +359,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       } else if (tokens[0].name == 'UNDERSCORE') {
         tokens.shift();
         if (collect.length) {
-          var newi = new Node('i');
-          newi.concat(collect);
-          return [newi];
+          return [new Node('i', collect)];
         } else {
           return [];
         }
@@ -387,7 +367,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         break
       }
     }
-    collect.unshift(new Node('span', '_'));
+    collect.unshift(new Node('span', ['_']));
     return collect;
   };
 
@@ -405,9 +385,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       } else if (tokens[0].name == 'STAR' || tokens[0].name == 'ITEMSTAR') {
         tokens.shift();
         if (collect.length){
-          var newb = new Node('b');
-          newb.concat(collect);
-          return [newb];
+          return [new Node('b', collect)];
         } else {
           return [];
         }
@@ -415,7 +393,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         break;
       }
     }
-    collect.unshift(new Node('span', '*'))
+    collect.unshift(new Node('span', ['*']))
     return collect;
   };
 
@@ -455,7 +433,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (is_list_token(t)) {
         tokens.shift();
         var i = new Node('li');
-        i.concat(parse_line(tokens));
+        i.concat(parse_line(tokens)); // TODO: what if it's a leading star?
         l.push(i);
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
@@ -474,10 +452,8 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     var dl = new Node('dl');
     while (tokens.length) {
       if (tokens[0].name == 'DEFINITION') {
-        dl.push(new Node('dt', tokens.shift()));
-        var dd = new Node('dd');
-        dd.concat(parse_line(tokens));
-        dl.push(dd);
+        dl.push(new Node('dt', [tokens.shift()]));
+        dl.push(new Node('dd', parse_line(tokens)));
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
         if (tokens.length && tokens[0].name != 'DEFINITION') {
