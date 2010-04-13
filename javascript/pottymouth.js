@@ -433,9 +433,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       var t = tokens[0];
       if (is_list_token(t)) {
         tokens.shift();
-        var i = new Node('li');
-        i.concat(parse_line(tokens)); // TODO: what if it's a leading star?
-        l.push(i);
+        l.push(new Node('li', parse_line(tokens)));
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
         if (tokens && is_list_token(t)) {
