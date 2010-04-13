@@ -67,11 +67,11 @@ token_order = (
     TokenMatcher('URL'        , '('+URI_pattern    +')'),
     TokenMatcher('EMAIL'      , '('+email_pattern  +')'),
 
-    TokenMatcher('HASH'       , '(' + white + '*#' + white + '+)'             ),
-    TokenMatcher('DASH'       , '(' + white + '*-' + white + '+)'             ),
-    TokenMatcher('NUMBERED'   , '(' + white + r'*\d+(\.\)?|\))' + white + '+)'),
-    TokenMatcher('ITEMSTAR'   , '(' + white + r'*\*' + white + '+)'           ),
-    TokenMatcher('BULLET'     , '(' + white + ur'*\u2022' + white + '+)'      ),
+    TokenMatcher('HASH'       , '(' + white + '*#' + white + '+)(?=\S+)'             ),
+    TokenMatcher('DASH'       , '(' + white + '*-' + white + '+)(?=\S+)'             ),
+    TokenMatcher('NUMBERED'   , '(' + white + r'*\d+(\.\)?|\))' + white + '+)(?=\S+)'),
+    TokenMatcher('ITEMSTAR'   , '(' + white + r'*\*' + white + '+)(?=\S+)'           ),
+    TokenMatcher('BULLET'     , '(' + white + ur'*\u2022' + white + '+)(?=\S+)'      ),
 
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),

@@ -1015,6 +1015,15 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         )]
         )
 
+
+    def test_stray_asterisk(self):
+        self._helper('* \n',
+            [Node('p',
+                Node('span', "*")
+            )]
+        )
+
+
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 

@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equals(generated, expected, test_name);
   }
 
-  test("PottyMouth parser tests", 52, function () {
+  test("PottyMouth parser tests", 53, function () {
     equals(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(), '<div>\n  <p>\n    This should be a URL\n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n    but this should not be\n    http://mysite.COM/something/dangerous\n    . And finally, these two should also be allowed\n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n    and\n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',  "test_allowed_and_disallowed_urls");
     equals(p.parse('>>>> a very very deep quote\n>> not so deep of a quote\n>>> middle of the road\n> deatherly quotingly\n').toString(), '<div>\n  <blockquote>\n    <blockquote>\n      <blockquote>\n        <blockquote>\n          <p>\n            a very very deep quote\n          </p>\n        </blockquote>\n      </blockquote>\n      <p>\n        not so deep of a quote\n      </p>\n      <blockquote>\n        <p>\n          middle of the road\n        </p>\n      </blockquote>\n    </blockquote>\n    <p>\n      deatherly quotingly\n    </p>\n  </blockquote>\n</div>',  "test_alternating_quote_depth");
 
@@ -115,6 +115,7 @@ $(document).ready(function (){
     equals(p.parse('\u1503@theory.org').toString(), '<div>\n  <p>\n    <a href="mailto:\u1503@theory.org" class="external">\u1503@theory.org</a>\n  </p>\n</div>',  "test_unicode_email");
     equals(p.parse('http://www.youtube.com/v/PVY5IpSDUYE').toString(), '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/PVY5IpSDUYE"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/PVY5IpSDUYE" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',  "test_youtube_embed_1");
     equals(p.parse('http://www.youtube.com/watch?v=KKTDRqQtPO8').toString(), '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/KKTDRqQtPO8"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/KKTDRqQtPO8" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',  "test_youtube_embed_2");
+    equals(p.parse('* \n').toString(), '<div>\n  <p>\n    *\n  </p>\n</div>', 'stray_asterisk');
   });
 
 

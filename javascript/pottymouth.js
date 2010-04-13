@@ -46,11 +46,11 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     new TokenMatcher('URL'        , new RegExp('^('+URI_pattern    +')')),
     new TokenMatcher('EMAIL'      , new RegExp('^('+email_pattern  +')')),
 
-    new TokenMatcher('HASH'       , /^([\t ]*#[\t ]+)/            ),
-    new TokenMatcher('DASH'       , /^([\t ]*-[\t ]+)/            ),
-    new TokenMatcher('NUMBERED'   , /^([\t ]*\d+(\.\)?|\))[\t ]+)/),
-    new TokenMatcher('ITEMSTAR'   , /^([\t ]*\*[\t ]+)/           ),
-    new TokenMatcher('BULLET'     , /^([\t ]*\u2022[\t ]+)/       ),
+    new TokenMatcher('HASH'       , /^([\t ]*#[\t ]+)(?=\S+)/            ),
+    new TokenMatcher('DASH'       , /^([\t ]*-[\t ]+)(?=\S+)/            ),
+    new TokenMatcher('NUMBERED'   , /^([\t ]*\d+(\.\)?|\))[\t ]+)(?=\S+)/),
+    new TokenMatcher('ITEMSTAR'   , /^([\t ]*\*[\t ]+)(?=\S+)/           ),
+    new TokenMatcher('BULLET'     , /^([\t ]*\u2022[\t ]+)(?=\S+)/       ),
 
     new TokenMatcher('UNDERSCORE' , /^(_)/ ),
     new TokenMatcher('STAR'       , /^(\*)/),
@@ -420,6 +420,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var parse_list = function (tokens) {
+    console.debug('ht from parse list');
     var t = tokens[0];
 
     if (t.name == 'HASH' || t.name == 'NUMBERED') {
