@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>PottyMouth</title>
+    <script src="http://glyphobet.net/pottymouth/pottymouth.js" type="text/javascript"></script>
   </head>
 
   <body>
@@ -568,10 +569,14 @@ but *I dunno _what* this_ is *supposed to* be.</pre>
 
       <h3 id="usage">Usage</h3>
 
-      <p>PottyMouth is written as a Python module. (There is also an experimental port to Ruby 1.9.)  To use it, first instantiate a parser and tell it what domain it&#8217;s going to be used on:</p>
-      
+      <p>PottyMouth is implemented as a Python module and as a JavaScript module. (There is also an outdated port to Ruby 1.9.) 
+
+      <h4 id="python_usage">Python Usage</h4>
+
+      <p>To use PottyMouth's Python implementation, first instantiate a parser and tell it what domain it&#8217;s going to be used on:</p>
+
       <pre>
-from PottyMouth import PottyMouth
+from pottymouth import PottyMouth
 pm = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                 url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
 )</pre>
@@ -600,7 +605,7 @@ print div_node</pre>
 
       <h4 id="config">Configuration</h4>
 
-      <p>You may disable specific components of PottyMouth's syntax by passing in any combination of the following key-word arguments when initializing a new PottyMouth instance:</p>
+      <p>You may disable specific components of PottyMouth's syntax by passing in any combination of the following key-word arguments when initializing a new PottyMouth instance. (This feature is only available to the Python module.)</p>
 
       <dl>
         <dt><code>all_links=False</code></dt>       <dd>disables all URL hyperlinking</dd>
@@ -628,23 +633,52 @@ print div_node</pre>
 
       <p>Any characters that cannot be encoded using the configured encoding will be replaced with numeric HTML entities.</p>
 
+      <h4 id="javascript_usage">Javascript Usage</h4>
+
+      <p>To use PottyMouth's JavaScript implementation, <a href="http://bitbucket.org/glyphobet/pottymouth/raw/tip/javascript/pottymouth.js">download</a> the latest JavaScript implementation of PottyMouth and include it in your HTML. Then instantiate a parser and tell it what domain it&#8217;s going to be used on, and which URLs on that domain the user is allowed to link to:</p>
+
+      <pre>
+&lt;script src="pottymouth.js" type="text/javascript"></script>
+&lt;script>
+  var pottymouth = new PottyMouth(
+    ['mysite.com', 'www.mysite.com'],
+    ['https?://www\.mysite\.com/allowed/url\?id=\d+']
+  );
+&lt;/script>
+</pre>
+
+      <p>Then pass some text to PottyMouth's <code>parse()</code> method. This will return a JavaScript object. Then call that object's <code>toString()</code> method to convert the object to a HTML string.</p>
+
+      <pre>
+&lt;script>
+  var output = pottymouth.parse("Some *text* to parse!")
+  output = output.toString();
+  document.getElementById('potty_output').innerHTML = output;
+&lt;/script>
+</pre>
 
       <h3 id="download">Download</h3>
 
-      <p>PottyMouth is licensed under the <a href="http://www.opensource.org/licenses/bsd-license.php">BSD License</a>. It requires <a href="http://python.org/">Python</a>, version 2.4 or newer.</p>
+      <p>PottyMouth is licensed under the <a href="http://www.opensource.org/licenses/bsd-license.php">BSD License</a>. The Python implementation requires <a href="http://python.org/">Python</a>, version 2.4 or newer.</p>
 
       <p>You can check out the latest development version from <a href="http://bitbucket.org/glyphobet/pottymouth/">bitbucket.org</a> with <br />
         <code>hg clone http://bitbucket.org/glyphobet/pottymouth/</code>.
 
-      <p>You can also download the latest stable release, 1.2.2,  for Python &gt;= 2.4, released 17 March 2010:</p>
+      <p>You can also download Python packages of the latest stable release, 2.0.0, released 17 April 2010:</p>
 
       <ul>
         <li>From <a href="http://pypi.python.org/pypi/PottyMouth">pypi</a> with <code>easy_install pottymouth</code>.</li>
-        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-1.2.2.tar.gz">PottyMouth-1.2.2.tar.gz</a></li>
-        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-1.2.2-py2.6.egg">PottyMouth-1.2.2-py2.6.egg</a></li>
-        <li><a href="http://glyphobet.net/pottymouth/dist/python-pottymouth_1.2.2-0_all.deb">python-pottymouth_1.2.2-0_all.deb</a></li>
-        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-1.2.2-1.noarch.rpm">PottyMouth-1.2.2-1.noarch.rpm</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-2.0.0.tar.gz">PottyMouth-2.0.0.tar.gz</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-2.0.0-py2.6.egg">PottyMouth-2.0.0-py2.6.egg</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/python-pottymouth_2.0.0-0_all.deb">python-pottymouth_2.0.0-0_all.deb</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-2.0.0-1.noarch.rpm">PottyMouth-2.0.0-1.noarch.rpm</a></li>
         <li><a href="http://glyphobet.net/pottymouth/dist/?C=M;O=D">older versions</a></li>
+      </ul>
+
+      <p>You can also download the latest JavaScript implementation from <a href="http://bitbucket.org/glyphobet/pottymouth/">bitbucket.org</a>:</p>
+
+      <ul>
+        <li><a href="http://bitbucket.org/glyphobet/pottymouth/raw/tip/javascript/pottymouth.js">pottymouth.js</a>.</li>
       </ul>
 
       <p>An experimental port of PottyMouth 1.0.2 to <a href="http://ruby-lang.org">Ruby 1.9.0</a> is also available:</p>
@@ -659,23 +693,27 @@ print div_node</pre>
       <h3 id="demo">Demonstration</h3>
 
       <script>
-        function demo(){
+        var pottymouth = new PottyMouth(['theory.org']);
+
+        function demo() {
           var input = document.getElementById('potty_input').value;
           input = input.slice(0,1000);
-          document.getElementById('potty_output').src=('web.py?'+encodeURIComponent(input));
+          var output = pottymouth.parse(input)
+          output = output.toString();
+          document.getElementById('potty_output').innerHTML = output;
         }
       </script>
 
       <p>Potty input: (1000 characters maximum)<br/>
         <textarea id="potty_input" style="height:15em;">This is example "PottyMouth" input -- you should _test_ it and see *everything* it has to offer. 
 
-PottyMouth was originally created for http://mosuki.com and is also used on http://spydentify.com and http://flakenot.com.</textarea>
+PottyMouth was originally created for http://mosuki.com (now defunct) and is also used on http://spydentify.com and http://flakenot.com.</textarea>
         <br/>
         <button id="demo_button" type="button" onclick="demo();">Parse using PottyMouth</button>
       </p>
 
       <p>Potty output:<br/>
-        <iframe id="potty_output" style="height:14em;"></iframe>
+        <div id="potty_output" style="height:14em;overflow:scroll;"></div>
       </p>
 
     </div>
