@@ -8,3 +8,4 @@ python/debian/
 python/dist/
 python/build/
 python/build-stamp-2.6
+.DS_Store
