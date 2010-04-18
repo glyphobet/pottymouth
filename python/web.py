@@ -5,7 +5,7 @@ import StringIO
 import smtplib
 from mod_python import apache
 
-from PottyMouth import PottyMouth
+from pottymouth import PottyMouth
 pm = PottyMouth(url_check_domains=('devsuki.com', 'www.devsuki.com'),
                 allow_media=True)
 

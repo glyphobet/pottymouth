@@ -8,7 +8,7 @@ print """This script attempts to crash PottyMouth by "fuzzing" it.
 It creates random strings of symbols for PottyMouth to parse().
 If you crash or lock up PottyMouth, email me the input string!"""
 
-from PottyMouth import PottyMouth
+from pottymouth import PottyMouth
 
 parser = PottyMouth(
     url_check_domains=('mysite.com',),

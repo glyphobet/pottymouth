@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from difflib import Differ
-from PottyMouth import PottyMouth, Node, Token
+from pottymouth import PottyMouth, Node, Token
 import nose
 
 
