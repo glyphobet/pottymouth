@@ -8,7 +8,11 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   if (! url_check_domains) url_check_domains = [];
   if (! url_white_lists  ) url_white_lists   = [];
 
-  url_check_domains = new RegExp('(' + url_check_domains.join(')|(') + ')', 'i');
+  var url_check_domain = undefined;
+  if (url_check_domains.length) {
+    url_check_domain = new RegExp('(' + url_check_domains.join(')|(') + ')', 'i');
+  }
+
   var short_line_length = 50;
 
   var protocol_pattern = /^\w+:\/\//i;
@@ -300,7 +304,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     if (! anchor.match(protocol_pattern)) {
       anchor = 'http://' + anchor;
     }
-    if (url_check_domains && anchor.match(url_check_domains)) {
+    if (url_check_domain && anchor.match(url_check_domain)) {
       // console.debug('\tchecking urls for this domain');
       for (var i in url_white_lists) {
         var w = url_white_lists[i];
