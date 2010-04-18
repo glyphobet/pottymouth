@@ -1,3 +1,9 @@
+python-pottymouth (2.0.0-0) karmic; urgency=low
+
+  * version 2.0 - recursive descent parser
+
+ -- matt <matt@theory.org>  Sat, 17 Apr 2010 20:59:22 -0700
+
 python-pottymouth (1.2.2-0) karmic; urgency=low
 
   * fix URLs and emails to no longer refer to devsuki and mosuki domains since they are going extinct soon
