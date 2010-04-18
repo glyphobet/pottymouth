@@ -3,6 +3,7 @@ String.prototype.strip = function () {
 };
 
 var PottyMouth = function (url_check_domains, url_white_lists) {
+  this.__version__ = '2.0.0';
 
   if (! url_check_domains) url_check_domains = [];
   if (! url_white_lists  ) url_white_lists   = [];

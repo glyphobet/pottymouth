@@ -13,9 +13,9 @@
 # bold => ( atomic | italic ) +
 # italic => ( atomic | italic ) +
 
-
 import re
 
+__version__ = '2.0.0'
 short_line_length = 50
 encoding = 'utf8' # Default output encoding
 
