@@ -425,7 +425,6 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var parse_list = function (tokens) {
-    console.debug('ht from parse list');
     var t = tokens[0];
 
     if (t.name == 'HASH' || t.name == 'NUMBERED') {
