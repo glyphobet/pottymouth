@@ -5,8 +5,8 @@ String.prototype.strip = function () {
 var PottyMouth = function (url_check_domains, url_white_lists) {
   this.__version__ = '2.0.0';
 
-  if (! url_check_domains) url_check_domains = [];
-  if (! url_white_lists  ) url_white_lists   = [];
+  if (! url_check_domains) { url_check_domains = []; }
+  if (! url_white_lists  ) { url_white_lists   = []; }
 
   var url_check_domain = undefined;
   if (url_check_domains.length) {
@@ -69,7 +69,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     // No way to reliably distinguish Endash from Hyphen, Dash & Minus,
     // so we don't.  See: http://www.alistapart.com/articles/emen/
 
-    new TokenMatcher('ELLIPSIS', /^(\.\.\.)/, '&#8230;'),
+    new TokenMatcher('ELLIPSIS', /^(\.\.\.)/, '&#8230;')
     // new TokenMatcher('SMILEY' , /^(:\))/   , '&#9786;'), // smiley face, not in HTML 4.01, doesn't work in IE
   ];
 
@@ -77,7 +77,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   var Replacer = function (pattern, replace) {
     this.pattern = pattern;
     this.replace = replace;
-  }
+  };
 
   var replace_list = [
     new Replacer(/(``)/, '&#8220;'),
@@ -99,7 +99,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     new Replacer(/(\s)(')/, '$1&#8216;'), // open single quote
 
     // Then we gobble up stand-alone ones
-    new Replacer(/(`)/, '&#8216;'),
+    new Replacer(/(`)/, '&#8216;')
     //new Replacer(/(")/, '&#8221;'),
     //new Replacer(/(')/, '&#8217;'),
   ];
@@ -111,7 +111,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       s = s.replace(r.pattern, r.replace);
     }
     return s;
-  }
+  };
 
 
   var Token = function(name, content) {
@@ -119,14 +119,14 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     this.content = content;
     this.add = function (more) {
       this.content += more;
-    }
+    };
     this.toString = function () {
       return this.content.replace(/</g, '&lt;' ).replace(/>/g, '&gt;' );
-    }
+    };
     this.strip = function () {
       this.content = this.content.strip();
-    }
-  }
+    };
+  };
 
 
   var tokenize = function(s){
@@ -223,7 +223,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         var open = '<' + this.name + this.attributes.toString() + '>';
         var close = '</' + this.name + '>';
 
-        var c = ''
+        var c = '';
         for (var i in this.content) {
           c += this.content[i].toString() + '\n';
         }
@@ -250,7 +250,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     if (! internal) {
       this.attributes['class'] = 'external';
     }
-  }
+  };
   URLNode.prototype = new Node();
 
 
@@ -287,7 +287,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         wmode:'transparent',
         src:url,
         width:425,
-        height:350,
+        height:350
       })
     ];
   };
@@ -315,7 +315,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         }
       }
       // console.debug('\tdidn\'t match any white lists, making text');
-      return new Node('span', [anchor]);;
+      return new Node('span', [anchor]);
     } else {
       return new LinkNode(anchor, false);
     }
@@ -332,13 +332,13 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
           collect.push(new Node('span', [t]));
         }
       } else if (t.name == 'URL') {
-        collect.push(handle_url(tokens.shift()))
+        collect.push(handle_url(tokens.shift()));
       } else if (t.name == 'IMAGE') {
-        collect.push(new ImageNode(tokens.shift().content))
+        collect.push(new ImageNode(tokens.shift().content));
       } else if (t.name == 'EMAIL') {
-        collect.push(new EmailNode(tokens.shift().content))
+        collect.push(new EmailNode(tokens.shift().content));
       } else if (t.name == 'YOUTUBE') {
-        collect.push(new YouTubeNode(tokens.shift().content))
+        collect.push(new YouTubeNode(tokens.shift().content));
       } else if (t.name == 'RIGHT_ANGLE' || t.name == 'DEFINITION') {
         collect.push(new Node('span', [tokens.shift()]));
       } else if (is_list_token(t) && t.name != 'ITEMSTAR') {
@@ -348,7 +348,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       }
     }
     return collect;
-  }
+  };
 
 
   var parse_italic = function (tokens, inner) {
@@ -369,7 +369,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
           return [];
         }
       } else {
-        break
+        break;
       }
     }
     collect.unshift(new Node('span', ['_']));
@@ -398,7 +398,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         break;
       }
     }
-    collect.unshift(new Node('span', ['*']))
+    collect.unshift(new Node('span', ['*']));
     return collect;
   };
 
@@ -434,7 +434,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     }
 
     while (tokens.length) {
-      var t = tokens[0];
+      t = tokens[0];
       if (is_list_token(t)) {
         tokens.shift();
         l.push(new Node('li', parse_line(tokens)));
@@ -466,7 +466,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         break;
       }
     }
-    return [dl]
+    return [dl];
   };
 
 
@@ -477,7 +477,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     var handle_quote = function (token){
       var new_angle = token.content.replace(/^>\s*/, '').strip();
       if (new_angle.length) {
-        new_tokens.push(new Token('RIGHT_ANGLE', new_angle))
+        new_tokens.push(new Token('RIGHT_ANGLE', new_angle));
       }
     };
 
@@ -485,7 +485,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
     while (tokens.length) {
       if (tokens[0].name == 'NEW_LINE') {
-        new_tokens.push(tokens.shift())
+        new_tokens.push(tokens.shift());
         if (tokens.length) {
           if (tokens[0].name == 'RIGHT_ANGLE') {
             handle_quote(tokens.shift());
@@ -529,7 +529,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (shorts.length >= 2) {
         if (p.content.length) {
           // there was a long line before this
-          collect.push(new Node('br'))
+          collect.push(new Node('br'));
         }
         collect = collect.concat(shorts.shift());
         while (shorts.length) {
