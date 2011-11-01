@@ -61,7 +61,8 @@ youtube_matcher = re.compile(youtube_pattern, re.IGNORECASE)
 white = ur'[ \t\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000]'
 
 token_order = (
-    TokenMatcher('NEW_LINE'   , r'(\r?\n)'), #fuck you, Microsoft!
+    TokenMatcher('NEW_LINE'   , r'(\r?\n)(' + white + '*)'), #fuck you, Microsoft!
+    # INDENT token is created when the second group in NEW_LINE pattern matches
     TokenMatcher('YOUTUBE'    , '('+youtube_pattern+')'),
     TokenMatcher('IMAGE'      , '('+image_pattern  +')'),
     TokenMatcher('URL'        , '('+URI_pattern    +')'),
@@ -357,7 +358,7 @@ class PottyMouth(object):
                     content = m.groups()[0]
                     p += len(content)
 
-                    if tm.replace is not None: 
+                    if tm.replace is not None:
                         unmatched_collection += tm.replace
                         break
 
@@ -377,6 +378,10 @@ class PottyMouth(object):
                         content=' '
 
                     found_tokens.append(Token(tm.name, content))
+
+                    if tm.name == 'NEW_LINE' and m.groups()[1]:
+                        found_tokens.append(Token('INDENT', m.groups()[1]))
+
                     break
 
             if not found_token:
@@ -520,7 +525,11 @@ class PottyMouth(object):
                 i = Node('li')
                 i.extend(self.parse_line(tokens))
                 l.append(i)
-            elif tokens[0].name == 'NEW_LINE':
+            elif t.name == 'INDENT':
+                tokens.pop(0)
+                if not self.is_list_token(tokens[0]):
+                    l[-1].extend(self.parse_line(tokens))
+            elif t.name == 'NEW_LINE':
                 tokens.pop(0)
                 if tokens and self.is_list_token(t):
                     break
@@ -534,15 +543,21 @@ class PottyMouth(object):
 
         dl = Node('dl')
         while tokens:
-            if tokens[0].name == 'DEFINITION':
+            t = tokens[0]
+            if t.name == 'DEFINITION':
                 dt = tokens.pop(0)
                 dl.append(Node('dt', dt))
                 dd = Node('dd')
                 dd.extend(self.parse_line(tokens))
                 dl.append(dd)
-            elif tokens[0].name == 'NEW_LINE':
+            elif t.name == 'INDENT':
                 tokens.pop(0)
-                if tokens and tokens[0].name != 'DEFINITION':
+                if tokens[0].name != 'DEFINITION':
+                    dl[-1].extend(self.parse_line(tokens))
+            elif t.name == 'NEW_LINE':
+                print ">>", tokens
+                tokens.pop(0)
+                if tokens and tokens[0].name not in ('DEFINITION', 'INDENT'):
                     break
             else:
                 break
@@ -612,7 +627,7 @@ class PottyMouth(object):
 
         while tokens:
             t = tokens[0]
-            if t.name == 'NEW_LINE':
+            if t.name == 'NEW_LINE' or t.name == 'INDENT':
                 tokens.pop(0)
                 if tokens and tokens[0].name == 'NEW_LINE':
                     tokens.pop(0)
@@ -641,7 +656,7 @@ class PottyMouth(object):
         collect = []
         while tokens:
             t = tokens[0]
-            if t.name == 'NEW_LINE':
+            if t.name == 'NEW_LINE' or t.name == 'INDENT':
                 tokens.pop(0)
             elif t.name == 'RIGHT_ANGLE':
                 collect.extend(self.parse_quote(tokens))

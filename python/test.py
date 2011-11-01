@@ -908,16 +908,12 @@ Phone:    530-555-1212
                 Node('dt', "Host:"),
                 Node('dd', Node('span', "Braig Crozinsky")),
                 Node('dt', "Location:"),
-                Node('dd', Node('span', u"Braig\u2019s Pad")),
-            ),
-            Node('p',
-                Node('span', "666 Mareclont Avenue, Apt. 6"),
-                Node('br'),
-                Node('span', "Loakand, CA 94616 US"),
-                Node('br'),
-                Node('span', "View Map"),
-            ),
-            Node('dl',
+                Node('dd', 
+                    Node('span', u"Braig\u2019s Pad"),
+                    Node('span', "666 Mareclont Avenue, Apt. 6"),
+                    Node('span', "Loakand, CA 94616 US"),
+                    Node('span', "View Map"),
+                ),
                 Node('dt', "When:"),
                 Node('dd', Node('span', "Saturday, November 7, 4:30PM")),
                 Node('dt', "Phone:"),
@@ -1023,6 +1019,46 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
             )]
         )
 
+
+    def test_indented_lists(self):
+        self._helper('''
+        And now a descriptive list:
+
+1) I like to read books in the rain
+2) Number one sounds silly, I guess it is. I suppose a dry area
+  would be a better location.
+3) I suppose you wouldn't be surprised to hear I read newspapers
+  in the swimming pool.
+ 4) Roger
+
+''', [
+        Node('p', Node('span', "And now a descriptive list:")),
+        Node('ol', 
+            Node('li', Node('span', "I like to read books in the rain")),
+            Node('li', Node('span', "Number one sounds silly, I guess it is. I suppose a dry area"), Node('span', "would be a better location.")),
+            Node('li', Node('span', u"I suppose you wouldn\u2019t be surprised to hear I read newspapers"), Node('span', "in the swimming pool.")),
+            Node('li', Node('span', "Roger"))
+        ),
+    ])
+
+
+    def test_indented_definitions(self):
+        self._helper('''
+Ben: a name consisting of two consonants and
+  one vowel
+Eva: a name consisting of one consonant and
+  two vowels
+Qi: Not a name at all
+''', [
+        Node('dl',
+            Node('dt', "Ben:"),
+            Node('dd', Node('span', "a name consisting of two consonants and"), Node('span', "one vowel")),
+            Node('dt', "Eva:"),
+            Node('dd', Node('span', "a name consisting of one consonant and"), Node('span', "two vowels")),
+            Node('dt', "Qi:"),
+            Node('dd', Node('span', "Not a name at all")),
+        )
+    ])
 
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
