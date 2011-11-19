@@ -295,7 +295,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var is_list_token = function (t) {
-    return t.name == 'HASH' || t.name == 'NUMBERED' || t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET';
+    return ['HASH', 'NUMBERED', 'DASH', 'ITEMSTAR', 'BULLET'].indexOf(t.name) > -1;
   };
 
 
@@ -426,11 +426,12 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
   var parse_list = function (tokens) {
     var t = tokens[0];
+    var l;
 
     if (t.name == 'HASH' || t.name == 'NUMBERED') {
-      var l = new Node('ol');
+      l = new Node('ol');
     } else if (t.name == 'DASH' || t.name == 'ITEMSTAR' || t.name == 'BULLET') {
-      var l = new Node('ul');
+      l = new Node('ul');
     }
 
     while (tokens.length) {
