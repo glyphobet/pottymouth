@@ -89,7 +89,7 @@ token_order = (
     #TokenMatcher('SMILEY' , r'(:\))'   , replace=unichr(9786)), # smiley face, not in HTML 4.01, doesn't work in IE
     )
 
-
+list_tokens = ('HASH', 'NUMBERED', 'DASH', 'ITEMSTAR', 'BULLET') # for convenience only
 
 # The "Replacers" are context sensitive replacements, therefore they
 # must be applied in-line to the string as a whole before tokenizing.
@@ -390,10 +390,6 @@ class PottyMouth(object):
         return found_tokens
 
 
-    def is_list_token(self, t):
-        return t.name == 'HASH' or t.name == 'NUMBERED' or t.name == 'DASH' or t.name == 'ITEMSTAR' or t.name == 'BULLET'
-
-
     def handle_url(self, t):
         if not protocol_pattern.match(t):
             t = Token(t.name, 'http://' + t)
@@ -431,7 +427,7 @@ class PottyMouth(object):
                 collect.append(Node('span', tokens.pop(0)))
             elif t.name == 'DEFINITION':
                 collect.append(Node('span', tokens.pop(0)))
-            elif self.is_list_token(t) and t.name != 'ITEMSTAR':
+            elif t.name in list_tokens and t.name != 'ITEMSTAR':
                 collect.append(Node('span', tokens.pop(0)))
             else:
                 break
@@ -506,7 +502,7 @@ class PottyMouth(object):
 
     def parse_list(self, tokens):
         t = tokens[0]
-        assert self.is_list_token(t)
+        assert t.name in list_tokens
 
         if t.name == 'HASH' or t.name == 'NUMBERED':
             l = Node('ol')
@@ -515,14 +511,14 @@ class PottyMouth(object):
 
         while tokens:
             t = tokens[0]
-            if self.is_list_token(t):
+            if t.name in list_tokens:
                 tokens.pop(0)
                 i = Node('li')
                 i.extend(self.parse_line(tokens))
                 l.append(i)
             elif tokens[0].name == 'NEW_LINE':
                 tokens.pop(0)
-                if tokens and self.is_list_token(t):
+                if tokens and t.name in list_tokens:
                     break
             else:
                 break
@@ -617,7 +613,7 @@ class PottyMouth(object):
                 if tokens and tokens[0].name == 'NEW_LINE':
                     tokens.pop(0)
                     break
-                elif tokens and (tokens[0].name == 'RIGHT_ANGLE' or tokens[0].name == 'DEFINITION' or self.is_list_token(tokens[0])):
+                elif tokens and tokens[0].name in ('RIGHT_ANGLE', 'DEFINITION') + list_tokens:
                     break
             else:
                 line = self.parse_line(tokens)
@@ -645,7 +641,7 @@ class PottyMouth(object):
                 tokens.pop(0)
             elif t.name == 'RIGHT_ANGLE':
                 collect.extend(self.parse_quote(tokens))
-            elif self.is_list_token(t):
+            elif t.name in list_tokens:
                 collect.extend(self.parse_list(tokens))
             elif t.name == 'DEFINITION':
                 collect.extend(self.parse_definition(tokens))
