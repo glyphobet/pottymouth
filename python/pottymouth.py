@@ -15,7 +15,7 @@
 
 import re
 
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 short_line_length = 50
 encoding = 'utf8' # Default output encoding
 
@@ -77,7 +77,7 @@ token_order = (
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),
 
-    TokenMatcher('RIGHT_ANGLE', '(>' + white + '*(?:>' + white + '*)*)'),
+    TokenMatcher('RIGHT_ANGLE', '(>(?:' + white + '*>)*)(' + white + '*)'),
 
     TokenMatcher('DEFINITION' , r'([^\n\:]{2,20}\:' + white + r'+)(?=\S+)'),
 
@@ -379,7 +379,7 @@ class PottyMouth(object):
 
                     found_tokens.append(Token(tm.name, content))
 
-                    if tm.name == 'NEW_LINE' and m.groups()[1]:
+                    if tm.name in ('NEW_LINE', 'RIGHT_ANGLE') and m.groups()[1]:
                         found_tokens.append(Token('INDENT', m.groups()[1]))
 
                     break
@@ -510,7 +510,13 @@ class PottyMouth(object):
 
 
     def parse_list(self, tokens):
+        initial_indent = 0
+        if tokens[0].name == 'INDENT':
+            initial_indent = len(tokens[0])
+            tokens.pop(0)
+
         t = tokens[0]
+
         assert self.is_list_token(t)
 
         if t.name == 'HASH' or t.name == 'NUMBERED':
@@ -527,11 +533,12 @@ class PottyMouth(object):
                 l.append(i)
             elif t.name == 'INDENT':
                 tokens.pop(0)
-                if not self.is_list_token(tokens[0]):
-                    l[-1].extend(self.parse_line(tokens))
+                if len(t) > initial_indent:
+                    if not self.is_list_token(tokens[0]):
+                        l[-1].extend(self.parse_line(tokens))
             elif t.name == 'NEW_LINE':
                 tokens.pop(0)
-                if tokens and self.is_list_token(t):
+                if tokens and not self.is_list_token(tokens[0]) and tokens[0].name != 'INDENT':
                     break
             else:
                 break
@@ -539,6 +546,11 @@ class PottyMouth(object):
 
 
     def parse_definition(self, tokens):
+        initial_indent = 0
+        if tokens[0].name == 'INDENT':
+            initial_indent = len(tokens[0])
+            tokens.pop(0)
+
         assert tokens[0].name == 'DEFINITION'
 
         dl = Node('dl')
@@ -552,10 +564,10 @@ class PottyMouth(object):
                 dl.append(dd)
             elif t.name == 'INDENT':
                 tokens.pop(0)
-                if tokens[0].name != 'DEFINITION':
-                    dl[-1].extend(self.parse_line(tokens))
+                if len(t) > initial_indent:
+                    if tokens[0].name != 'DEFINITION':
+                        dl[-1].extend(self.parse_line(tokens))
             elif t.name == 'NEW_LINE':
-                print ">>", tokens
                 tokens.pop(0)
                 if tokens and tokens[0].name not in ('DEFINITION', 'INDENT'):
                     break
@@ -570,6 +582,7 @@ class PottyMouth(object):
         new_tokens = []
 
         def handle_quote(token):
+            """Strip a single > off of a RIGHT_ANGLE token, effectively decreasing the quoting level"""
             new_angle = token.replace('>', '', 1).strip()
             if new_angle:
                 new_tokens.append(Token('RIGHT_ANGLE', new_angle))
@@ -633,6 +646,8 @@ class PottyMouth(object):
                     tokens.pop(0)
                     break
                 elif tokens and (tokens[0].name == 'RIGHT_ANGLE' or tokens[0].name == 'DEFINITION' or self.is_list_token(tokens[0])):
+                    if t.name == 'INDENT':
+                        tokens.insert(0, t)
                     break
             else:
                 line = self.parse_line(tokens)
@@ -656,9 +671,15 @@ class PottyMouth(object):
         collect = []
         while tokens:
             t = tokens[0]
-            if t.name == 'NEW_LINE' or t.name == 'INDENT':
+
+            if t.name == 'NEW_LINE':
                 tokens.pop(0)
-            elif t.name == 'RIGHT_ANGLE':
+                continue
+
+            if t.name == 'INDENT':
+                t = tokens[1]
+
+            if t.name == 'RIGHT_ANGLE':
                 collect.extend(self.parse_quote(tokens))
             elif self.is_list_token(t):
                 collect.extend(self.parse_list(tokens))
