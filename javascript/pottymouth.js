@@ -441,7 +441,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         l.push(new Node('li', parse_line(tokens)));
       } else if (tokens[0].name == 'NEW_LINE') {
         tokens.shift();
-        if (tokens && is_list_token(t)) {
+        if (tokens.length && !is_list_token(tokens[0])) {
           break;
         }
       } else {

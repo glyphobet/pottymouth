@@ -518,7 +518,7 @@ class PottyMouth(object):
                 l.append(i)
             elif tokens[0].name == 'NEW_LINE':
                 tokens.pop(0)
-                if tokens and t.name in list_tokens:
+                if tokens and tokens[0].name not in list_tokens:
                     break
             else:
                 break
