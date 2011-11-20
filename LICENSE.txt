@@ -1,4 +1,4 @@
-Copyright (c) 2007-2010, Matt Chisholm
+Copyright (c) 2007-2011, Matt Chisholm
 
 All rights reserved.
 
