@@ -534,7 +534,7 @@ class PottyMouth(object):
             elif t.name == 'INDENT':
                 tokens.pop(0)
                 if len(t) > initial_indent:
-                    if not self.is_list_token(tokens[0]):
+                    if tokens and not self.is_list_token(tokens[0]):
                         l[-1].extend(self.parse_line(tokens))
             elif t.name == 'NEW_LINE':
                 tokens.pop(0)
@@ -565,7 +565,7 @@ class PottyMouth(object):
             elif t.name == 'INDENT':
                 tokens.pop(0)
                 if len(t) > initial_indent:
-                    if tokens[0].name != 'DEFINITION':
+                    if tokens and tokens[0].name != 'DEFINITION':
                         dl[-1].extend(self.parse_line(tokens))
             elif t.name == 'NEW_LINE':
                 tokens.pop(0)
@@ -677,6 +677,8 @@ class PottyMouth(object):
                 continue
 
             if t.name == 'INDENT':
+                if len(tokens) == 1:
+                    break
                 t = tokens[1]
 
             if t.name == 'RIGHT_ANGLE':
