@@ -1,3 +1,0 @@
-DEBEMAIL='matt@theory.org' dch -v 2.0.0-0
-
-python setup.py bdist_egg upload
