@@ -3,7 +3,7 @@ String.prototype.strip = function () {
 };
 
 var PottyMouth = function (url_check_domains, url_white_lists) {
-  this.__version__ = '2.0.0';
+  this.__version__ = '2.1.0';
 
   if (! url_check_domains) { url_check_domains = []; }
   if (! url_white_lists  ) { url_white_lists   = []; }
@@ -45,7 +45,8 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
   };
 
   var token_order = [
-    new TokenMatcher('NEW_LINE'   , /^(\r?\n)/ ), // fuck you, Microsoft!  // TODO: is the \r even necessary in the JavaScript version?
+    new TokenMatcher('NEW_LINE'   , /^(\r?\n)([\t ]*)/ ), // fuck you, Microsoft!  // TODO: is the \r even necessary in the JavaScript version?
+    // INDENT token is created when the second group in NEW_LINE pattern matches
     new TokenMatcher('YOUTUBE'    , new RegExp('^('+youtube_pattern+')', 'i')),
     new TokenMatcher('IMAGE'      , new RegExp('^('+image_pattern  +')')),
     new TokenMatcher('URL'        , new RegExp('^('+URI_pattern    +')')),
@@ -60,7 +61,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     new TokenMatcher('UNDERSCORE' , /^(_)/ ),
     new TokenMatcher('STAR'       , /^(\*)/),
 
-    new TokenMatcher('RIGHT_ANGLE', /^(>[\t ]*(?:>[\t ]*)*)/),
+    new TokenMatcher('RIGHT_ANGLE', /^(>(?:[\t ]*>)*)([\t ]*)/),
 
     new TokenMatcher('DEFINITION' , /^([^\n\:]{2,20}\:[\t ]+)(?=\S+)/),
 
@@ -140,7 +141,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         var m = tm.match(s.slice(p));
         if (m) {
           found_token = true;
-          var content = m[0];
+          var content = m[1];
           p += content.length;
 
           if (tm.replace) {
@@ -162,6 +163,12 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
           }
 
           found_tokens.push(new Token(tm.name, content));
+
+          if ((tm.name == 'NEW_LINE' || tm.name == 'RIGHT_ANGLE') && m[2].length) {
+            found_tokens.push(new Token('INDENT', m[2]));
+            p += m[2].length
+          }
+
           break;
         }
       }
@@ -425,6 +432,11 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var parse_list = function (tokens) {
+    var initial_indent = 0;
+    if (tokens[0].name == 'INDENT') {
+      initial_indent = tokens[0].content.length;
+      tokens.shift();
+    }
     var t = tokens[0];
 
     if (t.name == 'HASH' || t.name == 'NUMBERED') {
@@ -438,10 +450,17 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       if (is_list_token(t)) {
         tokens.shift();
         l.push(new Node('li', parse_line(tokens)));
-      } else if (tokens[0].name == 'NEW_LINE') {
+      } else if (t.name == 'NEW_LINE') {
         tokens.shift();
-        if (tokens && is_list_token(t)) {
+        if (tokens.length && !is_list_token(tokens[0]) && tokens[0].name != 'INDENT') {
           break;
+        }
+      } else if (t.name == 'INDENT') {
+        tokens.shift();
+        if (t.content.length > initial_indent) {
+          if (tokens.length && ! is_list_token(tokens[0])) {
+            l.content[l.content.length-1].concat(parse_line(tokens));
+          }
         }
       } else {
         break;
@@ -452,15 +471,30 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var parse_definition = function (tokens) {
+    var initial_indent = 0;
+    if (tokens[0].name == 'INDENT') {
+      initial_indent = tokens[0].content.length;
+      tokens.shift();
+    }
     var dl = new Node('dl');
+    var t;
     while (tokens.length) {
-      if (tokens[0].name == 'DEFINITION') {
+      t = tokens[0];
+      if (t.name == 'DEFINITION') {
         dl.push(new Node('dt', [tokens.shift()]));
         dl.push(new Node('dd', parse_line(tokens)));
-      } else if (tokens[0].name == 'NEW_LINE') {
+      } else if (t.name == 'NEW_LINE') {
         tokens.shift();
-        if (tokens.length && tokens[0].name != 'DEFINITION') {
+        if (tokens.length && tokens[0].name != 'DEFINITION' && tokens[0].name != 'INDENT') {
           break;
+        }
+      } else if (t.name == 'INDENT') {
+        tokens.shift();
+        if (t.content.length > initial_indent) {
+          if (tokens.length && tokens[0].name != 'DEFINITION') {
+            var line = parse_line(tokens);
+            dl.content[dl.content.length-1].concat(line);
+          }
         }
       } else {
         break;
@@ -475,6 +509,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     var new_tokens = [];
 
     var handle_quote = function (token){
+      // Strip a single > off of a RIGHT_ANGLE token, effectively decreasing the quoting level
       var new_angle = token.content.replace(/^>\s*/, '').strip();
       if (new_angle.length) {
         new_tokens.push(new Token('RIGHT_ANGLE', new_angle));
@@ -550,12 +585,15 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
     while (tokens.length) {
       var t = tokens[0];
-      if (t.name == 'NEW_LINE') {
+      if (t.name == 'NEW_LINE' || t.name == 'INDENT') {
         tokens.shift();
         if (tokens.length && tokens[0].name == 'NEW_LINE') {
           tokens.shift();
           break;
         } else if (tokens.length && (tokens[0].name == 'RIGHT_ANGLE' || tokens[0].name == 'DEFINITION' || is_list_token(tokens[0]))) {
+          if (t.name == 'INDENT') {
+            tokens.unshift(t);
+          }
           break;
         }
       } else {
@@ -583,11 +621,22 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
   var parse_blocks = function (tokens) {
     var collect = [];
+    var t;
     while (tokens.length) {
-      var t = tokens[0];
+      t = tokens[0];
       if (t.name == 'NEW_LINE') {
         tokens.shift();
-      } else if (t.name == 'RIGHT_ANGLE') {
+        continue;
+      }
+
+      if (t.name == 'INDENT') {
+        if (tokens.length == 1) {
+          break;
+        }
+        t = tokens[1];
+      }
+
+      if (t.name == 'RIGHT_ANGLE') {
         collect = collect.concat(parse_quote(tokens));
       } else if (is_list_token(t)) {
         collect = collect.concat(parse_list(tokens));

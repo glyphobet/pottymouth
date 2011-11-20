@@ -381,6 +381,7 @@ class PottyMouth(object):
 
                     if tm.name in ('NEW_LINE', 'RIGHT_ANGLE') and m.groups()[1]:
                         found_tokens.append(Token('INDENT', m.groups()[1]))
+                        p += len(m.groups()[1])
 
                     break
 
