@@ -106,7 +106,7 @@ class Replacer(object):
         return self.pattern.sub(self.replace, string)
 
 
-replace_list = [
+smart_quote_replacers = [
     Replacer(r'(``)', unichr(8220)),
     Replacer(r"('')", unichr(8221)),
 
@@ -307,7 +307,10 @@ class PottyMouth(object):
                                                 flags=re.I)
 
         self._url_white_lists  = [re.compile(w) for w in url_white_lists]
-        self.smart_quotes = smart_quotes
+
+        self.replacer_list = []
+        if smart_quotes:
+            self.replacer_list.extend(smart_quote_replacers)
 
         self.token_list = []
         for t in token_order:
@@ -340,7 +343,7 @@ class PottyMouth(object):
 
 
     def pre_replace(self, string):
-        for r in replace_list:
+        for r in self.replacer_list:
             string = r.sub(string)
         return string
 

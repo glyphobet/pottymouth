@@ -80,7 +80,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     this.replace = replace;
   };
 
-  var replace_list = [
+  var smart_quote_replacers = [
     new Replacer(/(``)/, '&#8220;'),
     new Replacer(/('')/, '&#8221;'),
 
@@ -107,8 +107,8 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var pre_replace = function (s) {
-    for (var i in replace_list) {
-      var r = replace_list[i];
+    for (var i in smart_quote_replacers) {
+      var r = smart_quote_replacers[i];
       s = s.replace(r.pattern, r.replace);
     }
     return s;
