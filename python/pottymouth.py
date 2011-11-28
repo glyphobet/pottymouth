@@ -181,31 +181,34 @@ class Node(list):
         return False
 
 
+    def _inner_content(self, strip=True):
+        content = ''
+        for c in self:
+            if isinstance(c, Node):
+                new_content = str(c)
+                if content and content.endswith('>') or new_content.startswith('<'):
+                    content += '\n'
+                content += new_content
+            else:
+                if content and content.endswith('>'):
+                    content += '\n'
+                content += escape(c).encode(encoding, 'xmlcharrefreplace')
+        content = content.replace('\n', '\n  ')
+        if strip:
+            content = content.strip()
+        return content
+
+
     def __str__(self):
         if self.name in ('br','img'): # Also <hr>
             # <br></br> causes double-newlines, so we do this
             return '<%s%s />' % (self.name, self._attribute_string())
+        elif self.node_children():
+            return '<%s%s>\n  %s\n</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
+        elif self.name == 'span':
+            return self._inner_content(strip=False)
         else:
-            content = ''
-            for c in self:
-                if isinstance(c, Node):
-                    content += str(c)
-                else:
-                    content += escape(c).encode(encoding, 'xmlcharrefreplace')
-                content += '\n'
-            content = content.strip().rstrip('\n')
-            content = content.replace('\n', '\n  ')
-
-            interpolate = {'name'   :self.name               ,
-                           'attrs'  :self._attribute_string(),
-                           'content':content                 ,}
-
-            if self.node_children():
-                return '<%(name)s%(attrs)s>\n  %(content)s\n</%(name)s>' % interpolate
-            elif self.name == 'span':
-                return content
-            else:
-                return '<%(name)s%(attrs)s>%(content)s</%(name)s>' % interpolate
+            return '<%s%s>%s</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
 
 
     def _attribute_string(self):
@@ -421,7 +424,7 @@ class PottyMouth(object):
         while tokens:
             t = tokens[0]
             if t.name == 'TEXT':
-                t = tokens.pop(0).strip()
+                t = tokens.pop(0)
                 if t:
                     collect.append(Node('span', t))
             elif t.name == 'URL':
@@ -464,6 +467,7 @@ class PottyMouth(object):
                     return []
             else:
                 break
+
         return [Node('span', '_')] + collect
 
 

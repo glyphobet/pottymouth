@@ -19,8 +19,8 @@ class basic_tests(object):
 
 
     def test_repr(self):
-        assert repr(self.parser.parse(u"foo • bar")) == "[[[u'foo'], [BULLET{u' \u2022 '}], [u'bar']]]"
-        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[u'foo'], [BULLET{u' \u2022 '}], [u'bar']]]"
+        assert repr(self.parser.parse(u"foo • bar")) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]", repr(self.parser.parse(u"foo • bar"))
+        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]"
 
 
     def _helper(self, source, expected):
@@ -53,16 +53,16 @@ Will wonders ever cease?
                 Node('i',
                     Node('span', 'fat'),
                     ),
-                Node('span', ' looong text lines'), Node('span', 'that go'),
+                Node('span', ' looong text lines '), Node('span', 'that go '),
                 Node('b',
                     Node('span', 'on and'), Node('span', '_'), Node('span', ' on'),
                     ),
-                Node('span', ' foreeeeeever with no end in sight. ')
+                Node('span', 'foreeeeeever with no end in sight. ')
             ),
             Node('P',
                 Node('span', u'Yes, that\u2019s right,  another paragraph. '),
                 Node('a', 'google.com/', attributes={'href':'http://google.com/','class':'external'}),
-                Node('span', ' is my site'), Node('span', 'Will wonders ever cease? '),
+                Node('span', ' is my site '), Node('span', 'Will wonders ever cease? '),
             )]
         )
 
@@ -161,11 +161,11 @@ in complete idiocy, sincerely stupid and fallacious techniques and practices
 of programming.
 """,
             [Node('p',
-                Node('span', 'This paragraph is classic and typical evidence of why the process of hard text \n'),
-                Node('span', 'wrapping \n'),
-                Node('span', 'was ultimately a short-sighted practice that was deeply, wholly and firmly \n'),
-                Node('span', 'grounded \n'),
-                Node('span', 'in complete idiocy, sincerely stupid and fallacious techniques and practices \n'),
+                Node('span', 'This paragraph is classic and typical evidence of why the process of hard text '),
+                Node('span', 'wrapping '),
+                Node('span', 'was ultimately a short-sighted practice that was deeply, wholly and firmly '),
+                Node('span', 'grounded '),
+                Node('span', 'in complete idiocy, sincerely stupid and fallacious techniques and practices '),
                 Node('span', 'of programming. '),
             )]
         )
@@ -347,7 +347,7 @@ not quoted at all
             [Node('p',
                 Node('span', 'This should be a URL '),
                 Node('a', 'mysite.com/allowed/service', attributes={'href':'http://mysite.com/allowed/service'}),
-                Node('span', ' but this should not be'), Node('span', 'http://mysite.COM/something/dangerous'), Node('span', '. And finally, these two should also be allowed '),
+                Node('span', ' but this should not be '), Node('span', 'http://mysite.COM/something/dangerous'), Node('span', '. And finally, these two should also be allowed '),
                 Node('a', 'mysite.com/safe/url', attributes={'href':'http://mysite.com/safe/url'}),
                 Node('span', ' and '),
                 Node('a', 'another.site.com/something/else', attributes={'href':'http://another.site.com/something/else', 'class':'external'}),
@@ -548,7 +548,7 @@ all by themselves
                     Node('a', 'www.theory.org/', attributes={'href':'http://www.theory.org/', 'class':'external'}),
                     Node('span', " URL"),
                 ),
-                Node('span', " and "),
+                Node('span', "and "),
                 Node('i',
                     Node('span', "italic "),
                     Node('a', 'www.theory.org/', attributes={'href':'http://www.theory.org/', 'class':'external'}),
@@ -568,13 +568,13 @@ all by themselves
             [Node('p',
                 Node('span', "this is "),
                 Node('b',
-                    Node('span', "bold"), Node('span', "_"), Node('span', "and italic ",)
+                    Node('span', "bold "), Node('span', "_"), Node('span', "and italic ",)
                 ),
                 Node('span', "and I dunno"),
                 Node('b',
                     Node('span', " what"), Node('span', "_"), Node('span', " this"),
                 ),
-                Node('span', " is."),
+                Node('span', "is."),
             )]
         )
 
@@ -586,11 +586,11 @@ all by themselves
                 Node('b',
                     Node('span', "I dunno "), Node('span', "_"), Node('span', "what")
                 ),
-                Node('span', " this"), Node('span', "_"), Node('span', " is "),
+                Node('span', "this"), Node('span', "_"), Node('span', " is "),
                 Node('b',
                     Node('span', "supposed to")
                 ),
-                Node('span', " be.")
+                Node('span', "be.")
             )]
         )
 
@@ -909,9 +909,9 @@ Phone:    530-555-1212
                 Node('dd', Node('span', "Braig Crozinsky")),
                 Node('dt', "Location:"),
                 Node('dd', 
-                    Node('span', u"Braig\u2019s Pad"),
-                    Node('span', "666 Mareclont Avenue, Apt. 6"),
-                    Node('span', "Loakand, CA 94616 US"),
+                    Node('span', u"Braig\u2019s Pad "),
+                    Node('span', "666 Mareclont Avenue, Apt. 6 "),
+                    Node('span', "Loakand, CA 94616 US "),
                     Node('span', "View Map"),
                 ),
                 Node('dt', "When:"),
@@ -938,8 +938,8 @@ Phone:    530-555-1212
                     Node('dd', Node('span', "Braig Crozinsky")),
                     Node('dt', "Location:"),
                     Node('dd', 
-                        Node('span', u"Braig\u2019s Pad"),
-                        Node('span', "666 Mareclont Avenue, Apt. 6"),
+                        Node('span', u"Braig\u2019s Pad "),
+                        Node('span', "666 Mareclont Avenue, Apt. 6 "),
                         Node('span', "Loakand, CA 94616 US"),
                     ),
                 ),
@@ -1011,9 +1011,25 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
 
 
     def test_stray_asterisk(self):
-        self._helper('* \n',
+        self._helper('* ',
             [Node('p',
-                Node('span', "*")
+                Node('span', "* ")
+            )]
+        )
+
+
+    def test_unbalanced_underscore(self):
+        self._helper('This is a_lonely underscore',
+            [Node('p',
+                Node('span', "This is a_lonely underscore"),
+            )]
+        )
+
+
+    def test_unbalanced_asterisk(self):
+        self._helper('This is a*lonely asterisk',
+            [Node('p',
+                Node('span', "This is a*lonely asterisk"),
             )]
         )
 
@@ -1033,8 +1049,8 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         Node('p', Node('span', "And now a descriptive list:")),
         Node('ol', 
             Node('li', Node('span', "I like to read books in the rain")),
-            Node('li', Node('span', "Number one sounds silly, I guess it is. I suppose a dry area"), Node('span', "would be a better location.")),
-            Node('li', Node('span', u"I suppose you wouldn\u2019t be surprised to hear I read newspapers"), Node('span', "in the swimming pool.")),
+            Node('li', Node('span', "Number one sounds silly, I guess it is. I suppose a dry area"), Node('span', " would be a better location.")),
+            Node('li', Node('span', u"I suppose you wouldn\u2019t be surprised to hear I read newspapers"), Node('span', " in the swimming pool.")),
             Node('li', Node('span', "Roger"))
         ),
     ])
@@ -1050,9 +1066,9 @@ Qi: Not a name at all
 ''', [
         Node('dl',
             Node('dt', "Ben:"),
-            Node('dd', Node('span', "a name consisting of two consonants and"), Node('span', "one vowel")),
+            Node('dd', Node('span', "a name consisting of two consonants and"), Node('span', " one vowel")),
             Node('dt', "Eva:"),
-            Node('dd', Node('span', "a name consisting of one consonant and"), Node('span', "two vowels")),
+            Node('dd', Node('span', "a name consisting of one consonant and"), Node('span', " two vowels")),
             Node('dt', "Qi:"),
             Node('dd', Node('span', "Not a name at all")),
         )
