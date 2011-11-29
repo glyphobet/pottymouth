@@ -247,7 +247,7 @@
 
       <h4 id="lines">Paragraphs, newlines, and ad-hoc lists</h4>
 
-      <p>PottyMouth intelligently identifies paragraph breaks, newlines, and ad-hoc lists. A sequence of more than one blank line is turned into a paragraph break. Within a single paragraph, PottyMouth distinguishes between &#8220;short&#8221; and &#8220;long&#8221; lines and treats them differently. </p>
+      <p>PottyMouth intelligently identifies paragraph breaks, newlines, and ad-hoc lists. A sequence of more than one blank line is considered to separate two paragraphs (or other block-like items, like lists). Within a single paragraph, PottyMouth distinguishes between &#8220;short&#8221; and &#8220;long&#8221; lines and treats them differently. </p>
 
       <ul>
         <li>A sequence of long lines is treated as a single, unbroken line, without newlines. </li>
@@ -345,7 +345,7 @@ Last line of the reply to the reply </pre>
         </p>
       </div>
 
-      <p>You may turn off block quote detection by initializing PottyMouth with <code>blockquote=False</code>.</p>
+      <p>As with ordinary paragraphs, a sequence of two or more blank lines are treated as paragraph breaks, even if those blank lines are prefixed with one or more <code>&gt;</code> characters. You may turn off block quote detection by initializing PottyMouth with <code>blockquote=False</code>.</p>
 
 
       <h4 id="lists">Literal list syntax</h4>
@@ -361,7 +361,8 @@ And an unordered list:
 * raspberries
 - pink hair
 # devil ducks
-&#8226; point-set topology
+&#8226; point-set
+   topology
 
 And a mis-numbered one:
 
@@ -416,7 +417,11 @@ And a mis-numbered one:
         </ol>
       </div>
 
+      <p>An indented line immediately following a list item is treated as a continuation of that list item.</p>
+
       <p>Nested lists are not supported. Nested lists are an important feature in documents with heavily structured content deliberately created by careful editors who want to take the time to learn syntax and structure their content appropriately. PottyMouth is for displaying ad-hoc text input quickly by non-technical users, where flat literal lists are occasional and nested lists are vanishingly rare.</li>
+
+      <p>Just as with the other block-level items (paragraphs and blockquotes), two or more blank lines will terminate a list.</p>
 
       <p>You may turn off all list support by initializing PottyMouth with <code>all_lists=False</code>. You may turn off just ordered lists, or just unordered lists, by initializing PottyMouth with <code>ordered_list=False</code>, and/or <code>unordered_list=False=False</code>. And you may turn off just numbered lists (list items beginning with a sequence of digits and a period) with <code>numbered_list=False</code></p>
 
@@ -425,7 +430,9 @@ And a mis-numbered one:
       <p>PottyMouth identifies term/definition lists denoted by lines beginning with a few words (two to twenty characters) followed by a <code>:</code> and whitespace. This:</p>
 
       <pre>Host: Craig
-Location: Craig's Pad, 666 Marchaunt Ave., Apt. 6, Spokane, CA 94616 US
+Location: Craig's Pad,
+  666 Marchaunt Ave., Apt. 6,
+  Spokane, CA 94616 US
 When: Saturday, November 7, 4:30PM
 Phone: 123-555-1212</pre>
 
@@ -451,6 +458,8 @@ Phone: 123-555-1212</pre>
           </dd>
         </dl>
       </div>
+
+      <p>As with paragraphs, block quotes, and lists, two or more blank lines will terminate a definition list. And, as with lists, an indented line immediately following a definition list line will be treated as a continuation of that definition item.</p>
 
       <p>You may turn off definition list support by initializing PottyMouth with <code>definition_list=False</code>. Definition lists were added in PottyMouth 1.2.</p>
 
@@ -619,9 +628,9 @@ print div_node</pre>
         <li><a href="#demo">demonstration</a></li>
       </ul>
 
-      <h4 id="config">Configuration</h4>
+      <h4 id="config">Python module configuration</h4>
 
-      <p>You may disable specific components of PottyMouth's syntax by passing in any combination of the following key-word arguments when initializing a new PottyMouth instance. (This feature is only available to the Python module.)</p>
+      <p>You may disable specific components of PottyMouth's syntax by passing in any combination of the following key-word arguments when initializing a new PottyMouth instance. (This feature is only available in the Python module.)</p>
 
       <dl>
         <dt><code>all_links=False</code></dt>       <dd>disables all URL hyperlinking</dd>
