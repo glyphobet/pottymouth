@@ -166,7 +166,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
           if ((tm.name == 'NEW_LINE' || tm.name == 'RIGHT_ANGLE') && m[2].length) {
             found_tokens.push(new Token('INDENT', m[2]));
-            p += m[2].length
+            p += m[2].length;
           }
 
           break;
@@ -222,29 +222,42 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       }
       return false;
     };
+    this.inner_content = function() {
+      var strip = (arguments[0] && arguments[0].strip != undefined) ? arguments[0].strip : true;
+      var content = '';
+      var new_content;
+      var node;
+      for (var i in this.content) {
+        node = this.content[i];
+        if (node instanceof Node) {
+          new_content = node.toString();
+          if (content.length && (content[content.length-1] == '>' || new_content[0] == '<')) {
+            content += '\n';
+          }
+          content += new_content;
+        } else {
+          if (content.length && content[content.length-1] == '>') {
+            content += '\n';
+          }
+          content += node.toString();
+        }
+      }
+      content = content.replace(/\n/g, '\n  ');
+      if (strip) {
+        content = content.strip();
+      }
+      return content;
+    };
     this.toString = function () {
       if (this.name == 'br' || this.name == 'img') {
         // <br></br> causes double-newlines, so we do this
         return '<' + this.name + this.attributes.toString() + ' />';
+      } else if (this.node_children()) {
+        return '<' + this.name + this.attributes.toString() + '>\n  ' + this.inner_content() + '\n</' + this.name + '>';
+      } else if (this.name == 'span') {
+        return this.inner_content({strip:false});
       } else {
-        var open = '<' + this.name + this.attributes.toString() + '>';
-        var close = '</' + this.name + '>';
-
-        var c = '';
-        for (var i in this.content) {
-          c += this.content[i].toString() + '\n';
-        }
-        c = c.replace(/\n+$/g, '');
-        c = c.replace(/^\s+|\s+$/g, '');
-        c = c.replace(/\n/g, '\n  ');
-
-        if (this.node_children()) {
-          return open + '\n  ' + c + '\n' + close;
-        } else if (this.name == 'span') {
-          return c;
-        } else {
-          return open + c + close;
-        }
+        return '<' + this.name + this.attributes.toString() + '>' + this.inner_content() + '</' + this.name + '>';
       }
     };
   };
@@ -335,7 +348,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
       var t = tokens[0];
       if (t.name == 'TEXT') {
         tokens.shift();
-        if (t.content.strip().length) {
+        if (t.content.length) {
           collect.push(new Node('span', [t]));
         }
       } else if (t.name == 'URL') {
