@@ -186,7 +186,7 @@ class Node(list):
         for c in self:
             if isinstance(c, Node):
                 new_content = str(c)
-                if content and content.endswith('>') or new_content.startswith('<'):
+                if content and (content.endswith('>') or new_content.startswith('<')):
                     content += '\n'
                 content += new_content
             else:
