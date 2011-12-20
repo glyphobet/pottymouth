@@ -15,7 +15,7 @@
 
 import re
 
-__version__ = '2.1.1'
+__version__ = '2.1.2'
 short_line_length = 50
 encoding = 'utf8' # Default output encoding
 
