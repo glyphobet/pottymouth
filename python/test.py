@@ -1074,6 +1074,28 @@ Qi: Not a name at all
         )
     ])
 
+
+    def test_indented_blockquote(self):
+        self._helper('''
+        > thing
+        > other thing
+''', [Node('blockquote', Node('p', Node('span', 'thing '), Node('br'), Node('span', 'other thing')))])
+
+
+    def test_indented_blockquote_followed_by_indented_paragraph(self):
+        self._helper('''
+        > thing
+        other thing
+''', [Node('blockquote', Node('p', Node('span', 'thing '))), Node('p', Node('span', 'other thing'))])
+
+
+    def test_indented_blockquote_followed_by_differently_indented_paragraph(self):
+        self._helper('''
+        > thing
+          other thing
+''', [Node('blockquote', Node('p', Node('span', 'thing '))), Node('p', Node('span', 'other thing'))])
+
+
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 

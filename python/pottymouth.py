@@ -581,6 +581,11 @@ class PottyMouth(object):
 
 
     def parse_quote(self, tokens):
+        initial_indent = 0
+        if tokens[0].name == 'INDENT':
+            initial_indent = len(tokens[0])
+            tokens.pop(0)
+
         assert tokens[0].name == 'RIGHT_ANGLE'
         quote = Node('blockquote')
         new_tokens = []
@@ -596,6 +601,10 @@ class PottyMouth(object):
         while tokens:
             if tokens[0].name == 'NEW_LINE':
                 new_tokens.append(tokens.pop(0))
+                if tokens and tokens[0].name == 'INDENT':
+                    t = tokens.pop(0)
+                    if len(t) > initial_indent:
+                        break
                 if tokens:
                     if tokens[0].name == 'RIGHT_ANGLE':
                         handle_quote(tokens.pop(0))
