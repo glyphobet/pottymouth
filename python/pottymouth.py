@@ -725,8 +725,25 @@ if __name__ == '__main__':
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
                    )
+    
+    # simple command line processing of file names
+    argv = sys.argv
+    if len(argv) >= 2:
+        for filename in argv[1:]:
+            fileobj = open(filename, 'r')  # Assume native encoding
+            text = fileobj.read()
+            fileobj.close()
+            blocks = w.parse(text)
+            for b in blocks:
+                print b
+            print '=' * 70
+        raise SystemExit(0)
+    
+    EOF_DESCRIPTION = 'Ctrl-D'
+    if 'win' in sys.platform.lower():
+        EOF_DESCRIPTION = 'Ctrl-Z'
     while True:
-        print 'input (end with Ctrl-D)>>'
+        print 'input (end with %s)>>' % EOF_DESCRIPTION
         try:
             text = sys.stdin.read()
             sys.stdin.seek(0)
