@@ -742,15 +742,11 @@ if __name__ == '__main__':
     EOF_DESCRIPTION = 'Ctrl-D'
     if 'win' in sys.platform.lower():
         EOF_DESCRIPTION = 'Ctrl-Z'
-    while True:
-        print 'input (end with %s)>>' % EOF_DESCRIPTION
-        try:
-            text = sys.stdin.read()
-            sys.stdin.seek(0)
-        except KeyboardInterrupt:
-            break
-        if text:
-            blocks = w.parse(text)
-            for b in blocks:
-                print b
-            print '=' * 70
+    
+    print 'input (end with %s)>>' % EOF_DESCRIPTION
+    text = sys.stdin.read()
+    if text:
+        blocks = w.parse(text)
+        for b in blocks:
+            print b
+        print '=' * 70
