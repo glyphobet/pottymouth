@@ -40,6 +40,7 @@ _URI_pattern = ("(("                                     +
                r"([-\w]+(:[-\w]+)?@)?"                  + # authentication
                r")|www\.)"                              + # or just www.
                domain_pattern                           + # domain
+               r'(:\d+)?'                               + # port number
                r"(/([-\w$\.+!*'(),;:@%&=?/~#]*[-\w$+*(@%&=/~#])?)?" # path
                )
 
