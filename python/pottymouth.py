@@ -13,7 +13,7 @@
 # bold => ( atomic | italic ) +
 # italic => ( atomic | italic ) +
 
-import re
+import re, sys
 
 __version__ = '2.1.2'
 short_line_length = 50
@@ -722,7 +722,6 @@ class PottyMouth(object):
 
 
 if __name__ == '__main__':
-    import sys
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
                    )
