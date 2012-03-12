@@ -722,6 +722,12 @@ class PottyMouth(object):
 
 
 if __name__ == '__main__':
+    def parse_and_print(w, text):
+        blocks = w.parse(text)
+        for b in blocks:
+            print b
+        print '=' * 70
+
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
                    )
@@ -733,10 +739,7 @@ if __name__ == '__main__':
             fileobj = open(filename, 'r')  # Assume native encoding
             text = fileobj.read()
             fileobj.close()
-            blocks = w.parse(text)
-            for b in blocks:
-                print b
-            print '=' * 70
+            parse_and_print(w, text)
         raise SystemExit(0)
     
     EOF_DESCRIPTION = 'Ctrl-D'
@@ -746,7 +749,4 @@ if __name__ == '__main__':
     print 'input (end with %s)>>' % EOF_DESCRIPTION
     text = sys.stdin.read()
     if text:
-        blocks = w.parse(text)
-        for b in blocks:
-            print b
-        print '=' * 70
+        parse_and_print(w, text)
