@@ -745,8 +745,9 @@ if __name__ == '__main__':
     EOF_DESCRIPTION = 'Ctrl-D'
     if sys.platform == 'win32':
         EOF_DESCRIPTION = 'Ctrl-Z'
-    
-    print 'input (end with %s)>>' % EOF_DESCRIPTION
-    text = sys.stdin.read()
-    if text:
-        parse_and_print(w, text)
+
+    while True:
+        print 'input (end with %s)>>' % EOF_DESCRIPTION
+        text = sys.stdin.read()
+        if text:
+            parse_and_print(w, text)
