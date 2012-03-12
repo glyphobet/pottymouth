@@ -731,7 +731,7 @@ if __name__ == '__main__':
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
                    )
-    
+
     # simple command line processing of file names
     argv = sys.argv
     if len(argv) >= 2:
@@ -741,7 +741,7 @@ if __name__ == '__main__':
             fileobj.close()
             parse_and_print(w, text)
         raise SystemExit(0)
-    
+
     EOF_DESCRIPTION = 'Ctrl-D'
     if sys.platform == 'win32':
         EOF_DESCRIPTION = 'Ctrl-Z'
