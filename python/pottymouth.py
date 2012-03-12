@@ -740,7 +740,7 @@ if __name__ == '__main__':
         raise SystemExit(0)
     
     EOF_DESCRIPTION = 'Ctrl-D'
-    if 'win' in sys.platform.lower():
+    if sys.platform == 'win32':
         EOF_DESCRIPTION = 'Ctrl-Z'
     
     print 'input (end with %s)>>' % EOF_DESCRIPTION
