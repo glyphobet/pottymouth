@@ -747,7 +747,11 @@ if __name__ == '__main__':
         EOF_DESCRIPTION = 'Ctrl-Z'
 
     while True:
+        # read-eval-print loop
         print 'input (end with %s)>>' % EOF_DESCRIPTION
-        text = sys.stdin.read()
+        try:
+            text = sys.stdin.read()
+        except KeyboardInterrupt:
+            break
         if text:
             parse_and_print(w, text)
