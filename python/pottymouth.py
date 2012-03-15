@@ -757,3 +757,5 @@ if __name__ == '__main__':
             break
         if text:
             parse_and_print(w, text)
+        else:
+            sys.stdin.seek(1)
