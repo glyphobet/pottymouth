@@ -732,10 +732,12 @@ if __name__ == '__main__':
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
                    )
 
-    # simple command line processing of file names
-    argv = sys.argv
-    if len(argv) >= 2:
-        for filename in argv[1:]:
+    if not sys.stdin.isatty():
+        parse_and_print(w, sys.stdin.read())
+        raise SystemExit(0)
+    elif len(sys.argv) >= 2:
+        # simple command line processing of file names
+        for filename in sys.argv[1:]:
             fileobj = open(filename, 'r')  # Assume native encoding
             text = fileobj.read()
             fileobj.close()
