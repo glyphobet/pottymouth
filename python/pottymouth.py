@@ -722,11 +722,12 @@ class PottyMouth(object):
 
 
 if __name__ == '__main__':
-    def parse_and_print(w, text):
+    def parse_and_print(w, text, separator=False):
+        if separator:
+            print '=' * 70
         blocks = w.parse(text)
         for b in blocks:
             print b
-        print '=' * 70
 
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
@@ -737,11 +738,11 @@ if __name__ == '__main__':
         raise SystemExit(0)
     elif len(sys.argv) >= 2:
         # simple command line processing of file names
-        for filename in sys.argv[1:]:
+        for i, filename in enumerate(sys.argv[1:]):
             fileobj = open(filename, 'r')  # Assume native encoding
             text = fileobj.read()
             fileobj.close()
-            parse_and_print(w, text)
+            parse_and_print(w, text, separator=bool(i))
         raise SystemExit(0)
 
     EOF_DESCRIPTION = 'Ctrl-D'
