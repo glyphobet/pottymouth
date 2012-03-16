@@ -722,9 +722,7 @@ class PottyMouth(object):
 
 
 if __name__ == '__main__':
-    def parse_and_print(w, text, separator=False):
-        if separator:
-            print '=' * 70
+    def parse_and_print(w, text):
         blocks = w.parse(text)
         for b in blocks:
             print b
@@ -739,10 +737,11 @@ if __name__ == '__main__':
     elif len(sys.argv) >= 2:
         # simple command line processing of file names
         for i, filename in enumerate(sys.argv[1:]):
+            if i: print '=' * 70
             fileobj = open(filename, 'r')  # Assume native encoding
             text = fileobj.read()
             fileobj.close()
-            parse_and_print(w, text, separator=bool(i))
+            parse_and_print(w, text)
         raise SystemExit(0)
 
     EOF_DESCRIPTION = 'Ctrl-D'
