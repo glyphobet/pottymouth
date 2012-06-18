@@ -1,0 +1,770 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>PottyMouth</title>
+    <script src="http://glyphobet.net/pottymouth/pottymouth.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+            t.parentNode.insertBefore(s, t);
+        })();
+    </script>
+  </head>
+
+  <body>
+    <style type="text/css" media="screen">
+      body {
+        background-color:#e0e0ef;
+        font-family:Verdana, 'Bitstream Vera Sans', sans-serif;
+        color:#444;
+      }
+      h1, h2, h3, h4 { 
+        color:#000; 
+      }
+      a { color:#113; }
+      a:visited { color:#224; }
+      a:hover   { color:#446; }
+      a:active  { color:#557; }
+      blockquote {
+        border-left-color:#303000;
+      }
+      code, pre, #potty_input{
+        color:#202020;
+        background-color:#eee;
+      }
+      div.head {
+        color:#000;
+      }
+      .potty, #potty_output{
+        color:#303000;
+        background-color:#efefe0;
+      }
+      div.main {
+        background-color:#fff;
+        width:expression('40em'); /* IE doesn't support max/min width */
+        min-width:30em;
+        max-width:50em;
+        padding:1ex 2ex;
+      }
+    </style>
+    <style type="text/css" media="print">
+      body { font-family:Palatino, Times, serif; }
+      a { color:#000000; text-decoration:none; }
+      div.nav { display:none; }
+    </style>
+    <style type="text/css" media="all">
+      body {
+        text-align:center;
+        margin:0px;
+        line-height:1.5em;
+      }
+      h1, h2, h3, h4 {
+        font-variant:small-caps;
+      }
+      code, pre{
+        font-size:large;
+        line-height:1.25em;
+      }
+      code, span.potty{
+        padding:1px;
+      }
+      pre, div.potty > p{
+        padding:4px;
+      }
+      div.potty, pre, #potty_input, #potty_output {
+        width:85%;
+      }
+      ul li{
+        list-style-type:disc;
+      }
+      li { 
+        line-height:1.25em;
+        margin-bottom:0.25em;
+      }
+      blockquote {
+        border-left-width:2px;
+        border-left-style:solid;
+        margin-left:1.5em;
+        padding-left:0.5em;
+      }
+      div.head {
+        text-align:center;
+        font-size:medium;
+      }
+      div.main {
+        text-align:left;
+        margin:auto;
+      }
+      .potty {
+        font-family:serif;
+      }
+      acronym {
+        font-variant:small-caps;
+      }
+    </style>
+    <style>
+      ul.nav {
+        float:right;
+        margin:0;
+      }
+      ul.nav li{
+        list-style-type:none;
+      }
+      ul.nav li a{
+        background:#e0e0ef;
+        padding:2px 4px;
+        margin:4px 0px;
+        display:block;
+        font-size:small;
+      }
+      ul.nav li a:hover {
+        background:#f0f0ff;
+      }
+    </style>
+    <div class="main">
+
+      <ul class="nav">
+        <li><a href="#">introduction</a></li>
+        <!--
+        <li><a href="#do"></a></li>
+        <li><a href="#for"></a></li>
+        <li><a href="#notfor"></a></li>
+        <li><a href="#unstructured"></a></li>
+        <li><a href="#safeHTML"></a></li>
+        <li><a href="#untrusted"></a></li>
+        <li><a href="#secureHTML"></a></li>
+        <li><a href="#prevent"></a></li>
+        -->
+        <li><a href="#syntax">syntax</a></li>
+        <!--
+        <li><a href="#lines"></a></li>
+        <li><a href="#quotes"></a></li>
+        <li><a href="#lists"></a></li>
+        <li><a href="#definition_lists"></a></li>
+        <li><a href="#links"></a></li>
+        <li><a href="#media"></a></li>
+        <li><a href="#bolditalic"></a></li>
+        <li><a href="#characters"></a></li>
+        -->
+        <li><a href="#usage">usage</a></li>
+        <!-- <li><a href="#config">configuration</a></li> -->
+        <li><a href="#download">download</a></li>
+        <li><a href="#demo">demonstration</a></li>
+        <li style="text-align:right;">
+          <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://glyphobet.net/pottymouth/"></a>
+          <noscript>
+            <a href="http://flattr.com/thing/270355/PottyMouth-text-processor" target="_blank">
+              <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
+            </a>
+          </noscript>
+        </li>
+      </ul>
+
+      <h1>PottyMouth</h1>
+
+      <p style="font-size:small;line-height:1em;margin-top:0;">&copy; 2007-2011 <a href="http://glyphobet.net/">Matt Chisholm</a>
+         <br/>
+         <tt>matt dash pottymouth at theory dot org</a></tt>
+      </p>
+
+
+      <h3 id="do">What does it <i>do</i>?</h3>
+
+      <p>PottyMouth transforms completely unstructured and untrusted text to valid, nice-looking, completely safe XHTML.</p>
+
+      <p>PottyMouth is designed to handle input text from non-technical, potentially careless or malicious users. It produces HTML that is completely safe, programmatically and visually, to include on any web page. And you don&#8217;t need to make your users read any instructions before they start typing. They don&#8217;t even need to know that PottyMouth is being used.</p>
+
+
+      <h3 id="for">What is it <i>for</i>?</h3>
+
+      <p>PottyMouth is ideal for displaying blog comments, text email bodies in a web mail application or mailing list web archive, or any text fields on any site with user input text, such as a social networking, dating, or community site. In short, any input which is displayed in HTML and is input as text by a non-technical and/or untrusted user. It has been in use on <a href="http://mosuki.com">mosuki.com</a> since January 2007, on <a href="http://spydentify.com">spydentify.com</a> since January 2008, and on <a href="http://flakenot.com">flakenot.com</a> since December 2009.</p>
+
+
+      <h3 id="notfor">What is it <i>not</i> for?</h3>
+
+      <p>PottyMouth is not intended for HTML page generation, such as writing blog entries, where the author is an authorized and trusted user who may want to exert more control over the content of his or her post. <a href="http://daringfireball.net/projects/markdown/">Markdown</a> and <a href="http://daringfireball.net/projects/smartypants/">SmartyPants</a>, or <a href="http://www.textism.com/tools/textile/">Textism</a> are good solutions for trusted HTML authoring.</p>
+
+      <p>PottyMouth is also not intended for wikis, where the text is more heavily structured and where poorly formatted or malicious input can be quickly corrected by another user. There are <a href="http://en.wikipedia.org/wiki/Comparison_of_wiki_software">many</a> <a href="http://www.mediawiki.org/wiki/MediaWiki">good</a> <a href="http://moinmoin.wikiwikiweb.de/">wiki</a> <a href="http://freshmeat.net/search/?q=wiki&amp;section=projects">packages</a> out there; this is not one of them.</p>
+
+
+      <h3 id="care">Why should I care about&#8230;?</h3>
+
+
+      <h4 id="unstructured">&#8230;unstructured text input?</h4>
+
+      <p>The average, non-technical user doesn&#8217;t care about formatting syntax and won&#8217;t take the time to learn it. PottyMouth lets your website display any user input without having to make your users learn <b>anything.</b> The only &#8220;syntax&#8221; that PottyMouth uses are conventions that are ubiquitous on-line. If your site displays text input from external programs, third-party sites, or other sources like email, you can&#8217;t rely on your users to know about your site&#8217;s text formatting conventions.</p>
+
+
+      <h4 id="safeHTML">&#8230;layout-safe HTML?</h4>
+
+      <p>You want to allow your users the freedom to put whatever they want on your site. But you don&#8217;t want badly formatted text to make that text look ugly, or to screw up the layout of other elements on the page.</p>
+
+
+      <h4 id="untrusted">&#8230;untrusted text input?</h4>
+
+      <p>If it&#8217;s possible for an untrusted or anonymous user to input text that gets inserted in HTML on your site, you need to process that text to make sure it cannot cause problems for other visitors. If your site displays text input from external programs, third-party sites, or other sources like email, you can&#8217;t control or check that text until you are displaying it.</p>
+
+
+      <h4 id="secureHTML">&#8230;secure HTML?</h4>
+
+      <p>Allowing anyone to insert raw or even limited HTML into your site is dangerous. If an attacker can insert JavaScript, media, or malicious links into your site, he or she can cause a user or their browser to perform malicious actions or send spam, on your site or third party sites, or they can insert DHTML id attributes or JavaScript to break your DHTML/JavaScript application. If an attacker can insert CSS into your site, they can hide or override advertisements, warnings, or instructions with their own content.</p>
+
+
+      <h3 id="prevent">What does it prevent?</h3>
+
+      <p>PottyMouth prevents against a wide range of potential problems:</p>
+
+      <ul>
+        <li>no JavaScript or HTML insertion via <code>&lt;iframe&gt;</code> tags</li>
+        <li>no JavaScript insertion via: <code>&lt;script&gt;</code> tags</li>
+        <li>no JavaScript insertion via: event handler attributes on tags</li>
+        <li>no JavaScript insertion via <code>javascript:</code> hyperlinks</li>
+        <li>no JavaScript insertion via CSS <code>expression()</code></li>
+        <li>no overriding of site CSS via <code>&lt;style&gt;</code> tags</li>
+        <li>no attacks via malicious <code>href</code> attributes in <code>&lt;a&gt;</code> or <code>src</code> attributes in <code>&lt;img&gt;</code>, <code>&lt;embed&gt;</code> or other media tags</li> 
+        <li>no damage to site layout via inserted CSS or <code>width</code>, <code>height</code>, or other HTML attributes</li>
+        <li>no ability to break or compromise JavaScript applications by generating HTML tags with identifiers that collide with existing DOM identifiers.</li>
+      </ul>
+
+      <p>Although the problems above could be solved by simply allowing a short white-list of HTML tags and no HTML attributes whatsoever, inserting raw HTML tags is a feature that non-technical users don&#8217;t need. And PottyMouth automatically detects most of the instances where the average user would want HTML tags.</p>
+
+      <ul class="nav">
+        <li><a href="#">introduction</a></li>
+        <li><a href="#syntax">syntax</a></li>
+        <li><a href="#usage">usage</a></li>
+        <li><a href="#download">download</a></li>
+        <li><a href="#demo">demonstration</a></li>
+      </ul>
+
+
+      <h2 id="syntax">PottyMouth syntax</h2>
+
+      <p>Instead of having syntax that users must learn, PottyMouth relies on some ubiquitous text formatting conventions to generate the best HTML possible.</p> 
+
+
+      <h4 id="lines">Paragraphs, newlines, and ad-hoc lists</h4>
+
+      <p>PottyMouth intelligently identifies paragraph breaks, newlines, and ad-hoc lists. A sequence of one or more blank lines is considered to separate two paragraphs (or other block-like items, like lists). Within a single paragraph, PottyMouth distinguishes between &#8220;short&#8221; and &#8220;long&#8221; lines and treats them differently. </p>
+
+      <ul>
+        <li>A sequence of long lines is treated as a single, unbroken line, without newlines. </li>
+
+        <li>A single short line between two long lines is also treated as part of the single, long line, and does not insert a newline either. This ensures that text that has been hard wrapped more than once at decreasing line lengths is repaired, and rendered as a single unbroken paragraph.</li>
+
+        <li>Two or more consecutive short lines are treated as an ad-hoc list, and a line break is inserted between them. Thus a list-like sequences of short lines are preserved. </li>
+      </ul>
+
+      <p>Extensive testing has shown that fifty characters is a good threshold between short and long lines (this threshold is configurable if your data differs, however). Here&#8217;s an example:</p>
+
+      <pre>
+This is some text that has been through a bunch of broken email 
+programs
+and got hard line wrapped really badly at some point because a programmer
+was lazy. 
+
+here's some more text where someone decided to list their favorite things:
+raspberries
+pink hair
+devil ducks
+science fiction
+And that list goes right in the middle of a paragraph, but does it screw up
+potty mouth? Nope.</pre>
+
+      <p>becomes:</p>
+
+      <div class="potty">
+        <p>
+          This is some text that has been through a bunch of broken email
+          programs
+          and got hard line wrapped really badly at some point because a programmer
+          was lazy.
+        </p>
+        <p>
+          here&#8217;s some more text where someone decided to list their favorite things:
+          <br />
+          raspberries
+          <br />
+          pink hair
+          <br />
+          devil ducks
+          <br />
+          science fiction
+          <br />
+          And that list goes right in the middle of a paragraph, but does it screw up
+          potty mouth? Nope.
+        </p>
+      </div>
+
+      <p>Detecting very long sequences of non-breaking characters and inserting a soft hyphen (&amp;#173;) character that will cause natural text wrapping is planned for a future release.</p>
+
+
+      <h4 id="quotes">Block quotes</h4>
+
+      <p>PottyMouth identifies sequences of lines beginning with one or more <code>&gt;</code> and groups them into nested sequences of <code>&lt;blockquote&gt;</code> and <code>&lt;p&gt;</code> tags. In other words, input like this:</p>
+
+      <pre>
+A reply to a reply
+More of the reply to the reply
+> A reply to a message
+> More of the reply to the message
+>> The original message
+>> More of the original message
+> Last line of the reply
+Last line of the reply to the reply </pre>
+
+      <p>is rendered like this:</p>
+
+      <div class="potty">
+        <p>
+          A reply to a reply
+          <br />
+          More of the reply to the reply
+        </p>
+        <blockquote>
+          <p>
+            A reply to a message
+            <br />
+            More of the reply to the message
+          </p>
+          <blockquote>
+            <p>
+              The original message
+              <br />
+              More of the original message
+            </p>
+          </blockquote>
+          <p>
+            Last line of the reply
+          </p>
+        </blockquote>
+        <p>
+          Last line of the reply to the reply
+        </p>
+      </div>
+
+      <p>As with ordinary paragraphs, sequences of one or more blank lines are treated as paragraph breaks, even if those blank lines are prefixed with one or more <code>&gt;</code> characters.</p>
+
+      <p>You may turn off block quote detection by initializing PottyMouth with <code>blockquote=False</code>.</p>
+
+      <h4 id="lists">Literal list syntax</h4>
+
+      <p>PottyMouth identifies literal lists denoted by lines beginning with <code>#</code>, <code>1.</code>, or any number of digits followed by a period, for ordered lists, and <code>*</code>, <code>-</code>, or <code>&#8226;</code> (bullet, &amp;#8226;), for unordered lists. The first item in the list determines whether the entire list is ordered or unordered. This:</p>
+
+      <pre># science fiction
+# devil ducks
+# raspberries
+
+And an unordered list:
+
+* raspberries
+- pink hair
+# devil ducks
+&#8226; point-set
+   topology
+
+And a mis-numbered one:
+
+1. the unit
+1. binary
+413. ternary</pre>
+
+      <p>becomes:</p>
+
+      <div class="potty">
+        <ol>
+          <li>
+            science fiction
+          </li>
+          <li>
+            devil ducks
+          </li>
+          <li>
+            raspberries
+          </li>
+        </ol>
+        <p>
+          And an unordered list:
+        </p>
+        <ul>
+          <li>
+            raspberries
+          </li>
+          <li>
+            pink hair
+          </li>
+          <li>
+            devil ducks
+          </li>
+          <li>
+            point-set topology
+          </li>
+        </ul>
+        <p>
+          And a mis-numbered one:
+        </p>
+        <ol>
+          <li>
+            the unit
+          </li>
+          <li>
+            binary
+          </li>
+          <li>
+            ternary
+          </li>
+        </ol>
+      </div>
+
+      <p>An indented line immediately following a list item is treated as a continuation of that list item.</p>
+
+      <p>Nested lists are not supported. Nested lists are an important feature in documents with heavily structured content deliberately created by careful editors who want to take the time to learn syntax and structure their content appropriately. PottyMouth is for displaying ad-hoc text input quickly by non-technical users, where flat literal lists are occasional and nested lists are vanishingly rare.</li>
+
+      <p>Just as with the other block-level items (paragraphs and block quotes), sequences of one or more blank lines terminate a list.</p>
+
+      <p>You may turn off all list support by initializing PottyMouth with <code>all_lists=False</code>. You may turn off just ordered lists, or just unordered lists, by initializing PottyMouth with <code>ordered_list=False</code>, and/or <code>unordered_list=False=False</code>. And you may turn off just numbered lists (list items beginning with a sequence of digits and a period) with <code>numbered_list=False</code></p>
+
+      <h4 id="definition_lists">Definition list syntax</h4>
+
+      <p>PottyMouth identifies term/definition lists denoted by lines beginning with a few words (two to twenty characters) followed by a <code>:</code> and whitespace. This:</p>
+
+      <pre>Host: Craig
+Location: Craig's Pad,
+  666 Marchaunt Ave., Apt. 6,
+  Spokane, CA 94616 US
+When: Saturday, November 7, 4:30PM
+Phone: 123-555-1212</pre>
+
+      <p>becomes:</p>
+
+      <div class="potty">
+        <dl>
+          <dt>Host:</dt>
+          <dd>
+            Craig
+          </dd>
+          <dt>Location:</dt>
+          <dd>
+            Craig&#8217;s Pad, 666 Marchaunt Ave., Apt. 6, Spokane, CA 94616 US
+          </dd>
+          <dt>When:</dt>
+          <dd>
+            Saturday, November 7, 4:30PM
+          </dd>
+          <dt>Phone:</dt>
+          <dd>
+            123-555-1212
+          </dd>
+        </dl>
+      </div>
+
+      <p>As with paragraphs, block quotes, and lists, sequences of one or more blank lines terminate a definition list. And, as with lists, an indented line immediately following a definition list line will be treated as a continuation of that definition item.</p>
+
+      <p>You may turn off definition list support by initializing PottyMouth with <code>definition_list=False</code>. Definition lists were added in PottyMouth 1.2.</p>
+
+      <h4 id="links">Hyperlinks</h4>
+
+      <p>PottyMouth identifies hyperlinks beginning with these protocols: <code>http</code>, <code>https</code>, <code>webcal</code>, <code>feed</code>, <code>ftp</code>, <code>news</code>, and <code>nntp</code>, and ending in a valid URL. Adding new protocols is trivial. It also identifies URLs beginning with <code>www.</code> and prepends <code>http://</code>.</p>
+
+      <p>When using PottyMouth to generate content for a web application, it expects you to provide it with a list of one or more domain names for the site. Unless you explicitly leave this name blank, PottyMouth will only hyperlink links that point to other sites.</p>
+
+      <p>If you want PottyMouth to hyperlink site-internal links, you must also provide it with a <a href="http://en.wikipedia.org/wiki/White_list">white-list</a> of regular expressions that match allowed site-internal links. This allows you to denote the site-internal URLs that users can include that will become hyperlinked, and other URLs will remain as text.</p>
+
+      <p>For example, if you were using PottyMouth on <code>http://www.mysite.com</code>, and chose to allow links to posts, you would use a whitelist like <code>https?://(www\.)?mysite\.com/viewpost\?id=\d+</code>. Then, these URLs would get hyperlinked:</p>
+
+      <ul>
+        <li><code>http://google.com/</code></li>
+        <li><code>http://someothersite.com/some/page.html</code></li>
+        <li><code>http://www.mysite.com/viewpost?id=1234</code></li>
+        <li><code>http://mysite.com/viewpost?id=5678</code></li>
+      </ul>
+
+      <p>But these URLs, which might just be mis-typed, mis-encoded, or might be malicious URLs, would not get hyperlinked:</p>
+
+      <ul>
+        <li><code>http://www.mysite.com/viweopst?id=1234</code> (Whoops, typo)</li>
+        <li><code>http://www.mysite.com/viewpost=3Fid=3D1234</code> (Whoops, encoding problem)</li>
+        <li><code>http://static.mysite.com/randomimage.gif</code> (Whoops, disallowed host name on the same domain)</li>
+        <li><code>http://www.mysite.com/postcomment?content=Here%20is%20some%20spam!</code> (Malicious)</li>
+        <li><code>http://www.mysite.com/delete-my-account?confirm=yes</code> (Malicious)</li>
+      </ul>
+
+      <p>While PottyMouth should <b>not</b> be considered a substitute for correctly protecting against the latter two types of malicious links in your software, preventing them from being automatically hyperlinked <b>on your site</b> raises the bar significantly for these types of attacks.</p>
+
+      <p>You may turn off all hyperlinking by initializing PottyMouth with <code>all_links=False</code>, and you may turn off just email address hyperlinking with <code>email=False</code>.</p>
+
+
+      <h4 id="media">Embedded media</h4>
+
+      <p>PottyMouth optionally allows embedded media. URLs ending in .JPG, .JPEG, .GIF, and .PNG are considered to be embedded images, and are included as <code>&lt;img&gt;</code> tags. It also detects links to YouTube videos and embeds them using YouTube&#8217;s standard embedding syntax.</p>
+
+      <p>The embedded media feature is disabled by default, because it does somewhat compromise the safety of the generated HTML. Embedded media could be used to launch cross-site scripting attacks on another site, if an attacker can generate a malicious URL to the remote site that ends in JPG, GIF, or PNG. However, protecting against cross-site scripting attacks is really the responsibility of the target site, not you. </p>
+      <p>Embedded media could also be used as web bugs by a third party to collect IP addresses of visitors to your site. This could only be mitigated by running a cache which served the third party content to your site visitors, and appending the target URL onto the cache service. Adding configuration options for this is planned for a future release. </p>
+
+      <p>Embedded media is still relatively safe, for the following reasons:</p>
+
+      <ul>
+        <li>The URL white-listing of hyperlinks is applied before identifying hyperlinks to media, so linking to malicious site-internal URLs, or random images on the site is still not possible.</li>
+        <li>The major browsers do not execute CSS, JavaScript or HTML if it is loaded as the <code>src</code> attribute of an <code>&lt;img&gt;</code> tag, so linking to malicious content is still not possible.</li>
+        <li>By correctly setting the CSS <code>overflow</code> and size properties of the HTML element containing PottyMouth generated HTML, large embedded images will not interfere with page layout.</li>
+        <li>By only allowing embedded Flash widgets from a set of sites known to produce (relatively) trustworthy Flash, the possibility of including malicious Flash is low.</li>
+      </ul>
+
+      <p>You may turn off image tag creation and YouTube embedding by initializing PottyMouth with <code>image=False</code>, and/or <code>youtube=False</code>. Image and YouTube URLs are then treated as ordinary hyperlinks (see above).</p>
+
+      <a name="bold"></a>
+      <a name="italic"></a>
+      <h4 id="bolditalic">Bold and italic</h4>
+
+      <p>PottyMouth identifies balanced sets of <code>*</code> and <code>_</code> and turns them into bold (<code>&lt;b&gt;</code>) and italic (<code>&lt;i&gt;</code>) tags. This support was added because this shorthand is extremely common in text input, even from non-technical users. Bold and italic can be nested; however, they cannot be overlapped and neither can be nested, at any depth, inside itself. Un-balanced <code>*</code> and <code>_</code> are rendered literally. </p>
+
+      <pre>
+this is *bold _and italic_* or _italic *and bold*_ or just *one* or the _other_
+but *I dunno _what* this_ is *supposed to* be.</pre>
+
+      <p>produces:</p>
+
+      <div class="potty">
+        <p>
+          this is
+          <b>
+            bold
+            <i>
+              and italic
+            </i>
+          </b>
+          or
+          <i>
+            italic
+            <b>
+              and bold
+            </b>
+          </i>
+          or just
+          <b>
+            one
+          </b>
+          or the
+          <i>
+            other
+          </i>
+          but
+          <b>
+            I dunno
+            _
+            what
+          </b>
+          this
+          _
+          is
+          <b>
+            supposed to
+          </b>
+          be.
+        </p>
+      </div>
+
+      <p>Support for other shorthands, such as  <code>-</code> for strikeout and <code>=</code> for monospaced text is a possibility, but unlikely as it requires some user knowledge, is much rarer than <code>*</code> and <code>_</code>, and would likely interfere with the normal use of those characters.</p>
+
+      <p>You may turn off bold and italic creation by initializing PottyMouth with <code>bold=False</code>, and/or <code>italic=False</code>.</p>
+
+
+      <h4 id="characters">Special characters</h4>
+
+      <p>PottyMouth renders single and double quotes, backticks, ellipsis and double-dashes into the appropriate HTML entities:</p>
+
+      <ul>
+        <li><code>'foo'</code>      &rArr; <span class="potty">&#8216;foo&#8217;</span></li>
+        <li><code>"foo"</code>      &rArr; <span class="potty">&#8220;foo&#8221;</span></li>
+        <li><code>`foo'</code>      &rArr; <span class="potty">&#8216;foo&#8217;</span></li>
+        <li><code>``foo''</code>    &rArr; <span class="potty">&#8220;foo&#8221;</span></li>
+        <li><code>foo's ball</code> &rArr; <span class="potty">foo&#8217;s ball</span></li>
+        <li><code>foo...</code>     &rArr; <span class="potty">foo&#8230;</span> (ellipsis)</li>
+        <li><code>foo--bar</code>   &rArr; <span class="potty">foo&#8212;bar</span> (emdash)</li>
+      </ul>
+
+      <p>Single dashes are not converted into dash, hyphen, minus or emdash, as it is not possible to reliably detect what is the correct character to use from context. See <a href="http://www.alistapart.com/articles/emen/">The Trouble With EM &#8217;n EN</a> for more information. Because PottyMouth is intended for non-technical, novice users, there is no syntax for distinguishing these characters.</p>
+
+      <p>All characters that are not valid HTML, including <code>&lt;</code>, <code>&gt;</code>, and <code>&amp;</code>, are escaped in the output.</p>
+
+      <p>Support for smilies and additional special characters is a future possibility.</p>
+
+      <p>You may turn off smart quotes, ellipsis, and emdash detection by initializing PottyMouth with <code>smart_quotes=False</code>, <code>ellipsis=False</code>, and/or <code>emdash=False</code>.</p>
+
+      <h3 id="usage">Usage</h3>
+
+      <p>PottyMouth is implemented as a Python module and as a JavaScript module. (There is also an outdated port to Ruby 1.9.) 
+
+      <h4 id="python_usage">Python Usage</h4>
+
+      <p>To use PottyMouth's Python implementation, first instantiate a parser and tell it what domain it&#8217;s going to be used on:</p>
+
+      <pre>
+from pottymouth import PottyMouth
+pm = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
+                url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
+)</pre>
+
+      <p>The <code>parse()</code> method returns a <code>PottyMouth.Node</code> object representing a <code>&lt;div&gt;</code> node, and containing <code>&lt;p&gt;</code> nodes.</p>
+
+      <pre>
+div_node = pm.parse(string_to_parse)</pre>
+
+      <p>You can then stringify them with <code>str()</code> or just <code>print</code> them:</p>
+
+      <pre>
+print div_node</pre>
+      
+      <p><code>PottyMouth.Node</code> objects inherit from native Python <code>list</code>s, so you may also iterate over their contents and convert them to whatever native XHTML objects that your application requires.</p>
+
+      <p>The Ruby version uses an identical interface.</p>
+
+      <ul class="nav">
+        <li><a href="#">introduction</a></li>
+        <li><a href="#syntax">syntax</a></li>
+        <li><a href="#usage">usage</a></li>
+        <li><a href="#download">download</a></li>
+        <li><a href="#demo">demonstration</a></li>
+      </ul>
+
+      <h4 id="config">Python module configuration</h4>
+
+      <p>You may disable specific components of PottyMouth's syntax by passing in any combination of the following key-word arguments when initializing a new PottyMouth instance. (This feature is only available in the Python module.)</p>
+
+      <dl>
+        <dt><code>all_links=False</code></dt>       <dd>disables all URL hyperlinking</dd>
+        <dt><code>image=False</code></dt>           <dd>disables &lt;img&gt; tags for image URLs</dd>
+        <dt><code>youtube=False</code></dt>         <dd>disables YouTube embedding</dd>
+        <dt><code>email=False</code></dt>           <dd>disables mailto:email@site.com URLs</dd>
+        <dt><code>all_lists=False</code></dt>       <dd>disables all lists (&lt;ol&gt; and &lt;ul&gt;)</dd>
+        <dt><code>unordered_list=False</code></dt>  <dd>disables all unordered lists (&lt;ul&gt;)</dd>
+        <dt><code>ordered_list=False</code></dt>    <dd>disables all ordered lists (&lt;ol&gt;)</dd>
+        <dt><code>numbered_list=False</code></dt>   <dd>disables '\d+\.' list elements </dd>
+        <dt><code>blockquote=False</code></dt>      <dd>disables '&gt;' &lt;blockquote&gt;s</dd>
+        <dt><code>definition_list=False</code></dt> <dd>disables all definition lists (&lt;dl&gt;)</dd>
+        <dt><code>bold=False</code></dt>            <dd>disables *bold*</dd>
+        <dt><code>italic=False</code></dt>          <dd>disables _italics_</dd>
+        <dt><code>emdash=False</code></dt>          <dd>disables -- emdash</dd>
+        <dt><code>ellipsis=False</code></dt>        <dd>disables ... ellipsis</dd>
+        <dt><code>smart_quotes=False</code></dt>    <dd>disables smart quotes</dd>
+      </dl>
+
+      <p>All of these options are enabled by default. You only need to pass <code>foo=False</code> if you wish to disable one.</p>
+
+      <p>By default PottyMouth generates UTF-8 encoded xHTML fragments. If you want a different encoding, set the module-level <code>encoding</code> configuration variable:</p> 
+
+      <pre>PottyMouth.encoding = 'ascii'</pre>
+
+      <p>Any characters that cannot be encoded using the configured encoding will be replaced with numeric HTML entities.</p>
+
+      <h4 id="javascript_usage">Javascript Usage</h4>
+
+      <p>To use PottyMouth's JavaScript implementation, <a href="http://bitbucket.org/glyphobet/pottymouth/raw/tip/javascript/pottymouth.js">download</a> the latest JavaScript implementation of PottyMouth and include it in your HTML. Then instantiate a parser and tell it what domain it&#8217;s going to be used on, and which URLs on that domain the user is allowed to link to:</p>
+
+      <pre>
+&lt;script src="pottymouth.js" type="text/javascript"></script>
+&lt;script>
+  var pottymouth = new PottyMouth(
+    ['mysite.com', 'www.mysite.com'],
+    ['https?://www\.mysite\.com/allowed/url\?id=\d+']
+  );
+&lt;/script>
+</pre>
+
+      <p>Then pass some text to PottyMouth's <code>parse()</code> method. This will return a JavaScript object. Then call that object's <code>toString()</code> method to convert the object to a HTML string.</p>
+
+      <pre>
+&lt;script>
+  var output = pottymouth.parse("Some *text* to parse!")
+  output = output.toString();
+  document.getElementById('potty_output').innerHTML = output;
+&lt;/script>
+</pre>
+
+      <h3 id="download">Download</h3>
+
+      <p>PottyMouth is licensed under the <a href="http://www.opensource.org/licenses/bsd-license.php">BSD License</a>. The Python implementation requires <a href="http://python.org/">Python</a>, version 2.4 or newer.</p>
+
+      <p>You can check out the latest development version from <a href="http://bitbucket.org/glyphobet/pottymouth/">BitBucket</a> with <br />
+        <code>hg clone http://bitbucket.org/glyphobet/pottymouth/</code><br />
+        or from <a href="https://github.com/glyphobet/pottymouth">GitHub</a> with <br />
+        <code>git clone git://github.com/glyphobet/pottymouth.git</code>.
+
+      <p>You can also download Python packages of the latest stable release, 2.1.3, released 12 March 2012:</p>
+
+      <ul>
+        <li>From <a href="http://pypi.python.org/pypi/PottyMouth">pypi</a> with <code>easy_install pottymouth</code>.</li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-2.1.3-py2.7.egg">PottyMouth-2.1.3-py2.7.egg</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-2.1.3.tar.gz">PottyMouth-2.1.3.tar.gz</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/?C=M;O=D">older versions</a></li>
+        <li><a href="http://glyphobet.net/pottymouth/dist/python-pottymouth_2.1.3-0_all.deb">python-pottymouth_2.1.3-0_all.deb</a></li>
+      </ul>
+
+      <p>You can also download the latest JavaScript implementation from <a href="http://bitbucket.org/glyphobet/pottymouth/">bitbucket.org</a>:</p>
+
+      <ul>
+        <li><a href="http://bitbucket.org/glyphobet/pottymouth/raw/tip/javascript/pottymouth.js">pottymouth.js</a>.</li>
+      </ul>
+
+      <p>An experimental port of PottyMouth 1.0.2 to <a href="http://ruby-lang.org">Ruby 1.9.0</a> is also available:</p>
+
+      <ul>
+        <li><a href="http://glyphobet.net/pottymouth/dist/PottyMouth-1.0.2.1.gem">PottyMouth-1.0.2.1.gem</a></li>
+      </ul>
+
+      <p>If you have any suggestions or problems with PottyMouth, please feel free to email me at <tt>matt dash pottymouth at theory dot org</tt>.</p>
+
+      <p>If you use PottyMouth and like it, please consider donating via Flattr:
+        <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://glyphobet.net/pottymouth/"></a>
+        <noscript>
+          <a href="http://flattr.com/thing/270355/PottyMouth-text-processor" target="_blank">
+            <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
+          </a>
+        </noscript>
+      </p>
+
+
+      <h3 id="demo">Demonstration</h3>
+
+      <script>
+        var pottymouth = new PottyMouth(['theory.org']);
+
+        function demo() {
+          var input = document.getElementById('potty_input').value;
+          input = input.slice(0,1000);
+          var output = pottymouth.parse(input)
+          output = output.toString();
+          document.getElementById('potty_output').innerHTML = output;
+        }
+      </script>
+
+      <p>Potty input: (1000 characters maximum)<br/>
+        <textarea id="potty_input" style="height:15em;">This is example "PottyMouth" input -- you can _test_ it here and see *_every_thing* it has to offer.
+
+Used on:
+
+* http://mosuki.com
+  (now defunct)
+* http://spydentify.com
+* http://flakenot.com
+
+> About the implementations:
+>
+>> Python: current
+>>  (reference implementation)
+>> Javascript: current
+>> Ruby: experimental, now out of date
+</textarea>
+        <br/>
+        <button id="demo_button" type="button" onclick="demo();">Parse using PottyMouth</button>
+      </p>
+
+      <p>Potty output:<br/>
+        <div id="potty_output" style="height:18em;overflow:scroll;"></div>
+      </p>
+
+    </div>
+  </body>
+</html>
