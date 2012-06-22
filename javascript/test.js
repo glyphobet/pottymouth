@@ -120,6 +120,12 @@ $(document).ready(function (){
     equal(p.parse('And shit, this http://www.theory.org/~matt/matt-1.jpg is an image.').toString(),
       '<div>\n  <p>\n    And shit, this \n    <img src="http://www.theory.org/~matt/matt-1.jpg" />\n     is an image.\n  </p>\n</div>',
       'test_image_hyperlink');
+    equal(p.parse('Ben: a name consisting of two consonants and\n  one vowel\nEva: a name consisting of one consonant and\n  two vowels\nQi: Not a name at all\n').toString(),
+      '<div>\n  <dl>\n    <dt>Ben:</dt>\n    <dd>\n      a name consisting of two consonants and one vowel\n    </dd>\n    <dt>Eva:</dt>\n    <dd>\n      a name consisting of one consonant and two vowels\n    </dd>\n    <dt>Qi:</dt>\n    <dd>\n      Not a name at all\n    </dd>\n  </dl>\n</div>',
+      'test_indented_definitions');
+    equal(p.parse('And now a descriptive list:\n\n1) I like to read books in the rain\n2) Number one sounds silly, I guess it is. I suppose a dry area\n  would be a better location.\n3) I suppose you wouldn\'t be surprised to hear I read newspapers\n  in the swimming pool.\n 4) Roger').toString(),
+      '<div>\n  <p>\n    And now a descriptive list:\n  </p>\n  <ol>\n    <li>\n      I like to read books in the rain\n    </li>\n    <li>\n      Number one sounds silly, I guess it is. I suppose a dry area would be a better location.\n    </li>\n    <li>\n      I suppose you wouldn&#8217;t be surprised to hear I read newspapers in the swimming pool.\n    </li>\n    <li>\n      Roger\n    </li>\n  </ol>\n</div>',
+      'test_indented_lists');
     equal(p.parse('* line 1\n* >> quoted item 2\n* satan\n\nparagraph not quoted paragraphy\n').toString(),
       '<div>\n  <ul>\n    <li>\n      line 1\n    </li>\n    <li>\n      &gt;&gt;quoted item 2\n    </li>\n    <li>\n      satan\n    </li>\n  </ul>\n  <p>\n    paragraph not quoted paragraphy\n  </p>\n</div>',
       'test_list_containing_blockquote');
@@ -201,6 +207,9 @@ $(document).ready(function (){
     equal(p.parse("\nHere is a _paragraph_ with big _fat_ looong text lines\nthat go *on and_ on* foreeeeeever with no end in sight.\n\nYes, that's right,  another paragraph. http://google.com/ is my site\nWill wonders ever cease?\n").toString(),
       '<div>\n  <p>\n    Here is a \n    <i>\n      paragraph\n    </i>\n     with big \n    <i>\n      fat\n    </i>\n     looong text lines that go \n    <b>\n      on and_ on\n    </b>\n    foreeeeeever with no end in sight.\n  </p>\n  <p>\n    Yes, that&#8217;s right,  another paragraph. \n    <a href=\"http://google.com/\" class=\"external\">google.com/</a>\n     is my site Will wonders ever cease?\n  </p>\n</div>',
       'test_some_paragraphs');
+    equal(p.parse('* \n').toString(),
+      '<div>\n  <p>\n    *\n  </p>\n</div>',
+      'test_stray_asterisk');
     equal(p.parse("Someone's ``being'' too `clever' with quotes.").toString(),
       '<div>\n  <p>\n    Someone&#8217;s &#8220;being&#8221; too &#8216;clever&#8217; with quotes.\n  </p>\n</div>',
       'test_too_clever_quotes');
@@ -210,6 +219,12 @@ $(document).ready(function (){
     equal(p.parse('two short lines\nall by themselves\n').toString(),
       '<div>\n  <p>\n    two short lines \n    <br />\n    all by themselves\n  </p>\n</div>',
       'test_two_short_lines');
+    equal(p.parse('This is a*lonely asterisk').toString(),
+      '<div>\n  <p>\n    This is a*lonely asterisk\n  </p>\n</div>',
+      'test_unbalanced_asterisk');
+    equal(p.parse('This is a_lonely underscore').toString(),
+      '<div>\n  <p>\n    This is a_lonely underscore\n  </p>\n</div>',
+      'test_unbalanced_underscore');
     equal(p.parse('\u1503@theory.org').toString(),
       '<div>\n  <p>\n    <a href="mailto:\u1503@theory.org" class="external">\u1503@theory.org</a>\n  </p>\n</div>',
       'test_unicode_email');
@@ -219,20 +234,5 @@ $(document).ready(function (){
     equal(p.parse('http://www.youtube.com/watch?v=KKTDRqQtPO8').toString(),
       '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/KKTDRqQtPO8"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/KKTDRqQtPO8" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',
       'test_youtube_embed_2');
-    equal(p.parse('* \n').toString(),
-      '<div>\n  <p>\n    *\n  </p>\n</div>',
-      'test_stray_asterisk');
-    equal(p.parse('This is a_lonely underscore').toString(),
-      '<div>\n  <p>\n    This is a_lonely underscore\n  </p>\n</div>',
-      'test_unbalanced_underscore');
-    equal(p.parse('This is a*lonely asterisk').toString(),
-      '<div>\n  <p>\n    This is a*lonely asterisk\n  </p>\n</div>',
-      'test_unbalanced_asterisk');
-    equal(p.parse('And now a descriptive list:\n\n1) I like to read books in the rain\n2) Number one sounds silly, I guess it is. I suppose a dry area\n  would be a better location.\n3) I suppose you wouldn\'t be surprised to hear I read newspapers\n  in the swimming pool.\n 4) Roger').toString(),
-      '<div>\n  <p>\n    And now a descriptive list:\n  </p>\n  <ol>\n    <li>\n      I like to read books in the rain\n    </li>\n    <li>\n      Number one sounds silly, I guess it is. I suppose a dry area would be a better location.\n    </li>\n    <li>\n      I suppose you wouldn&#8217;t be surprised to hear I read newspapers in the swimming pool.\n    </li>\n    <li>\n      Roger\n    </li>\n  </ol>\n</div>',
-      'test_indented_lists');
-    equal(p.parse('Ben: a name consisting of two consonants and\n  one vowel\nEva: a name consisting of one consonant and\n  two vowels\nQi: Not a name at all\n').toString(),
-      '<div>\n  <dl>\n    <dt>Ben:</dt>\n    <dd>\n      a name consisting of two consonants and one vowel\n    </dd>\n    <dt>Eva:</dt>\n    <dd>\n      a name consisting of one consonant and two vowels\n    </dd>\n    <dt>Qi:</dt>\n    <dd>\n      Not a name at all\n    </dd>\n  </dl>\n</div>',
-      'test_indented_definitions');
   });
 })
