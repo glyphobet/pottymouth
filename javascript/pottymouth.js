@@ -552,7 +552,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
           } else {
             break;
           }
-         }
+        }
       } else {
         new_tokens.push(tokens.shift());
       }
