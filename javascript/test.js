@@ -221,7 +221,7 @@ $(document).ready(function (){
       'test_youtube_embed_2');
     equal(p.parse('* \n').toString(),
       '<div>\n  <p>\n    *\n  </p>\n</div>',
-      'stray_asterisk');
+      'test_stray_asterisk');
     equal(p.parse('This is a_lonely underscore').toString(),
       '<div>\n  <p>\n    This is a_lonely underscore\n  </p>\n</div>',
       'test_unbalanced_underscore');
