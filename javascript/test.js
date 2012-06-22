@@ -57,7 +57,7 @@ $(document).ready(function (){
       console.debug(expected.replace(/ /g, '_'));
     }
     return equal(generated, expected, test_name);
-  }
+  };
 
   test("PottyMouth parser tests", 60, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
@@ -244,4 +244,4 @@ $(document).ready(function (){
       '<div>\n  <p>\n    <object width="425" height="350">\n      <param name="movie" value="http://www.youtube.com/v/KKTDRqQtPO8"></param>\n      <param name="wmode" value="transparent"></param>\n      <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.youtube.com/v/KKTDRqQtPO8" width="425" height="350"></embed>\n    </object>\n  </p>\n</div>',
       'test_youtube_embed_2');
   });
-})
+});
