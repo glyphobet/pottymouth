@@ -519,6 +519,11 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
 
   var parse_quote = function (tokens) {
+    var initial_indent = 0;
+    if (tokens[0].name == 'INDENT') {
+      initial_indent = tokens[0].content.length;
+      tokens.shift();
+    }
     var quote = new Node('blockquote');
     var new_tokens = [];
 
@@ -535,6 +540,12 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
     while (tokens.length) {
       if (tokens[0].name == 'NEW_LINE') {
         new_tokens.push(tokens.shift());
+        if (tokens.length && tokens[0].name == 'INDENT') {
+          var t = tokens.shift();
+          if (t.length > initial_indent) {
+            break;
+          }
+        }
         if (tokens.length) {
           if (tokens[0].name == 'RIGHT_ANGLE') {
             handle_quote(tokens.shift());
