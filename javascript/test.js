@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   }
 
-  test("PottyMouth parser tests", 57, function () {
+  test("PottyMouth parser tests", 60, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -95,7 +95,7 @@ $(document).ready(function (){
       'test_definition_list');
     equal(p.parse('> early in the quote\n>>>> deep in the quote\nnot quoted at all\n').toString(),
       '<div>\n  <blockquote>\n    <p>\n      early in the quote\n    </p>\n    <blockquote>\n      <blockquote>\n        <blockquote>\n          <p>\n            deep in the quote\n          </p>\n        </blockquote>\n      </blockquote>\n    </blockquote>\n  </blockquote>\n  <p>\n    not quoted at all\n  </p>\n</div>',
-      'test_early_deep_quote')
+      'test_early_deep_quote');
     equal(p.parse('what... I think... nevermind.').toString(),
       '<div>\n  <p>\n    what&#8230; I think&#8230; nevermind.\n  </p>\n</div>',
       'test_ellipses');
@@ -120,10 +120,19 @@ $(document).ready(function (){
     equal(p.parse('And shit, this http://www.theory.org/~matt/matt-1.jpg is an image.').toString(),
       '<div>\n  <p>\n    And shit, this \n    <img src="http://www.theory.org/~matt/matt-1.jpg" />\n     is an image.\n  </p>\n</div>',
       'test_image_hyperlink');
-    equal(p.parse('Ben: a name consisting of two consonants and\n  one vowel\nEva: a name consisting of one consonant and\n  two vowels\nQi: Not a name at all\n').toString(),
+    equal(p.parse('\n        > thing\n        > other thing\n').toString(),
+      '<div>\n  <blockquote>\n    <p>\n      thing \n      <br />\n      other thing\n    </p>\n  </blockquote>\n</div>',
+      'test_indented_blockquote');
+    equal(p.parse('\n        > thing\n          other thing\n').toString(),
+      '<div>\n  <blockquote>\n    <p>\n      thing\n    </p>\n  </blockquote>\n  <p>\n    other thing\n  </p>\n</div>',
+      'test_indented_blockquote_followed_by_differently_indented_paragraph');
+    equal(p.parse('\n        > thing\n        other thing\n').toString(),
+      '<div>\n  <blockquote>\n    <p>\n      thing\n    </p>\n  </blockquote>\n  <p>\n    other thing\n  </p>\n</div>',
+      'test_indented_blockquote_followed_by_indented_paragraph');
+    equal(p.parse('\nBen: a name consisting of two consonants and\n  one vowel\nEva: a name consisting of one consonant and\n  two vowels\nQi: Not a name at all\n').toString(),
       '<div>\n  <dl>\n    <dt>Ben:</dt>\n    <dd>\n      a name consisting of two consonants and one vowel\n    </dd>\n    <dt>Eva:</dt>\n    <dd>\n      a name consisting of one consonant and two vowels\n    </dd>\n    <dt>Qi:</dt>\n    <dd>\n      Not a name at all\n    </dd>\n  </dl>\n</div>',
       'test_indented_definitions');
-    equal(p.parse('And now a descriptive list:\n\n1) I like to read books in the rain\n2) Number one sounds silly, I guess it is. I suppose a dry area\n  would be a better location.\n3) I suppose you wouldn\'t be surprised to hear I read newspapers\n  in the swimming pool.\n 4) Roger').toString(),
+    equal(p.parse("\n        And now a descriptive list:\n\n1) I like to read books in the rain\n2) Number one sounds silly, I guess it is. I suppose a dry area\n  would be a better location.\n3) I suppose you wouldn't be surprised to hear I read newspapers\n  in the swimming pool.\n 4) Roger\n\n").toString(),
       '<div>\n  <p>\n    And now a descriptive list:\n  </p>\n  <ol>\n    <li>\n      I like to read books in the rain\n    </li>\n    <li>\n      Number one sounds silly, I guess it is. I suppose a dry area would be a better location.\n    </li>\n    <li>\n      I suppose you wouldn&#8217;t be surprised to hear I read newspapers in the swimming pool.\n    </li>\n    <li>\n      Roger\n    </li>\n  </ol>\n</div>',
       'test_indented_lists');
     equal(p.parse('* line 1\n* >> quoted item 2\n* satan\n\nparagraph not quoted paragraphy\n').toString(),
@@ -205,9 +214,9 @@ $(document).ready(function (){
       '<div>\n  <blockquote>\n    <p>\n      Bubba\n    </p>\n    <ul>\n      <li>\n        quoted item 2\n      </li>\n      <li>\n        quoted item 3\n      </li>\n    </ul>\n    <p>\n      Toady\n    </p>\n  </blockquote>\n</div>',
       'test_single_blockquote_containing_list');
     equal(p.parse("\nHere is a _paragraph_ with big _fat_ looong text lines\nthat go *on and_ on* foreeeeeever with no end in sight.\n\nYes, that's right,  another paragraph. http://google.com/ is my site\nWill wonders ever cease?\n").toString(),
-      '<div>\n  <p>\n    Here is a \n    <i>\n      paragraph\n    </i>\n     with big \n    <i>\n      fat\n    </i>\n     looong text lines that go \n    <b>\n      on and_ on\n    </b>\n    foreeeeeever with no end in sight.\n  </p>\n  <p>\n    Yes, that&#8217;s right,  another paragraph. \n    <a href=\"http://google.com/\" class=\"external\">google.com/</a>\n     is my site Will wonders ever cease?\n  </p>\n</div>',
+      '<div>\n  <p>\n    Here is a \n    <i>\n      paragraph\n    </i>\n     with big \n    <i>\n      fat\n    </i>\n     looong text lines that go \n    <b>\n      on and_ on\n    </b>\n    foreeeeeever with no end in sight.\n  </p>\n  <p>\n    Yes, that&#8217;s right,  another paragraph. \n    <a href="http://google.com/" class="external">google.com/</a>\n     is my site Will wonders ever cease?\n  </p>\n</div>',
       'test_some_paragraphs');
-    equal(p.parse('* \n').toString(),
+    equal(p.parse('* ').toString(),
       '<div>\n  <p>\n    *\n  </p>\n</div>',
       'test_stray_asterisk');
     equal(p.parse("Someone's ``being'' too `clever' with quotes.").toString(),
