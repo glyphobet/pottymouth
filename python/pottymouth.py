@@ -3,15 +3,15 @@
 # The Basic PottyMouth grammar:
 # =============================
 #
-# start => block +
-# block => ( quote | itemlist | definitionlist | paragraph ) newline *
-# quote => ( quote | block) +
-# itemlist => ( bullet line ) +
-# definitionlist => ( term line) +
-# paragraph => line + newline newline
-# line => ( atomic | bold | italic ) +
-# bold => ( atomic | italic ) +
-# italic => ( atomic | italic ) +
+# start          => block +
+# block          => ( quote | itemlist | definitionlist | paragraph ) newline *
+# quote          => ( right_angle block ) +
+# itemlist       => ( bullet line ) +
+# definitionlist => ( term line ) +
+# paragraph      => line + newline newline
+# line           => ( atomic | bold | italic ) +
+# bold           => ( atomic | italic ) +
+# italic         => ( atomic | italic ) +
 
 import re, sys
 
