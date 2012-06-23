@@ -19,8 +19,8 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
 
   var _domain_pattern = "([-\\\w]+\\\.)+\\\w\\\w+";
 
-  //                         protocol                                  authentication               or just www   domain            path
-  var _URI_pattern = "((" + "(https?|webcal|feed|ftp|news|nntp)://" + "([-\\\w]+(:[-\\\w]+)?@)?" + ")|www\\\.)" + _domain_pattern + "(/([-\\\w$\\\.+!*'(),;:@%&=?/~#]*[-\\\w$+*(@%&=/~#])?)?";
+  //                         protocol                                  authentication               or just www   domain             port          path
+  var _URI_pattern = "((" + "(https?|webcal|feed|ftp|news|nntp)://" + "([-\\\w]+(:[-\\\w]+)?@)?" + ")|www\\\.)" + _domain_pattern + "(:\\\d+)?" + "(/([-\\\w$\\\.+!*'(),;:@%&=?/~#]*[-\\\w$+*(@%&=/~#])?)?";
 
   var URI_pattern = _URI_pattern;
 
