@@ -1,5 +1,6 @@
 .cdv/
 .*.pyc
+.coverage
 javascript/jquery-*
 javascript/qunit*
 python/test-mosuki.py

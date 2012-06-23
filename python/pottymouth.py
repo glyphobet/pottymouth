@@ -721,7 +721,7 @@ class PottyMouth(object):
 
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     def parse_and_print(w, text):
         blocks = w.parse(text)
         for b in blocks:
