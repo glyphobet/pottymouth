@@ -439,13 +439,13 @@ class PottyMouth(object):
             elif not inner and (tokens[0].name == 'STAR' or tokens[0].name == 'ITEMSTAR'):
                 collect.extend(self.parse_bold(tokens, inner=True))
             elif tokens[0].name == 'UNDERSCORE':
-                tokens.pop(0)
+                t = tokens.pop(0)
                 if collect:
                     newi = Node('i')
                     newi.extend(collect)
                     return [newi]
                 else:
-                    return []
+                    return [str(t)*2]
             else:
                 break
 
@@ -464,13 +464,13 @@ class PottyMouth(object):
             elif not inner and tokens[0].name == 'UNDERSCORE':
                 collect.extend(self.parse_italic(tokens, inner=True))
             elif tokens[0].name == 'STAR' or tokens[0].name == 'ITEMSTAR':
-                tokens.pop(0)
+                t = tokens.pop(0)
                 if collect:
                     newb = Node('b')
                     newb.extend(collect)
                     return [newb]
                 else:
-                    return []
+                    return [str(t)*2]
             else:
                 break
 

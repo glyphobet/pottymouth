@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   };
 
-  test("PottyMouth parser tests", 60, function () {
+  test("PottyMouth parser tests", 62, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -79,7 +79,7 @@ $(document).ready(function (){
       '<div>\n  <p>\n    item one \n    <br />\n    item two \n    <br />\n    item three \n    <br />\n    See, wasn&#8217;t that easy?\n  </p>\n</div>',
       'test_beginning_paragraph_list');
     equal(p.parse('***just a bold***').toString(),
-      '<div>\n  <p>\n    <b>\n      just a bold\n    </b>\n  </p>\n</div>',
+      '<div>\n  <p>\n    **\n    <b>\n      just a bold\n    </b>\n    **\n  </p>\n</div>',
       'test_bold');
     equal(p.parse('*bold http://www.theory.org/ URL * and _italic http://www.theory.org/ URL_ and *http://www.theory.org extra stuff*').toString(),
       '<div>\n  <p>\n    <b>\n      bold \n      <a href="http://www.theory.org/" class="external">www.theory.org/</a>\n       URL\n    </b>\n    and \n    <i>\n      italic \n      <a href="http://www.theory.org/" class="external">www.theory.org/</a>\n       URL\n    </i>\n     and \n    <b>\n      <a href="http://www.theory.org" class="external">www.theory.org</a>\n       extra stuff\n    </b>\n  </p>\n</div>',
@@ -93,6 +93,12 @@ $(document).ready(function (){
     equal(p.parse("\nHost:     Braig Crozinsky\nLocation: Braig's Pad\n         666 Mareclont Avenue, Apt. 6\n         Loakand, CA 94616 US\n         View Map\nWhen:     Saturday, November 7, 4:30PM\nPhone:    530-555-1212\n").toString(),
       '<div>\n  <dl>\n    <dt>Host:</dt>\n    <dd>\n      Braig Crozinsky\n    </dd>\n    <dt>Location:</dt>\n    <dd>\n      Braig&#8217;s Pad 666 Mareclont Avenue, Apt. 6 Loakand, CA 94616 US View Map\n    </dd>\n    <dt>When:</dt>\n    <dd>\n      Saturday, November 7, 4:30PM\n    </dd>\n    <dt>Phone:</dt>\n    <dd>\n      530-555-1212\n    </dd>\n  </dl>\n</div>',
       'test_definition_list');
+    equal(p.parse('**').toString(),
+      '<div>\n  <p>**</p>\n</div>',
+      'test_double_asterisk__passthrough');
+    equal(p.parse('__').toString(),
+      '<div>\n  <p>__</p>\n</div>',
+      'test_double_underline_passthrough');
     equal(p.parse('> early in the quote\n>>>> deep in the quote\nnot quoted at all\n').toString(),
       '<div>\n  <blockquote>\n    <p>\n      early in the quote\n    </p>\n    <blockquote>\n      <blockquote>\n        <blockquote>\n          <p>\n            deep in the quote\n          </p>\n        </blockquote>\n      </blockquote>\n    </blockquote>\n  </blockquote>\n  <p>\n    not quoted at all\n  </p>\n</div>',
       'test_early_deep_quote');
@@ -166,7 +172,7 @@ $(document).ready(function (){
       '<div>\n  <p>\n    About Smuggler&#8217;s Cove: Nothing\n  </p>\n</div>',
       'test_not_actually_a_definiton_list');
     equal(p.parse('**the Higgs Boson is not bold**').toString(),
-      '<div>\n  <p>\n    the Higgs Boson is not bold\n  </p>\n</div>',
+      '<div>\n  <p>\n    **the Higgs Boson is not bold**\n  </p>\n</div>',
       'test_not_bold');
     equal(p.parse('This is a list:\n    1) One\n    2) Too\n    7.) Tree\n    ').toString(),
       '<div>\n  <p>\n    This is a list:\n  </p>\n  <ol>\n    <li>\n      One\n    </li>\n    <li>\n      Too\n    </li>\n    <li>\n      Tree\n    </li>\n  </ol>\n</div>',

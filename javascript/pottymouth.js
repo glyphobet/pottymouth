@@ -386,7 +386,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         if (collect.length) {
           return [new Node('i', collect)];
         } else {
-          return [];
+          return ['__'];
         }
       } else {
         break;
@@ -412,7 +412,7 @@ var PottyMouth = function (url_check_domains, url_white_lists) {
         if (collect.length){
           return [new Node('b', collect)];
         } else {
-          return [];
+          return ['**'];
         }
       } else {
         break;

@@ -395,9 +395,11 @@ all by themselves
     def test_bold(self):
         self._helper("""***just a bold***""",
             [Node('p',
+                '**',
                 Node('b',
                     Node('span', 'just a bold'),
                 ),
+                '**',
             )]
         )
 
@@ -405,7 +407,7 @@ all by themselves
     def test_not_bold(self):
         self._helper("""**the Higgs Boson is not bold**""",
             [Node('p',
-                Node('span', 'the Higgs Boson is not bold'),
+                Node('span', '**the Higgs Boson is not bold**'),
             )]
         )
 
@@ -1095,6 +1097,11 @@ Qi: Not a name at all
           other thing
 ''', [Node('blockquote', Node('p', Node('span', 'thing '))), Node('p', Node('span', 'other thing'))])
 
+    def test_double_underline_passthrough(self):
+        self._helper('__', [Node('p', '__')])
+
+    def test_double_asterisk__passthrough(self):
+        self._helper('**', [Node('p', '**')])
 
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
