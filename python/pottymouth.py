@@ -312,24 +312,20 @@ class PottyMouth(object):
         self.token_list = []
         for t in token_order:
             n = t.name
-            if n in ('URL','IMAGE','YOUTUBE','EMAIL') and not all_links:
-                continue
-            elif n == 'IMAGE' and not image:                           continue
-            elif n == 'YOUTUBE' and not youtube:                       continue
-            elif n == 'EMAIL' and not email:                           continue
-            elif n in ('HASH','DASH','NUMBERED','ITEMSTAR','BULLET') and not all_lists:
-                continue 
-            elif n in ('DASH','ITEMSTAR','BULLET') and not unordered_list:
-                continue
-            elif n in ('HASH','NUMBERED') and not ordered_list:
-                continue
-            elif n == 'DEFINITION' and not definition_list:            continue
-            elif n == 'NUMBERED' and not numbered_list:                continue
-            elif n == 'STAR' and not bold:                             continue
-            elif n == 'UNDERSCORE' and not italic:                     continue
-            elif n == 'RIGHT_ANGLE' and not blockquote:                continue
-            elif n == 'EMDASH' and not emdash:                         continue
-            elif n == 'ELLIPSIS' and not ellipsis:                     continue
+            if   n in ('URL','IMAGE','YOUTUBE','EMAIL'             ) and not all_links      : continue
+            elif n == 'IMAGE'                                        and not image          : continue
+            elif n == 'YOUTUBE'                                      and not youtube        : continue
+            elif n == 'EMAIL'                                        and not email          : continue
+            elif n in ('HASH','DASH','NUMBERED','ITEMSTAR','BULLET') and not all_lists      : continue
+            elif n in ('DASH','ITEMSTAR','BULLET'                  ) and not unordered_list : continue
+            elif n in ('HASH','NUMBERED'                           ) and not ordered_list   : continue
+            elif n == 'DEFINITION'                                   and not definition_list: continue
+            elif n == 'NUMBERED'                                     and not numbered_list  : continue
+            elif n == 'STAR'                                         and not bold           : continue
+            elif n == 'UNDERSCORE'                                   and not italic         : continue
+            elif n == 'RIGHT_ANGLE'                                  and not blockquote     : continue
+            elif n == 'EMDASH'                                       and not emdash         : continue
+            elif n == 'ELLIPSIS'                                     and not ellipsis       : continue
 
             self.token_list.append(t)
 
