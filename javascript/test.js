@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   };
 
-  test("PottyMouth parser tests", 64, function () {
+  test("PottyMouth parser tests", 65, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -111,6 +111,9 @@ $(document).ready(function (){
     equal(p.parse('Whatever happened -- I wondered -- to Illimunated-Distributed Motherf----ers?').toString(),
       '<div>\n  <p>\n    Whatever happened &#8212; I wondered &#8212; to Illimunated-Distributed Motherf&#8212;&#8212;ers?\n  </p>\n</div>',
       'test_emdashes');
+    equal(p.parse('\n\t\n\n').toString(),
+      '<div></div>',
+      'test_empty_paragraph');
     equal(p.parse('This paragraph has a list embedded in the middle of itself:\nitem one\nitem two\nitem thre\n').toString(),
       '<div>\n  <p>\n    This paragraph has a list embedded in the middle of itself: \n    <br />\n    item one \n    <br />\n    item two \n    <br />\n    item thre\n  </p>\n</div>',
       'test_end_paragraph_list');

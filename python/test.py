@@ -1109,6 +1109,9 @@ Qi: Not a name at all
     def test_null_indent_blockquoted(self):
         self._helper('>\t', [Node('blockquote')])
 
+    def test_empty_paragraph(self):
+        self._helper('\n\t\n\n', [])
+
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 
