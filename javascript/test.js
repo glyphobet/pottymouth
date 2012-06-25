@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   };
 
-  test("PottyMouth parser tests", 66, function () {
+  test("PottyMouth parser tests", 68, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -165,12 +165,18 @@ $(document).ready(function (){
     equal(p.parse('but *I dunno _what* this_ is *supposed to* be.').toString(),
       '<div>\n  <p>\n    but \n    <b>\n      I dunno _what\n    </b>\n    this_ is \n    <b>\n      supposed to\n    </b>\n    be.\n  </p>\n</div>',
       'test_mis_nested_bold_and_italic');
+    equal(p.parse('but _I dunno *what_ this* is _supposed to_ be.').toString(),
+      '<div>\n  <p>\n    but \n    <i>\n      I dunno *what\n    </i>\n     this*is \n    <i>\n      supposed to\n    </i>\n     be.\n  </p>\n</div>',
+      'test_mis_nested_italic_and_bold');
     equal(p.parse('\n> Bubba\n\n> * quoted item 2\n> * quoted item 3\n\n> Toady\n').toString(),
       '<div>\n  <blockquote>\n    <p>\n      Bubba\n    </p>\n  </blockquote>\n  <blockquote>\n    <ul>\n      <li>\n        quoted item 2\n      </li>\n      <li>\n        quoted item 3\n      </li>\n    </ul>\n  </blockquote>\n  <blockquote>\n    <p>\n      Toady\n    </p>\n  </blockquote>\n</div>',
       'test_multiple_blockquotes_containing_list');
     equal(p.parse('this is *bold _and italic *and I dunno* what_ this* is.').toString(),
       '<div>\n  <p>\n    this is \n    <b>\n      bold _and italic\n    </b>\n    and I dunno\n    <b>\n      what_ this\n    </b>\n    is.\n  </p>\n</div>',
       'test_nested_bold_and_italic');
+    equal(p.parse('this is _bold *and italic _and I dunno_ what* this_ is.').toString(),
+      '<div>\n  <p>\n    this is \n    <i>\n      bold *and italic\n    </i>\n    and I dunno\n    <i>\n      what*this\n    </i>\n     is.\n  </p>\n</div>',
+      'test_nested_italic_and_bold');
     equal(p.parse("About Smuggler's Cove: Nothing").toString(),
       '<div>\n  <p>\n    About Smuggler&#8217;s Cove: Nothing\n  </p>\n</div>',
       'test_not_actually_a_definiton_list');

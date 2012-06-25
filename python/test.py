@@ -597,6 +597,38 @@ all by themselves
         )
 
 
+    def test_nested_italic_and_bold(self):
+        self._helper("this is _bold *and italic _and I dunno_ what* this_ is.",
+            [Node('p',
+                Node('span', "this is "),
+                Node('i',
+                    Node('span', "bold "), Node('span', "*"), Node('span', "and italic ",)
+                ),
+                Node('span', "and I dunno"),
+                Node('i',
+                    Node('span', " what"), Node('span', "*"), Node('span', "this"),
+                ),
+                Node('span', " is."),
+            )]
+        )
+
+
+    def test_mis_nested_italic_and_bold(self):
+        self._helper("but _I dunno *what_ this* is _supposed to_ be.",
+            [Node('p',
+                Node('span', "but "),
+                Node('i',
+                    Node('span', "I dunno "), Node('span', "*"), Node('span', "what")
+                ),
+                Node('span', " this"), Node('span', "*"), Node('span', "is "),
+                Node('i',
+                    Node('span', "supposed to")
+                ),
+                Node('span', " be.")
+            )]
+        )
+
+
     def test_attempted_HTML_insertion(self):
         self._helper('<a href="spleengrokes@email.com" target="_blank">Contact Me</a>',
             [Node('p',
