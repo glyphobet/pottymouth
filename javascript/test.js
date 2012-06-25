@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   };
 
-  test("PottyMouth parser tests", 65, function () {
+  test("PottyMouth parser tests", 66, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -203,6 +203,9 @@ $(document).ready(function (){
       'test_paragraphs_and_definition_list');
     equal(p.parse("\n> Bubba Gump\n>\n> Fishing: in the ocean, yes, and sometimes in the deep blue sea\n> Hurricane: in the ocean, yes, and sometimes in the deep blue sea\n>\n> Toady the Wild G-Frog's ride of a lifetime channel tunnel\n").toString(),
       '<div>\n  <blockquote>\n    <p>\n      Bubba Gump\n    </p>\n    <dl>\n      <dt>Fishing:</dt>\n      <dd>\n        in the ocean, yes, and sometimes in the deep blue sea\n      </dd>\n      <dt>Hurricane:</dt>\n      <dd>\n        in the ocean, yes, and sometimes in the deep blue sea\n      </dd>\n    </dl>\n    <p>\n      Toady the Wild G-Frog&#8217;s ride of a lifetime channel tunnel\n    </p>\n  </blockquote>\n</div>',
+      'test_quote_containing_paragraph_and_definition_list');
+    equal(p.parse('\n> Header header\n> this: that\n> these: those\n> Footer footer\n').toString(),
+      '<div>\n  <blockquote>\n    <p>\n      Header header\n    </p>\n    <dl>\n      <dt>this:</dt>\n      <dd>\n        that\n      </dd>\n      <dt>these:</dt>\n      <dd>\n        those\n      </dd>\n    </dl>\n    <p>\n      Footer footer\n    </p>\n  </blockquote>\n</div>',
       'test_quote_containing_paragraph_containing_definition_list');
     equal(p.parse('\n> Bubba\n> * quoted item 2\n> * quoted item 3\n> Toady\n').toString(),
       '<div>\n  <blockquote>\n    <p>\n      Bubba\n    </p>\n    <ul>\n      <li>\n        quoted item 2\n      </li>\n      <li>\n        quoted item 3\n      </li>\n    </ul>\n    <p>\n      Toady\n    </p>\n  </blockquote>\n</div>',

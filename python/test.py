@@ -980,7 +980,7 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         )
 
 
-    def test_quote_containing_paragraph_containing_definition_list(self):
+    def test_quote_containing_paragraph_and_definition_list(self):
         self._helper("""
 > Bubba Gump
 >
@@ -998,6 +998,26 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
                     Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
                 ),
                 Node('p', Node('span', u"Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
+            )]
+        )
+
+
+    def test_quote_containing_paragraph_containing_definition_list(self):
+        self._helper("""
+> Header header
+> this: that
+> these: those
+> Footer footer
+""",
+            [Node('blockquote',
+                Node('p', Node('span', "Header header ")),
+                Node('dl',
+                    Node('dt', 'this:'),
+                    Node('dd', Node('span', "that ")),
+                    Node('dt', 'these:'),
+                    Node('dd', Node('span', "those ")),
+                ),
+                Node('p', Node('span', "Footer footer ")),
             )]
         )
 
