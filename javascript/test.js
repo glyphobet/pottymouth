@@ -59,7 +59,7 @@ $(document).ready(function (){
     return equal(generated, expected, test_name);
   };
 
-  test("PottyMouth parser tests", 62, function () {
+  test("PottyMouth parser tests", 64, function () {
     equal(p.parse('This should be a URL http://mysite.com/allowed/service but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed http://mysite.com/safe/url and http://another.site.com/something/else.').toString(),
       '<div>\n  <p>\n    This should be a URL \n    <a href="http://mysite.com/allowed/service">mysite.com/allowed/service</a>\n     but this should not be http://mysite.COM/something/dangerous. And finally, these two should also be allowed \n    <a href="http://mysite.com/safe/url">mysite.com/safe/url</a>\n     and \n    <a href="http://another.site.com/something/else" class="external">another.site.com/something/else</a>\n    .\n  </p>\n</div>',
       'test_allowed_and_disallowed_urls');
@@ -174,6 +174,12 @@ $(document).ready(function (){
     equal(p.parse('**the Higgs Boson is not bold**').toString(),
       '<div>\n  <p>\n    **the Higgs Boson is not bold**\n  </p>\n</div>',
       'test_not_bold');
+    equal(p.parse('\n\t').toString(),
+      '<div></div>',
+      'test_null_indent');
+    equal(p.parse('>\t').toString(),
+      '<div>\n  <blockquote></blockquote>\n</div>',
+      'test_null_indent_blockquoted');
     equal(p.parse('This is a list:\n    1) One\n    2) Too\n    7.) Tree\n    ').toString(),
       '<div>\n  <p>\n    This is a list:\n  </p>\n  <ol>\n    <li>\n      One\n    </li>\n    <li>\n      Too\n    </li>\n    <li>\n      Tree\n    </li>\n  </ol>\n</div>',
       'test_numbered_list_parentheses');

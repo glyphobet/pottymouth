@@ -1103,6 +1103,12 @@ Qi: Not a name at all
     def test_double_asterisk__passthrough(self):
         self._helper('**', [Node('p', '**')])
 
+    def test_null_indent(self):
+        self._helper('\n\t', [])
+
+    def test_null_indent_blockquoted(self):
+        self._helper('>\t', [Node('blockquote')])
+
     def test_tokenizer(self):
         assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 
