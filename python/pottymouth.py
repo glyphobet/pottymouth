@@ -278,11 +278,6 @@ class YouTubeNode(Node):
 
 
 
-def debug(*a):
-    print ' '.join(map(repr, a))
-
-
-
 class PottyMouth(object):
 
     def __init__(self, url_check_domains=(), url_white_lists=(),
@@ -339,11 +334,6 @@ class PottyMouth(object):
             elif n == 'ELLIPSIS' and not ellipsis:                     continue
 
             self.token_list.append(t)
-
-
-    def debug(self, *s):
-        return
-        print ' '.join(map(str, s))
 
 
     def pre_replace(self, string):
@@ -408,13 +398,9 @@ class PottyMouth(object):
             t = Token(t.name, 'http://' + t)
 
         if self._url_check_domain and self._url_check_domain.findall(t):
-            # debug('\tchecking urls for this domain', len(self._url_white_lists))
             for w in self._url_white_lists:
-                # debug('\t\tchecking against', str(w))
                 if w.match(t):
-                    self.debug('\t\tmatches the white lists')
                     return LinkNode(t, internal=True)
-            # debug('\tdidn\'t match any white lists, making text')
             return Node('span', t)
         else:
             return LinkNode(t)
