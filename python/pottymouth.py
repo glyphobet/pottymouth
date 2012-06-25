@@ -601,12 +601,12 @@ class PottyMouth(object):
     def calculate_line_length(self, line):
         length = 0
         for i in line:
-            if issubclass(type(i), list):
+            if isinstance(i, list):
                 length += self.calculate_line_length(i)
-            elif issubclass(type(i), unicode) or issubclass(type(i), str):
+            elif isinstance(i, basestring):
                 length += len(i)
             else:
-                raise Exception(str(type(i)))
+                raise Exception("Don't know what to do with line element of type %r" % (type(i)))
         return length
 
 
