@@ -6,7 +6,6 @@ from tests import basic_tests
 
 class JavaScriptTestGenerator(basic_tests):
     def _helper(self, source, expected):
-        # import pdb; pdb.set_trace()
         if isinstance(source, str):
             source = source.decode('utf8')
         print(u"""    equal(p.parse(%s).toString(),\n      %r,\n      '%s');""" % (
