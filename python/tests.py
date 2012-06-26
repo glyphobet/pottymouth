@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
+import nose
+import unittest
 from difflib import Differ
 from pottymouth import PottyMouth, Node, Token
-import nose
 
 
 class TestPottyMouth(object):
@@ -19,19 +20,19 @@ class TestPottyMouth(object):
 
 
     def test_repr(self):
-        assert repr(self.parser.parse(u"foo • bar")) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]", repr(self.parser.parse(u"foo • bar"))
-        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]"
+        assert repr(self.parser.parse("foo • bar")) == "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]"
+        assert repr(self.parser.parse("foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]"
 
 
     def _helper(self, source, expected):
         blocks = self.parser.parse(source)
-        generated = '\n'.join(map(str, blocks))
+        generated = b'\n'.join(map(bytes, blocks))
         if isinstance(expected, list):
-            expected  = '\n'.join(map(str, expected))
+            expected  = b'\n'.join(map(bytes, expected))
         if generated != expected:
             d = Differ()
-            result = list(d.compare(expected.split('\n'), generated.split('\n')))
-            print '\n'.join(result)
+            result = list(d.compare(expected.split(b'\n'), generated.split(b'\n')))
+            print b'\n'.join(result)
             print source.encode('utf8')
             assert generated == expected
 
@@ -60,7 +61,7 @@ Will wonders ever cease?
                 Node('span', 'foreeeeeever with no end in sight. ')
             ),
             Node('P',
-                Node('span', u'Yes, that\u2019s right,  another paragraph. '),
+                Node('span', 'Yes, that\u2019s right,  another paragraph. '),
                 Node('a', 'google.com/', attributes={'href':'http://google.com/','class':'external'}),
                 Node('span', ' is my site '), Node('span', 'Will wonders ever cease? '),
             )]
@@ -110,7 +111,7 @@ See, wasn't that easy?""",
                 Node('br'),
                 Node('span', 'item three '),
                 Node('br'),
-                Node('span', u'See, wasn\u2019t that easy?')
+                Node('span', 'See, wasn\u2019t that easy?')
             )]
         )
 
@@ -128,7 +129,7 @@ See, wasn't that easy?""",
                 Node('br'),
                 Node('span', 'item three '),
                 Node('br'),
-                Node('span', u'See, wasn\u2019t that easy?')
+                Node('span', 'See, wasn\u2019t that easy?')
            )]
         )
 
@@ -358,8 +359,8 @@ not quoted at all
 
     def encoding_test(self):
         self._helper(
-            'fran\xc3\xa7aise'.decode('utf8'),
-            [Node('p', Node('span', u'fran\u00e7aise')),]
+            'fran\u00e7aise',
+            [Node('p', Node('span', 'fran\u00e7aise')),]
         )
 
 
@@ -441,7 +442,7 @@ all by themselves
     def test_email_hyperlink(self):
         self._helper("this is someone's e.mail@email.com address",
             [Node('P',
-                Node('span', u"this is someone\u2019s "),
+                Node('span', "this is someone\u2019s "),
                 Node('a', 'e.mail@email.com', attributes={'href':'mailto:e.mail@email.com','class':'external'}),
                 Node('span', ' address'),
             )]
@@ -506,7 +507,7 @@ all by themselves
         self._helper("""Oh my "Gosh," said 'Jonah' and 'Tom.' This "Shure" isn't my idea of Quotes.""",
             [Node('p',
                 Node('span',
-                    u"Oh my \u201cGosh,\u201d said \u2018Jonah\u2019 and \u2018Tom.\u2019 This \u201cShure\u201d isn\u2019t my idea of Quotes."
+                    "Oh my \u201cGosh,\u201d said \u2018Jonah\u2019 and \u2018Tom.\u2019 This \u201cShure\u201d isn\u2019t my idea of Quotes."
                 )
             )]
         )
@@ -516,7 +517,7 @@ all by themselves
         self._helper("""Someone's ``being'' too `clever' with quotes.""",
             [Node('p',
                 Node('span',
-                    u"Someone\u2019s \u201cbeing\u201d too \u2018clever\u2019 with quotes."
+                    "Someone\u2019s \u201cbeing\u201d too \u2018clever\u2019 with quotes."
                 ),
             )]
         )
@@ -526,7 +527,7 @@ all by themselves
         self._helper("Whatever happened -- I wondered -- to Illimunated-Distributed Motherf----ers?",
             [Node('p',
                 Node('span',
-                    u"Whatever happened \u2014 I wondered \u2014 to Illimunated-Distributed Motherf\u2014\u2014ers?",
+                    "Whatever happened \u2014 I wondered \u2014 to Illimunated-Distributed Motherf\u2014\u2014ers?",
                 )
             )]
         )
@@ -536,7 +537,7 @@ all by themselves
         self._helper("what... I think... nevermind.",
             [Node('p',
                 Node('span',
-                    u"what\u2026 I think\u2026 nevermind."
+                    "what\u2026 I think\u2026 nevermind."
                 )
             )]
         )
@@ -633,10 +634,10 @@ all by themselves
         self._helper('<a href="spleengrokes@email.com" target="_blank">Contact Me</a>',
             [Node('p',
                 Node('span', "<a "),
-                Node('a', u"href=\u201cspleengrokes@email.com", attributes={'href':u"mailto:href=\u201cspleengrokes@email.com", 'class':'external'}),
-                Node('span', u"\u201d target=\u201c"),
+                Node('a', "href=\u201cspleengrokes@email.com", attributes={'href':"mailto:href=\u201cspleengrokes@email.com", 'class':'external'}),
+                Node('span', "\u201d target=\u201c"),
                 Node('span', "_"),
-                Node('span', u"blank\u201d"),
+                Node('span', "blank\u201d"),
                 Node('span', ">"),
                 Node('span', "Contact Me</a"),
                 Node('span', ">"),
@@ -645,9 +646,9 @@ all by themselves
 
 
     def test_unicode_email(self):
-        self._helper(u'\u1503@theory.org',
+        self._helper('\u1503@theory.org',
             [Node('p',
-                Node('a', u"\u1503@theory.org", attributes={'href':u"mailto:\u1503@theory.org", 'class':'external'}),
+                Node('a', "\u1503@theory.org", attributes={'href':"mailto:\u1503@theory.org", 'class':'external'}),
             )]
         )
 
@@ -738,7 +739,7 @@ And no more of the list.
 
 
     def test_bulleted_list(self):
-        self._helper(u"""Hello this is a list:
+        self._helper("""Hello this is a list:
 
  \u2022 item is here
  \u2022 item has some  stuff
@@ -943,7 +944,7 @@ Phone:    530-555-1212
                 Node('dd', Node('span', "Braig Crozinsky")),
                 Node('dt', "Location:"),
                 Node('dd', 
-                    Node('span', u"Braig\u2019s Pad "),
+                    Node('span', "Braig\u2019s Pad "),
                     Node('span', "666 Mareclont Avenue, Apt. 6 "),
                     Node('span', "Loakand, CA 94616 US "),
                     Node('span', "View Map"),
@@ -972,7 +973,7 @@ Phone:    530-555-1212
                     Node('dd', Node('span', "Braig Crozinsky")),
                     Node('dt', "Location:"),
                     Node('dd', 
-                        Node('span', u"Braig\u2019s Pad "),
+                        Node('span', "Braig\u2019s Pad "),
                         Node('span', "666 Mareclont Avenue, Apt. 6 "),
                         Node('span', "Loakand, CA 94616 US"),
                     ),
@@ -1007,7 +1008,7 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
                 Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
             ),
             Node('p',
-                Node('span', u"Toady the Wild G-Frog\u2019s wild ride of a lifetime channel tunnel"),
+                Node('span', "Toady the Wild G-Frog\u2019s wild ride of a lifetime channel tunnel"),
             )]
         )
 
@@ -1029,7 +1030,7 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
                     Node('dt', "Hurricane:"),
                     Node('dd', Node('span', "in the ocean, yes, and sometimes in the deep blue sea")),
                 ),
-                Node('p', Node('span', u"Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
+                Node('p', Node('span', "Toady the Wild G-Frog\u2019s ride of a lifetime channel tunnel")),
             )]
         )
 
@@ -1058,7 +1059,7 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         self._helper("About Smuggler's Cove: Nothing",
         [Node('p',
             Node('span', "A"),
-            Node('span', u"bout Smuggler\u2019s Cove: "), 
+            Node('span', "bout Smuggler\u2019s Cove: "), 
             Node('span', "Nothing"),
         )]
         )
@@ -1104,7 +1105,7 @@ Toady the Wild G-Frog's wild ride of a lifetime channel tunnel
         Node('ol', 
             Node('li', Node('span', "I like to read books in the rain")),
             Node('li', Node('span', "Number one sounds silly, I guess it is. I suppose a dry area"), Node('span', " would be a better location.")),
-            Node('li', Node('span', u"I suppose you wouldn\u2019t be surprised to hear I read newspapers"), Node('span', " in the swimming pool.")),
+            Node('li', Node('span', "I suppose you wouldn\u2019t be surprised to hear I read newspapers"), Node('span', " in the swimming pool.")),
             Node('li', Node('span', "Roger"))
         ),
     ])

@@ -12,7 +12,7 @@
 # line           => ( atomic | bold | italic ) +
 # bold           => ( atomic | italic ) +
 # italic         => ( atomic | italic ) +
-
+from __future__ import unicode_literals
 import re, sys
 
 __version__ = '2.1.3'
@@ -59,7 +59,7 @@ youtube_pattern = r'http://(?:www\.)?youtube.com/(?:watch\?)?v=?/?([\w\-]{11})'
 youtube_matcher = re.compile(youtube_pattern, re.IGNORECASE)
 
 # Unicode whitespace, not including newlines
-white = ur'[ \t\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000]'
+white = r'[ \t\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000]'
 
 token_order = (
     TokenMatcher('NEW_LINE'   , r'(\r?\n)(' + white + '*)'), #fuck you, Microsoft!
@@ -73,7 +73,7 @@ token_order = (
     TokenMatcher('DASH'       , '(' + white + '*-' + white + '+)(?=\S+)'             ),
     TokenMatcher('NUMBERED'   , '(' + white + r'*\d+(\.\)?|\))' + white + '+)(?=\S+)'),
     TokenMatcher('ITEMSTAR'   , '(' + white + r'*\*' + white + '+)(?=\S+)'           ),
-    TokenMatcher('BULLET'     , '(' + white + ur'*\u2022' + white + '+)(?=\S+)'      ),
+    TokenMatcher('BULLET'     , '(' + white + r'*\u2022' + white + '+)(?=\S+)'      ),
 
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),
@@ -100,7 +100,7 @@ list_tokens = ('HASH', 'NUMBERED', 'DASH', 'ITEMSTAR', 'BULLET') # for convenien
 class Replacer(object):
 
     def __init__(self, pattern, replace):
-        self.pattern = re.compile(pattern)
+        self.pattern = re.compile(pattern, re.UNICODE)
         self.replace = replace
 
     def sub(self, string):
@@ -183,40 +183,42 @@ class Node(list):
 
 
     def _inner_content(self, strip=True):
-        content = ''
+        content = b''
         for c in self:
             if isinstance(c, Node):
-                new_content = str(c)
-                if content and (content.endswith('>') or new_content.startswith('<')):
-                    content += '\n'
+                new_content = bytes(c)
+                if content and (content.endswith(b'>') or new_content.startswith(b'<')):
+                    content += b'\n'
                 content += new_content
             else:
-                if content and content.endswith('>'):
-                    content += '\n'
+                if content and content.endswith(b'>'):
+                    content += b'\n'
                 content += escape(c).encode(encoding, 'xmlcharrefreplace')
-        content = content.replace('\n', '\n  ')
+        content = content.replace(b'\n', b'\n  ')
         if strip:
             content = content.strip()
         return content
 
 
     def __str__(self):
+        name = bytes(self.name)
         if self.name in ('br','img'): # Also <hr>
             # <br></br> causes double-newlines, so we do this
-            return '<%s%s />' % (self.name, self._attribute_string())
+            return b'<%s%s />' % (name, self._attribute_string())
         elif self.node_children():
-            return '<%s%s>\n  %s\n</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
+            return b'<%s%s>\n  %s\n</%s>' % (name, self._attribute_string(), self._inner_content(), name)
         elif self.name == 'span':
             return self._inner_content(strip=False)
         else:
-            return '<%s%s>%s</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
+            return b'<%s%s>%s</%s>' % (name, self._attribute_string(), self._inner_content(), name)
 
 
     def _attribute_string(self):
-        content = ''
+        content = b''
         if self._attributes:
             for k, v in self._attributes.items():
-                content += ' %s="%s"' % (k, escape(v).encode(encoding, 'xmlcharrefreplace'))
+                content += b' %s="%s"' % (k.encode(encoding), escape(v).encode(encoding, 'xmlcharrefreplace'))
+
         return content
 
 
@@ -687,9 +689,9 @@ class PottyMouth(object):
 
 
     def parse(self, s):
-        if isinstance(s, str):
+        if isinstance(s, bytes):
             s = s.decode(encoding)
-        assert isinstance(s, unicode), "PottyMouth input must be unicode or str types"
+        assert isinstance(s, unicode), "PottyMouth input must be unicode or bytes types"
 
         s = self.pre_replace(s)
 
