@@ -6,9 +6,9 @@ from pottymouth import PottyMouth, Node, Token
 import nose
 
 
-class TestPottyMouth(object):
+class TestPottyMouth(unittest.TestCase):
 
-    def setup(self):
+    def setUp(self):
         self.parser = PottyMouth(
             url_check_domains=('mysite.com',),
             url_white_lists=(
@@ -19,8 +19,8 @@ class TestPottyMouth(object):
 
 
     def test_repr(self):
-        assert repr(self.parser.parse(u"foo • bar")) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]", repr(self.parser.parse(u"foo • bar"))
-        assert repr(self.parser.parse(u"foo • bar".encode('utf8'))) == "[[[TEXT{u'foo'}], [BULLET{u' \u2022 '}], [TEXT{u'bar'}]]]"
+        self.assertEquals(repr(self.parser.parse(u"foo • bar")), "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
+        self.assertEquals(repr(self.parser.parse(u"foo • bar".encode('utf8'))), "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
 
 
     def _helper(self, source, expected):
@@ -33,7 +33,7 @@ class TestPottyMouth(object):
             result = list(d.compare(expected.split('\n'), generated.split('\n')))
             print '\n'.join(result)
             print source.encode('utf8')
-            assert generated == expected
+            self.assertEquals(generated, expected)
 
 
     def test_some_paragraphs(self):
@@ -1165,7 +1165,7 @@ Qi: Not a name at all
         self._helper('\n\t\n\n', [])
 
     def test_tokenizer(self):
-        assert(self.parser.tokenize("A *BOLD* thing") == [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
+        self.assertEquals(self.parser.tokenize("A *BOLD* thing"), [Token('TEXT', 'A '), Token('STAR', '*'), Token('TEXT', 'BOLD'), Token('ITEMSTAR', '* '), Token('TEXT', 'thing'),])
 
 
 
