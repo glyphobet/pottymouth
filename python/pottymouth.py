@@ -149,9 +149,6 @@ class Token(unicode):
     def __add__(self, extra):
         return Token(self.name, super(Token, self).__add__(extra))
 
-    def __str__(self):
-        return self.encode(encoding, 'xmlcharrefreplace')
-
 
 
 # escape() is made available to calling code in case it needs to
