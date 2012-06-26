@@ -356,12 +356,7 @@ class PottyMouth(object):
                         break
 
                     if unmatched_collection:
-                        try:
-                            found_tokens.append(Token('TEXT', unmatched_collection))
-                        except UnicodeDecodeError:
-                            found_tokens.append(Token('TEXT', unmatched_collection.decode('utf8')))
-                        except:
-                            raise
+                        found_tokens.append(Token('TEXT', unmatched_collection))
 
                     unmatched_collection = ''
 
