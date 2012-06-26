@@ -1,5 +1,5 @@
 # Run with:
-# % python generate_javascript_tests.py > ../javascript/newtest.js && diffmerge ../javascript/test.js ../javascript/newtest.js
+# % python generate_javascript_tests.py > ../javascript/generated_tests.js
 import inspect
 from pottymouth import Node
 from test import basic_tests
