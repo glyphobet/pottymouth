@@ -2,7 +2,7 @@
 # % python generate_javascript_tests.py > ../javascript/generated_tests.js
 import inspect
 from pottymouth import Node
-from test import basic_tests
+from tests import basic_tests
 
 class JavaScriptTestGenerator(basic_tests):
     def _helper(self, source, expected):
