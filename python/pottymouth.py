@@ -440,7 +440,7 @@ class PottyMouth(object):
                     newi.extend(collect)
                     return [newi]
                 else:
-                    return [str(t)*2]
+                    return [t*2]
             else:
                 break
 
@@ -465,7 +465,7 @@ class PottyMouth(object):
                     newb.extend(collect)
                     return [newb]
                 else:
-                    return [str(t)*2]
+                    return [t*2]
             else:
                 break
 
