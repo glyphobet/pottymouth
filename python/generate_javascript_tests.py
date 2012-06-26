@@ -5,6 +5,9 @@ from pottymouth import Node
 from tests import TestPottyMouth
 
 class JavaScriptTestGenerator(TestPottyMouth):
+
+    def runTest(self, *a, **kw): pass # I am a fake method
+
     def _helper(self, source, expected):
         if isinstance(source, str):
             source = source.decode('utf8')
