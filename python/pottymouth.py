@@ -597,8 +597,8 @@ class PottyMouth(object):
                 length += self.calculate_line_length(i)
             elif isinstance(i, unicode):
                 length += len(i)
-            else:
-                raise Exception("Don't know what to do with line element of type %r" % (type(i)))
+            else: # pragma: no cover # this should never happen, so we don't cover it in the tests
+                raise TypeError("Don't know what to do with line element of type %r" % (type(i)))
         return length
 
 
