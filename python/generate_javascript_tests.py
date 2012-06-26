@@ -2,9 +2,9 @@
 # % python generate_javascript_tests.py > ../javascript/generated_tests.js
 import inspect
 from pottymouth import Node
-from tests import basic_tests
+from tests import TestPottyMouth
 
-class JavaScriptTestGenerator(basic_tests):
+class JavaScriptTestGenerator(TestPottyMouth):
     def _helper(self, source, expected):
         if isinstance(source, str):
             source = source.decode('utf8')

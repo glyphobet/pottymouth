@@ -6,7 +6,7 @@ from pottymouth import PottyMouth, Node, Token
 import nose
 
 
-class basic_tests(object):
+class TestPottyMouth(object):
 
     def setup(self):
         self.parser = PottyMouth(
