@@ -637,9 +637,7 @@ class PottyMouth(object):
                     break
             else:
                 line = self.parse_line(tokens)
-                if not line:
-                    break
-                elif self.calculate_line_length(line) < short_line_length:
+                if self.calculate_line_length(line) < short_line_length:
                     shorts.append(line)
                 else:
                     p.extend(parse_shorts(shorts, line))
