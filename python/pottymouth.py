@@ -15,7 +15,7 @@
 from __future__ import unicode_literals
 import re, sys
 
-__version__ = '2.1.3'
+__version__ = '2.2.0'
 short_line_length = 50
 encoding = 'utf8' # Default output encoding
 
