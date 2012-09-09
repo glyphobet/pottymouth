@@ -15,7 +15,7 @@ setup(name='PottyMouth',
       version=__version__,
       data_files=[('share/doc/python-pottymouth', ['readme.html',
                                                    'LICENSE.txt',
-                                                   'test.py'    ,
+                                                   'tests.py'    ,
                                                    'web.py'     ,
                                                    'profile.py' ,]),],
       # metadata for fun
