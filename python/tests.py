@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import nose
+import unittest
 from difflib import Differ
 from pottymouth import PottyMouth, Node, Token
-import nose
 
 
 class TestPottyMouth(unittest.TestCase):
