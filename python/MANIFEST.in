@@ -2,7 +2,7 @@ include readme.html
 include LICENSE.txt
 include profile.py
 include setup.py
-include test.py
+include tests.py
 include web.py
 include debian/changelog
 include debian/control
