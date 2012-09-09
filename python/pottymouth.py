@@ -252,7 +252,7 @@ class EmailNode(URLNode):
 class ImageNode(Node):
 
     def __init__(self, content):
-        Node.__init__(self, 'img', '', attributes={'src':content})
+        Node.__init__(self, 'img', u'', attributes={'src':content})
 
 
 
@@ -437,11 +437,11 @@ class PottyMouth(object):
                     newi.extend(collect)
                     return [newi]
                 else:
-                    return [t*2]
+                    return [unicode(t)*2]
             else:
                 break
 
-        return [Node('span', '_')] + collect
+        return [Node('span', u'_')] + collect
 
 
     def parse_bold(self, tokens, inner=False):
@@ -462,11 +462,11 @@ class PottyMouth(object):
                     newb.extend(collect)
                     return [newb]
                 else:
-                    return [t*2]
+                    return [unicode(t)*2]
             else:
                 break
 
-        return [Node('span', '*')] + collect
+        return [Node('span', u'*')] + collect
 
 
     def parse_line(self, tokens):
