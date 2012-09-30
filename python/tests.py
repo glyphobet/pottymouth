@@ -32,8 +32,8 @@ class TestPottyMouth(unittest.TestCase):
         if generated != expected:
             d = Differ()
             result = list(d.compare(expected.split(b'\n'), generated.split(b'\n')))
-            print b'\n'.join(result)
-            print source.encode('utf8')
+            print(b'\n'.join(result))
+            print(source.encode('utf8'))
             self.assertEquals(generated, expected)
 
 
@@ -1174,6 +1174,6 @@ if __name__ == '__main__':
     try:
         from nose.core import runmodule
     except ImportError:
-        print "Usage: nosetests test"
+        print("Usage: nosetests test")
     else:
         runmodule()
