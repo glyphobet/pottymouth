@@ -26,9 +26,9 @@ class TestPottyMouth(unittest.TestCase):
 
     def _helper(self, source, expected):
         blocks = self.parser.parse(source)
-        generated = b'\n'.join(map(bytes, blocks))
+        generated = b'\n'.join([bytes(b) for b in blocks])
         if isinstance(expected, list):
-            expected  = b'\n'.join(map(bytes, expected))
+            expected  = b'\n'.join([bytes(b) for b in expected])
         if generated != expected:
             d = Differ()
             result = list(d.compare(expected.split(b'\n'), generated.split(b'\n')))
