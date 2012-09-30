@@ -15,6 +15,10 @@
 from __future__ import unicode_literals
 import re, sys
 
+if sys.version_info >= (3,):
+    unichr = chr
+    unicode = str
+
 __version__ = '2.2.1'
 short_line_length = 50
 encoding = 'utf8' # Default output encoding
@@ -198,7 +202,7 @@ class Node(list):
 
 
     def __str__(self):
-        name = bytes(self.name)
+        name = self.name.encode('ascii')
         if self.name in ('br','img'): # Also <hr>
             # <br></br> causes double-newlines, so we do this
             return b'<%s%s />' % (name, self._attribute_string())
