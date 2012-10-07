@@ -21,7 +21,6 @@ if sys.version_info >= (3,):
 
 __version__ = '2.2.1'
 short_line_length = 50
-encoding = 'utf8' # Default output encoding
 
 
 class TokenMatcher(object):
@@ -693,9 +692,7 @@ class PottyMouth(object):
 
 
     def parse(self, s):
-        if isinstance(s, bytes):
-            s = s.decode(encoding)
-        assert isinstance(s, unicode), "PottyMouth input must be unicode or bytes types"
+        assert isinstance(s, unicode), "PottyMouth input must be unicode type"
 
         s = self.pre_replace(s)
 

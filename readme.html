@@ -653,11 +653,7 @@ print div_node</pre>
 
       <p>All of these options are enabled by default. You only need to pass <code>foo=False</code> if you wish to disable one.</p>
 
-      <p>By default PottyMouth generates UTF-8 encoded xHTML fragments. If you want a different encoding, set the module-level <code>encoding</code> configuration variable:</p> 
-
-      <pre>PottyMouth.encoding = 'ascii'</pre>
-
-      <p>Any characters that cannot be encoded using the configured encoding will be replaced with numeric HTML entities.</p>
+      <p>Any non-ASCII characters in the input will be replaced with numeric HTML entities in the output.</p>
 
       <h4 id="javascript_usage">Javascript Usage</h4>
 

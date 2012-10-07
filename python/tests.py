@@ -22,14 +22,10 @@ class TestPottyMouth(unittest.TestCase):
 
     def test_repr(self):
         if sys.version_info >= (3,):
-            self.assertEquals(repr(self.parser.parse("foo • bar")), 
-                "[[[TEXT{'foo'}], [BULLET{' • '}], [TEXT{'bar'}]]]")
-            self.assertEquals(repr(self.parser.parse("foo • bar".encode('utf8'))), 
+            self.assertEquals(repr(self.parser.parse("foo • bar")),
                 "[[[TEXT{'foo'}], [BULLET{' • '}], [TEXT{'bar'}]]]")
         else:
-            self.assertEquals(repr(self.parser.parse("foo • bar")), 
-                "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
-            self.assertEquals(repr(self.parser.parse("foo • bar".encode('utf8'))), 
+            self.assertEquals(repr(self.parser.parse("foo • bar")),
                 "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
 
 
