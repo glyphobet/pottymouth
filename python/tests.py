@@ -17,7 +17,7 @@ class TestPottyMouth(unittest.TestCase):
                 'https?://mysite\.com/allowed/service',
                 'https?://mysite\.com/safe/url',
             ),
-       )
+        )
 
 
     def test_repr(self):
