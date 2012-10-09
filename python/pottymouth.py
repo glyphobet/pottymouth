@@ -11,7 +11,7 @@
 # paragraph      => line + newline newline
 # line           => ( atomic | bold | italic ) +
 # bold           => ( atomic | italic ) +
-# italic         => ( atomic | italic ) +
+# italic         => ( atomic | bold   ) +
 from __future__ import unicode_literals
 import re, sys
 
