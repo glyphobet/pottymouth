@@ -11,13 +11,16 @@
 # paragraph      => line + newline newline
 # line           => ( atomic | bold | italic ) +
 # bold           => ( atomic | italic ) +
-# italic         => ( atomic | italic ) +
+# italic         => ( atomic | bold   ) +
 from __future__ import unicode_literals
 import re, sys
 
+if sys.version_info >= (3,):
+    unichr = chr
+    unicode = str
+
 __version__ = '2.2.1'
 short_line_length = 50
-encoding = 'utf8' # Default output encoding
 
 
 class TokenMatcher(object):
@@ -180,41 +183,51 @@ class Node(list):
 
 
     def _inner_content(self, strip=True):
-        content = b''
+        content = ''
         for c in self:
             if isinstance(c, Node):
-                new_content = bytes(c)
-                if content and (content.endswith(b'>') or new_content.startswith(b'<')):
-                    content += b'\n'
+                new_content = str(c)
+                if content and (content.endswith('>') or new_content.startswith('<')):
+                    content += '\n'
                 content += new_content
             else:
-                if content and content.endswith(b'>'):
-                    content += b'\n'
-                content += escape(c).encode(encoding, 'xmlcharrefreplace')
-        content = content.replace(b'\n', b'\n  ')
+                if content and content.endswith('>'):
+                    content += '\n'
+                content += escape(c)
+        content = content.replace('\n', '\n  ')
         if strip:
             content = content.strip()
         return content
 
 
-    def __str__(self):
-        name = bytes(self.name)
+    def __unicode__(self):
         if self.name in ('br','img'): # Also <hr>
             # <br></br> causes double-newlines, so we do this
-            return b'<%s%s />' % (name, self._attribute_string())
+            return '<%s%s />' % (self.name, self._attribute_string())
         elif self.node_children():
-            return b'<%s%s>\n  %s\n</%s>' % (name, self._attribute_string(), self._inner_content(), name)
+            return '<%s%s>\n  %s\n</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
         elif self.name == 'span':
             return self._inner_content(strip=False)
         else:
-            return b'<%s%s>%s</%s>' % (name, self._attribute_string(), self._inner_content(), name)
+            return '<%s%s>%s</%s>' % (self.name, self._attribute_string(), self._inner_content(), self.name)
+
+
+    def __bytes__(self):
+        return self.__unicode__().encode('ascii', 'xmlcharrefreplace')
+
+
+    def __str__(self):
+        if sys.version_info < (3,):
+            return self.__bytes__()
+        else:
+            return self.__unicode__()
 
 
     def _attribute_string(self):
-        content = b''
+        content = ''
         if self._attributes:
             for k, v in self._attributes.items():
-                content += b' %s="%s"' % (k.encode(encoding), escape(v).encode(encoding, 'xmlcharrefreplace'))
+                content += ' %s="%s"' % (k, escape(v))
 
         return content
 
@@ -679,9 +692,7 @@ class PottyMouth(object):
 
 
     def parse(self, s):
-        if isinstance(s, bytes):
-            s = s.decode(encoding)
-        assert isinstance(s, unicode), "PottyMouth input must be unicode or bytes types"
+        assert isinstance(s, unicode), "PottyMouth input must be unicode type"
 
         s = self.pre_replace(s)
 
@@ -697,7 +708,7 @@ if __name__ == '__main__': # pragma: no cover
     def parse_and_print(w, text):
         blocks = w.parse(text)
         for b in blocks:
-            print b
+            print(b)
 
     w = PottyMouth(url_check_domains=('www.mysite.com', 'mysite.com'),
                    url_white_lists=('https?://www\.mysite\.com/allowed/url\?id=\d+',),
@@ -709,7 +720,7 @@ if __name__ == '__main__': # pragma: no cover
     elif len(sys.argv) >= 2:
         # simple command line processing of file names
         for i, filename in enumerate(sys.argv[1:]):
-            if i: print '=' * 70
+            if i: print('=' * 70)
             fileobj = open(filename, 'r')  # Assume native encoding
             text = fileobj.read()
             fileobj.close()
@@ -722,7 +733,7 @@ if __name__ == '__main__': # pragma: no cover
 
     while True:
         # read-eval-print loop
-        print 'input (end with %s)>>' % EOF_DESCRIPTION
+        print('input (end with %s)>>' % EOF_DESCRIPTION)
         try:
             text = sys.stdin.read()
         except KeyboardInterrupt:

@@ -38,6 +38,10 @@ PottyMouth is designed to handle input text from non-technical, potentially care
                    'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
                    'Programming Language :: Python :: 2.6',
                    'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3.3',
+                   'Programming Language :: Python :: Implementation',
+                   'Programming Language :: Python :: Implementation :: CPython',
+                   'Programming Language :: Python :: Implementation :: PyPy',
                    ],
       platforms='All',
       )

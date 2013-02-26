@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import sys
 import nose
 import unittest
 from difflib import Differ
@@ -16,24 +17,28 @@ class TestPottyMouth(unittest.TestCase):
                 'https?://mysite\.com/allowed/service',
                 'https?://mysite\.com/safe/url',
             ),
-       )
+        )
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.parser.parse("foo • bar")), "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
-        self.assertEquals(repr(self.parser.parse("foo • bar".encode('utf8'))), "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
+        if sys.version_info >= (3,):
+            self.assertEquals(repr(self.parser.parse("foo • bar")),
+                "[[[TEXT{'foo'}], [BULLET{' • '}], [TEXT{'bar'}]]]")
+        else:
+            self.assertEquals(repr(self.parser.parse("foo • bar")),
+                "[[[TEXT{u'foo'}], [BULLET{u' \\u2022 '}], [TEXT{u'bar'}]]]")
 
 
     def _helper(self, source, expected):
         blocks = self.parser.parse(source)
-        generated = b'\n'.join(map(bytes, blocks))
+        generated = b'\n'.join([bytes(b) for b in blocks])
         if isinstance(expected, list):
-            expected  = b'\n'.join(map(bytes, expected))
+            expected  = b'\n'.join([bytes(b) for b in expected])
         if generated != expected:
             d = Differ()
-            result = list(d.compare(expected.split(b'\n'), generated.split(b'\n')))
-            print b'\n'.join(result)
-            print source.encode('utf8')
+            result = list(d.compare(expected.decode('utf8').split('\n'), generated.decode('utf8').split('\n')))
+            print('\n'.join(result))
+            print(source.encode('utf8'))
             self.assertEquals(generated, expected)
 
 
@@ -1174,6 +1179,6 @@ if __name__ == '__main__':
     try:
         from nose.core import runmodule
     except ImportError:
-        print "Usage: nosetests test"
+        print("Usage: nosetests test")
     else:
         runmodule()
