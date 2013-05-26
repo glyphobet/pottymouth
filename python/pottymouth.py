@@ -169,6 +169,15 @@ def escape(string):
 
 
 
+def add_str_method(cls):
+    if sys.version_info[0] <= 2:
+        cls.__str__ = cls.__bytes__
+    else:
+        cls.__str__ = cls.__unicode__
+    return cls
+
+
+@add_str_method
 class Node(list):
 
     def __init__(self, name, *contents, **kw):
@@ -217,13 +226,6 @@ class Node(list):
 
     def __bytes__(self):
         return self.__unicode__().encode('ascii', 'xmlcharrefreplace')
-
-
-    def __str__(self):
-        if sys.version_info < (3,):
-            return self.__bytes__()
-        else:
-            return self.__unicode__()
 
 
     def _attribute_string(self):
