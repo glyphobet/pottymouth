@@ -13,7 +13,8 @@
 # bold           => ( atomic | italic ) +
 # italic         => ( atomic | bold   ) +
 from __future__ import unicode_literals
-import re, sys
+import re
+import sys
 
 if sys.version_info >= (3,):
     unichr = chr
@@ -38,14 +39,15 @@ protocol_pattern = re.compile(r'^\w+://', re.IGNORECASE)
 
 domain_pattern = r"([-\w]+\.)+\w\w+"
 
-_URI_pattern = ("(("                                     +
-               r"(https?|webcal|feed|ftp|news|nntp)://" + # protocol
-               r"([-\w]+(:[-\w]+)?@)?"                  + # authentication
-               r")|www\.)"                              + # or just www.
-               domain_pattern                           + # domain
-               r'(:\d+)?'                               + # port number
-               r"(/([-\w$\.+!*'(),;:@%&=?/~#]*[-\w$+*(@%&=/~#])?)?" # path
-               )
+_URI_pattern = (
+    "(("
+    r"(https?|webcal|feed|ftp|news|nntp)://"              # protocol
+    r"([-\w]+(:[-\w]+)?@)?"                               # authentication
+    r")|www\.)"                                           # or just www.
+    + domain_pattern +                                    # domain
+    r'(:\d+)?'                                            # port number
+    r"(/([-\w$\.+!*'(),;:@%&=?/~#]*[-\w$+*(@%&=/~#])?)?"  # path
+)
 
 URI_pattern = _URI_pattern
 
@@ -65,7 +67,7 @@ youtube_matcher = re.compile(youtube_pattern, re.IGNORECASE)
 white = r'[ \t\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000]'
 
 token_order = (
-    TokenMatcher('NEW_LINE'   , r'(\r?\n)(' + white + '*)'), #fuck you, Microsoft!
+    TokenMatcher('NEW_LINE'   , r'(\r?\n)(' + white + '*)'),  # fuck you, Microsoft!
     # INDENT token is created when the second group in NEW_LINE pattern matches
     TokenMatcher('YOUTUBE'    , '('+youtube_pattern+')'),
     TokenMatcher('IMAGE'      , '('+image_pattern  +')'),
@@ -76,7 +78,7 @@ token_order = (
     TokenMatcher('DASH'       , '(' + white + '*-' + white + '+)(?=\S+)'             ),
     TokenMatcher('NUMBERED'   , '(' + white + r'*\d+(\.\)?|\))' + white + '+)(?=\S+)'),
     TokenMatcher('ITEMSTAR'   , '(' + white + r'*\*' + white + '+)(?=\S+)'           ),
-    TokenMatcher('BULLET'     , '(' + white + r'*\u2022' + white + '+)(?=\S+)'      ),
+    TokenMatcher('BULLET'     , '(' + white + r'*\u2022' + white + '+)(?=\S+)'       ),
 
     TokenMatcher('UNDERSCORE' , r'(_)' ),
     TokenMatcher('STAR'       , r'(\*)'),
@@ -92,9 +94,10 @@ token_order = (
 
     TokenMatcher('ELLIPSIS', r'(\.\.\.)', replace=unichr(8230)),
     #TokenMatcher('SMILEY' , r'(:\))'   , replace=unichr(9786)), # smiley face, not in HTML 4.01, doesn't work in IE
-    )
+)
 
-list_tokens = ('HASH', 'NUMBERED', 'DASH', 'ITEMSTAR', 'BULLET') # for convenience only
+list_tokens = ('HASH', 'NUMBERED', 'DASH', 'ITEMSTAR', 'BULLET')  # for convenience only
+
 
 # The "Replacers" are context sensitive replacements, therefore they
 # must be applied in-line to the string as a whole before tokenizing.
@@ -115,25 +118,25 @@ smart_quote_replacers = [
     Replacer(r"('')", unichr(8221)),
 
     # First we look for inter-word " and '
-    Replacer(r'(\b"\b)', unichr(34)), # double prime
-    Replacer(r"(\b'\b)", unichr(8217)), # apostrophe
+    Replacer(r'(\b"\b)', unichr(34)),    # double prime
+    Replacer(r"(\b'\b)", unichr(8217)),  # apostrophe
     # Then we look for opening or closing " and '
-    Replacer(r'(\b"\B)', unichr(8221)), # close double quote
-    Replacer(r'(\B"\b)', unichr(8220)), # open double quote
-    Replacer(r"(\b'\B)", unichr(8217)), # close single quote
-    Replacer(r"(\B'\b)", unichr(8216)), # open single quote
+    Replacer(r'(\b"\B)', unichr(8221)),  # close double quote
+    Replacer(r'(\B"\b)', unichr(8220)),  # open double quote
+    Replacer(r"(\b'\B)", unichr(8217)),  # close single quote
+    Replacer(r"(\B'\b)", unichr(8216)),  # open single quote
 
     # Then we look for space-padded opening or closing " and '
-    Replacer(r'(")(\s)', unichr(8221)+r'\2'), # close double quote
-    Replacer(r'(\s)(")', r'\1'+unichr(8220)), # open double quote 
-    Replacer(r"(')(\s)", unichr(8217)+r'\2'), # close single quote
-    Replacer(r"(\s)(')", r'\1'+unichr(8216)), # open single quote
+    Replacer(r'(")(\s)', unichr(8221)+r'\2'),  # close double quote
+    Replacer(r'(\s)(")', r'\1'+unichr(8220)),  # open double quote
+    Replacer(r"(')(\s)", unichr(8217)+r'\2'),  # close single quote
+    Replacer(r"(\s)(')", r'\1'+unichr(8216)),  # open single quote
 
     # Then we gobble up stand-alone ones
     Replacer(r'(`)', unichr(8216)),
     #Replacer(r'(")', unichr(8221)),
     #Replacer(r"(')", unichr(8217)),
-    ]
+]
 
 
 
@@ -201,7 +204,7 @@ class Node(list):
 
 
     def __unicode__(self):
-        if self.name in ('br','img'): # Also <hr>
+        if self.name in ('br', 'img'):  # Also <hr>
             # <br></br> causes double-newlines, so we do this
             return '<%s%s />' % (self.name, self._attribute_string())
         elif self.node_children():
@@ -274,40 +277,40 @@ class ImageNode(Node):
 class YouTubeNode(Node):
 
     def __init__(self, content):
-        Node.__init__(self, 'object', attributes={'width':'425', 'height':'350',})
+        Node.__init__(self, 'object', attributes={'width': '425', 'height': '350'})
 
         ytid = youtube_matcher.match(content).groups()[0]
         url = 'http://www.youtube.com/v/'+ytid
 
         self.append(Node(name='param',
-                         attributes={'name':'movie', 'value':url,}))
+                         attributes={'name': 'movie', 'value': url}))
         self.append(Node('param',
-                         attributes={'name':'wmode', 'value':'transparent',}))
+                         attributes={'name': 'wmode', 'value': 'transparent'}))
         self.append(Node('embed',
-                         attributes={'type':'application/x-shockwave-flash',
-                                     'wmode':'transparent','src':url,
-                                     'width':'425', 'height':'350',}))
+                         attributes={'type': 'application/x-shockwave-flash',
+                                     'wmode': 'transparent', 'src': url,
+                                     'width': '425', 'height': '350'}))
 
 
 
 class PottyMouth(object):
 
     def __init__(self, url_check_domains=(), url_white_lists=(),
-                 all_links=True,      # disables all URL hyperlinking
-                 image=True,          # disables <img> tags for image URLs
-                 youtube=True,        # disables YouTube embedding
-                 email=True,          # disables mailto:email@site.com URLs
-                 all_lists=True,      # disables all lists (<ol> and <ul>)
-                 unordered_list=True, # disables all unordered lists (<ul>)
-                 ordered_list=True,   # disables all ordered lists (<ol>)
-                 numbered_list=True,  # disables '\d+\.' lists 
-                 blockquote=True,     # disables '>' <blockquote>s
-                 definition_list=True,# disables all definition lists (<dl>)
-                 bold=True,           # disables *bold*
-                 italic=True,         # disables _italics_
-                 emdash=True,         # disables -- emdash
-                 ellipsis=True,       # disables ... ellipsis
-                 smart_quotes=True,   # disables smart quotes
+                 all_links=True,        # disables all URL hyperlinking
+                 image=True,            # disables <img> tags for image URLs
+                 youtube=True,          # disables YouTube embedding
+                 email=True,            # disables mailto:email@site.com URLs
+                 all_lists=True,        # disables all lists (<ol> and <ul>)
+                 unordered_list=True,   # disables all unordered lists (<ul>)
+                 ordered_list=True,     # disables all ordered lists (<ol>)
+                 numbered_list=True,    # disables '\d+\.' lists
+                 blockquote=True,       # disables '>' <blockquote>s
+                 definition_list=True,  # disables all definition lists (<dl>)
+                 bold=True,             # disables *bold*
+                 italic=True,           # disables _italics_
+                 emdash=True,           # disables -- emdash
+                 ellipsis=True,         # disables ... ellipsis
+                 smart_quotes=True,     # disables smart quotes
                  ):
 
         self._url_check_domain = None
@@ -315,7 +318,7 @@ class PottyMouth(object):
             self._url_check_domain = re.compile('(\w+://)?((' + ')|('.join(url_check_domains) + '))',
                                                 flags=re.I)
 
-        self._url_white_lists  = [re.compile(w) for w in url_white_lists]
+        self._url_white_lists = [re.compile(w) for w in url_white_lists]
 
         self.replacer_list = []
         if smart_quotes:
@@ -324,20 +327,20 @@ class PottyMouth(object):
         self.token_list = []
         for t in token_order:
             n = t.name
-            if   n in ('URL','IMAGE','YOUTUBE','EMAIL'             ) and not all_links      : continue
-            elif n == 'IMAGE'                                        and not image          : continue
-            elif n == 'YOUTUBE'                                      and not youtube        : continue
-            elif n == 'EMAIL'                                        and not email          : continue
-            elif n in ('HASH','DASH','NUMBERED','ITEMSTAR','BULLET') and not all_lists      : continue
-            elif n in ('DASH','ITEMSTAR','BULLET'                  ) and not unordered_list : continue
-            elif n in ('HASH','NUMBERED'                           ) and not ordered_list   : continue
-            elif n == 'DEFINITION'                                   and not definition_list: continue
-            elif n == 'NUMBERED'                                     and not numbered_list  : continue
-            elif n == 'STAR'                                         and not bold           : continue
-            elif n == 'UNDERSCORE'                                   and not italic         : continue
-            elif n == 'RIGHT_ANGLE'                                  and not blockquote     : continue
-            elif n == 'EMDASH'                                       and not emdash         : continue
-            elif n == 'ELLIPSIS'                                     and not ellipsis       : continue
+            if   n in ('URL', 'IMAGE', 'YOUTUBE', 'EMAIL'              ) and not all_links      : continue
+            elif n == 'IMAGE'                                            and not image          : continue
+            elif n == 'YOUTUBE'                                          and not youtube        : continue
+            elif n == 'EMAIL'                                            and not email          : continue
+            elif n in ('HASH', 'DASH', 'NUMBERED', 'ITEMSTAR', 'BULLET') and not all_lists      : continue
+            elif n in ('DASH', 'ITEMSTAR', 'BULLET'                    ) and not unordered_list : continue
+            elif n in ('HASH', 'NUMBERED'                              ) and not ordered_list   : continue
+            elif n == 'DEFINITION'                                       and not definition_list: continue
+            elif n == 'NUMBERED'                                         and not numbered_list  : continue
+            elif n == 'STAR'                                             and not bold           : continue
+            elif n == 'UNDERSCORE'                                       and not italic         : continue
+            elif n == 'RIGHT_ANGLE'                                      and not blockquote     : continue
+            elif n == 'EMDASH'                                           and not emdash         : continue
+            elif n == 'ELLIPSIS'                                         and not ellipsis       : continue
 
             self.token_list.append(t)
 
@@ -612,7 +615,7 @@ class PottyMouth(object):
                 length += self.calculate_line_length(i)
             elif isinstance(i, unicode):
                 length += len(i)
-            else: # pragma: no cover # this should never happen, so we don't cover it in the tests
+            else:  # pragma: no cover # this should never happen, so we don't cover it in the tests
                 raise TypeError("Don't know what to do with line element of type %r" % (type(i)))
         return length
 
@@ -704,7 +707,7 @@ class PottyMouth(object):
 
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     def parse_and_print(w, text):
         blocks = w.parse(text)
         for b in blocks:
